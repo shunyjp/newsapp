@@ -72,7 +72,14 @@ class NewsPipeline:
         limit: int | None = None,
     ) -> list[dict[str, Any]]:
         videos = fetch_videos(query=query, channel_id=channel_id, limit=limit or 5)
-        if self.skip_existing_videos:
+        return self.run_with_videos(videos)
+
+    def run_with_videos(
+        self,
+        videos: list[dict[str, Any]],
+        apply_skip_existing: bool = True,
+    ) -> list[dict[str, Any]]:
+        if apply_skip_existing and self.skip_existing_videos:
             videos = [
                 video for video in videos if not self.db.video_exists(video["video_id"])
             ]
@@ -94,6 +101,7 @@ class NewsPipeline:
             transcript_payload = {
                 "text": video["description"].strip(),
                 "source": "api_description",
+                "diagnostics": transcript_payload.get("diagnostics", {}),
             }
             cleaned_text = clean_text(transcript_payload["text"])
             self.db.upsert_transcript(video["video_id"], transcript_payload["text"], cleaned_text)
@@ -107,6 +115,15 @@ class NewsPipeline:
         metadata_only_reason = self._determine_metadata_only_reason(
             transcript_payload,
             has_content,
+        )
+        content_status = "available" if has_content else "unavailable"
+        content_warning = "" if has_content else self._build_content_warning(metadata_only_reason)
+        self.db.update_video_content_metadata(
+            video["video_id"],
+            content_status=content_status,
+            content_warning=content_warning,
+            metadata_only_reason=metadata_only_reason,
+            retrieval_diagnostics=transcript_payload.get("diagnostics", {}),
         )
         stored_chunks, reused_chunks = self._resolve_chunks(video["video_id"], cleaned_text)
         chunk_summaries, reused_all_chunk_summaries = self._resolve_chunk_summaries(
@@ -139,8 +156,8 @@ class NewsPipeline:
             "url": video["url"],
             "transcript_source": transcript_payload["source"],
             "transcript_length": len(transcript_payload.get("text", "")),
-            "content_status": "available" if has_content else "unavailable",
-            "content_warning": "" if has_content else self._build_content_warning(metadata_only_reason),
+            "content_status": content_status,
+            "content_warning": content_warning,
             "metadata_only_reason": metadata_only_reason,
             "retrieval_diagnostics": transcript_payload.get("diagnostics", {}),
             "cleaned_text": cleaned_text,

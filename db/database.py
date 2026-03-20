@@ -5,6 +5,13 @@ from typing import Any
 
 
 class Database:
+    VIDEO_COLUMN_MIGRATIONS = {
+        "content_status": "ALTER TABLE videos ADD COLUMN content_status TEXT",
+        "content_warning": "ALTER TABLE videos ADD COLUMN content_warning TEXT",
+        "metadata_only_reason": "ALTER TABLE videos ADD COLUMN metadata_only_reason TEXT",
+        "retrieval_diagnostics": "ALTER TABLE videos ADD COLUMN retrieval_diagnostics TEXT",
+    }
+
     def __init__(self, db_path: str, schema_path: str) -> None:
         self.db_path = Path(db_path)
         self.schema_path = Path(schema_path)
@@ -22,6 +29,14 @@ class Database:
             connection.execute("PRAGMA journal_mode = WAL;")
             connection.execute("PRAGMA synchronous = NORMAL;")
             connection.executescript(schema_sql)
+            self._migrate_videos_table(connection)
+
+    def _migrate_videos_table(self, connection: sqlite3.Connection) -> None:
+        rows = connection.execute("PRAGMA table_info(videos)").fetchall()
+        existing_columns = {row["name"] for row in rows}
+        for column_name, alter_sql in self.VIDEO_COLUMN_MIGRATIONS.items():
+            if column_name not in existing_columns:
+                connection.execute(alter_sql)
 
     def upsert_video(self, video: dict[str, Any]) -> None:
         with self._connect() as connection:
@@ -69,6 +84,34 @@ class Database:
                 WHERE video_id = ?
                 """,
                 (transcript_source, transcript_length, video_id),
+            )
+
+    def update_video_content_metadata(
+        self,
+        video_id: str,
+        content_status: str,
+        content_warning: str,
+        metadata_only_reason: str,
+        retrieval_diagnostics: dict[str, Any],
+    ) -> None:
+        with self._connect() as connection:
+            connection.execute(
+                """
+                UPDATE videos
+                SET
+                    content_status = ?,
+                    content_warning = ?,
+                    metadata_only_reason = ?,
+                    retrieval_diagnostics = ?
+                WHERE video_id = ?
+                """,
+                (
+                    content_status,
+                    content_warning,
+                    metadata_only_reason,
+                    json.dumps(retrieval_diagnostics, ensure_ascii=False),
+                    video_id,
+                ),
             )
 
     def upsert_transcript(self, video_id: str, raw_text: str, cleaned_text: str) -> None:
@@ -244,6 +287,10 @@ class Database:
                     COALESCE(v.description, '') AS description,
                     COALESCE(v.transcript_source, '') AS transcript_source,
                     COALESCE(v.transcript_length, 0) AS transcript_length,
+                    COALESCE(v.content_status, '') AS content_status,
+                    COALESCE(v.content_warning, '') AS content_warning,
+                    COALESCE(v.metadata_only_reason, '') AS metadata_only_reason,
+                    COALESCE(v.retrieval_diagnostics, '{}') AS retrieval_diagnostics,
                     COALESCE(t.raw_text, '') AS raw_text,
                     COALESCE(t.cleaned_text, '') AS cleaned_text
                 FROM videos v
@@ -252,4 +299,14 @@ class Database:
                 ORDER BY v.published_at DESC, v.video_id
                 """
             ).fetchall()
-        return [dict(row) for row in rows]
+        results: list[dict[str, Any]] = []
+        for row in rows:
+            item = dict(row)
+            try:
+                item["retrieval_diagnostics"] = json.loads(
+                    item.get("retrieval_diagnostics") or "{}"
+                )
+            except json.JSONDecodeError:
+                item["retrieval_diagnostics"] = {}
+            results.append(item)
+        return results

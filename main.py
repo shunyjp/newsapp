@@ -18,8 +18,12 @@ import requests
 
 from config import DB_PATH, YOUTUBE_API_KEY
 from db.database import Database
+from pipeline.metadata_only_report import (
+    build_metadata_only_report,
+    classify_metadata_only_row,
+    classify_retry_policy,
+)
 from pipeline.pipeline import build_default_pipeline
-from pipeline.metadata_only_report import build_metadata_only_report
 from outputs.export_notebooklm import export_notebooklm_json, export_notebooklm_markdown
 from outputs.export_reader import export_reader_json, export_reader_markdown
 
@@ -108,6 +112,11 @@ def parse_args() -> argparse.Namespace:
         action="store_true",
         help="Inspect existing SQLite records whose cleaned content is empty and summarize their patterns",
     )
+    parser.add_argument(
+        "--retry-metadata-only",
+        action="store_true",
+        help="Reprocess retryable metadata-only videos already stored in SQLite",
+    )
     return parser.parse_args()
 
 
@@ -120,22 +129,123 @@ def _print_metadata_only_report() -> int:
     if not report["rows"]:
         return 0
 
-    print("Pattern counts:")
+    print("Reason counts:")
     for reason, count in sorted(
         report["counts"].items(),
         key=lambda item: (-item[1], item[0]),
     ):
         print(f"- {reason}: {count}")
 
-    print("Examples:")
+    if report["retry_policy_counts"]:
+        print("Retry policy counts:")
+        for policy, count in sorted(
+            report["retry_policy_counts"].items(),
+            key=lambda item: (-item[1], item[0]),
+        ):
+            print(f"- {policy}: {count}")
+
+    if report["source_counts"]:
+        print("Transcript source counts:")
+        for source, count in sorted(
+            report["source_counts"].items(),
+            key=lambda item: (-item[1], item[0]),
+        ):
+            print(f"- {source}: {count}")
+
+    print("Diagnostic step counts:")
+    for key, counts in report["diagnostics_counts"].items():
+        if not counts:
+            continue
+        formatted = ", ".join(
+            f"{value}={count}"
+            for value, count in sorted(
+                counts.items(),
+                key=lambda item: (-item[1], item[0]),
+            )
+        )
+        print(f"- {key}: {formatted}")
+
+    print("Examples by reason:")
+    for reason, examples in sorted(
+        report["reason_examples"].items(),
+        key=lambda item: (-report["counts"].get(item[0], 0), item[0]),
+    ):
+        print(f"- {reason}:")
+        for row in examples:
+            title = json.dumps(row["title"], ensure_ascii=False)
+            print(
+                f"  {row['video_id']} | source={row['transcript_source']} "
+                f"| published_at={row['published_at']} | title={title}"
+            )
+
+    print("Examples by retry policy:")
+    for policy, examples in sorted(
+        report["retry_policy_examples"].items(),
+        key=lambda item: (-report["retry_policy_counts"].get(item[0], 0), item[0]),
+    ):
+        print(f"- {policy}:")
+        for row in examples:
+            title = json.dumps(row["title"], ensure_ascii=False)
+            print(
+                f"  {row['video_id']} | reason={row['reason']} | source={row['transcript_source']} "
+                f"| published_at={row['published_at']} | title={title}"
+            )
+
+    print("All rows:")
     for row in report["rows"]:
         title = json.dumps(row["title"], ensure_ascii=False)
+        failure_reason = row["retrieval_diagnostics"].get("failure_reason", "")
         print(
             f"- {row['video_id']} | reason={row['reason']} | source={row['transcript_source']} "
+            f"| retry_policy={row['retry_policy']} | failure_reason={failure_reason} "
             f"| description_len={row['description_length']} | raw_len={row['raw_text_length']} "
             f"| title={title}"
         )
     return 0
+
+
+def _select_retryable_metadata_only_videos(
+    rows: list[dict[str, object]],
+    limit: int | None = None,
+) -> list[dict[str, str]]:
+    retryable_rows = [
+        row
+        for row in rows
+        if classify_retry_policy(classify_metadata_only_row(row)) == "retryable"
+    ]
+    if limit is not None:
+        retryable_rows = retryable_rows[: max(1, limit)]
+    return [
+        {
+            "video_id": str(row.get("video_id", "")),
+            "title": str(row.get("title", "")),
+            "channel": str(row.get("channel", "")),
+            "published_at": str(row.get("published_at", "")),
+            "url": str(row.get("url", "")),
+            "description": str(row.get("description", "")),
+        }
+        for row in retryable_rows
+        if row.get("video_id")
+    ]
+
+
+def _build_retry_metadata_only_summary(
+    results: list[dict[str, object]],
+) -> dict[str, int]:
+    total = len(results)
+    recovered = sum(
+        1 for item in results if str(item.get("content_status", "")) == "available"
+    )
+    still_unavailable = sum(
+        1 for item in results if str(item.get("content_status", "")) == "unavailable"
+    )
+    other = total - recovered - still_unavailable
+    return {
+        "total": total,
+        "recovered": recovered,
+        "still_unavailable": still_unavailable,
+        "other": max(0, other),
+    }
 
 
 def main() -> int:
@@ -143,10 +253,22 @@ def main() -> int:
     args = parse_args()
     if args.report_metadata_only:
         return _print_metadata_only_report()
-    if bool(args.query) == bool(args.channel_id):
+    if args.retry_metadata_only and args.skip_existing_videos:
+        print(
+            "--retry-metadata-only cannot be combined with --skip-existing-videos.",
+            file=sys.stderr,
+        )
+        return 1
+    if args.retry_metadata_only and (args.query or args.channel_id):
+        print(
+            "--retry-metadata-only cannot be combined with --query or --channel-id.",
+            file=sys.stderr,
+        )
+        return 1
+    if not args.retry_metadata_only and bool(args.query) == bool(args.channel_id):
         print("Provide exactly one of --query or --channel-id.", file=sys.stderr)
         return 1
-    if not YOUTUBE_API_KEY:
+    if not args.retry_metadata_only and not YOUTUBE_API_KEY:
         print("Set YOUTUBE_API_KEY before running the pipeline.", file=sys.stderr)
         return 1
 
@@ -158,11 +280,26 @@ def main() -> int:
         skip_existing_videos=args.skip_existing_videos,
     )
     try:
-        results = pipeline.run(
-            query=args.query,
-            channel_id=args.channel_id,
-            limit=args.max_videos,
-        )
+        if args.retry_metadata_only:
+            db = Database(db_path=DB_PATH, schema_path="db/schema.sql")
+            retryable_videos = _select_retryable_metadata_only_videos(
+                db.get_metadata_only_rows(),
+                limit=args.max_videos,
+            )
+            if not retryable_videos:
+                print("No retryable metadata-only videos found.")
+                return 0
+            print(f"Retrying {len(retryable_videos)} metadata-only video(s).")
+            results = pipeline.run_with_videos(
+                retryable_videos,
+                apply_skip_existing=False,
+            )
+        else:
+            results = pipeline.run(
+                query=args.query,
+                channel_id=args.channel_id,
+                limit=args.max_videos,
+            )
     except ValueError as exc:
         print(str(exc), file=sys.stderr)
         return 1
@@ -195,6 +332,14 @@ def main() -> int:
             "Available content: "
             f"{len(results) - unavailable_count} | Metadata-only unavailable: {unavailable_count}"
         )
+        if args.retry_metadata_only:
+            retry_summary = _build_retry_metadata_only_summary(results)
+            print("Retry metadata-only summary:")
+            print(f"- Targeted: {retry_summary['total']}")
+            print(f"- Recovered: {retry_summary['recovered']}")
+            print(f"- Still unavailable: {retry_summary['still_unavailable']}")
+            if retry_summary["other"]:
+                print(f"- Other status: {retry_summary['other']}")
     else:
         print("No videos processed.")
 

@@ -13,9 +13,17 @@
   "tests/test_export_notebooklm.py::NotebookLMExportTests::test_json_export_normalizes_nullable_and_scalar_fields",
   "tests/test_export_notebooklm.py::NotebookLMExportTests::test_json_export_uses_stable_document_schema",
   "tests/test_export_notebooklm.py::NotebookLMExportTests::test_markdown_export_includes_chunk_evidence_and_metadata_only_note",
+  "tests/test_metadata_only.py::DatabasePersistenceTests::test_metadata_only_runtime_diagnostics_are_persisted",
+  "tests/test_metadata_only.py::MetadataOnlyReportTests::test_build_retry_metadata_only_summary_counts_recovery_results",
   "tests/test_metadata_only.py::MetadataOnlyReportTests::test_classify_description_cleaned_empty",
   "tests/test_metadata_only.py::MetadataOnlyReportTests::test_classify_no_retrievable_content",
+  "tests/test_metadata_only.py::MetadataOnlyReportTests::test_classify_prefers_persisted_runtime_reason",
+  "tests/test_metadata_only.py::MetadataOnlyReportTests::test_classify_retry_policy_uses_reason_mapping",
+  "tests/test_metadata_only.py::MetadataOnlyReportTests::test_report_aggregates_diagnostic_steps_and_warnings",
   "tests/test_metadata_only.py::MetadataOnlyReportTests::test_report_counts_rows_by_reason",
+  "tests/test_metadata_only.py::MetadataOnlyReportTests::test_report_includes_persisted_diagnostics",
+  "tests/test_metadata_only.py::MetadataOnlyReportTests::test_select_retryable_metadata_only_videos_filters_and_limits_rows",
+  "tests/test_metadata_only.py::PipelineRetryTests::test_run_with_videos_bypasses_skip_existing_when_requested",
   "tests/test_metadata_only.py::PipelineWarningTests::test_description_only_empty_content_uses_specific_warning",
   "tests/test_metadata_only.py::TranscriptDiagnosticsTests::test_watch_failure_sets_specific_reason"
 ]

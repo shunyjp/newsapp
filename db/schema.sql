@@ -8,7 +8,11 @@ CREATE TABLE IF NOT EXISTS videos (
     url TEXT,
     description TEXT,
     transcript_source TEXT,
-    transcript_length INTEGER
+    transcript_length INTEGER,
+    content_status TEXT,
+    content_warning TEXT,
+    metadata_only_reason TEXT,
+    retrieval_diagnostics TEXT
 );
 
 CREATE TABLE IF NOT EXISTS transcripts (
