@@ -15,6 +15,23 @@ USER_AGENT = (
 )
 
 
+def _new_diagnostics() -> dict[str, Any]:
+    return {
+        "watch_html": "not_attempted",
+        "player_response": "not_attempted",
+        "caption_tracks": "not_attempted",
+        "selected_caption_source": "none",
+        "caption_fetch": "not_attempted",
+        "description": "not_attempted",
+        "failure_reason": "",
+    }
+
+
+def _fail(diagnostics: dict[str, Any], reason: str) -> dict[str, Any]:
+    diagnostics["failure_reason"] = reason
+    return {"text": "", "source": "none", "diagnostics": diagnostics}
+
+
 def _get_watch_html(video_id: str) -> str:
     response = requests.get(
         f"https://www.youtube.com/watch?v={video_id}",
@@ -107,30 +124,58 @@ def _select_caption_track(caption_tracks: list[dict[str, Any]]) -> tuple[str | N
     return None, "none"
 
 
-def get_transcript(video_id: str) -> dict[str, str]:
+def get_transcript(video_id: str) -> dict[str, Any]:
+    diagnostics = _new_diagnostics()
     try:
         html_text = _get_watch_html(video_id)
+        diagnostics["watch_html"] = "ok"
+    except requests.RequestException:
+        diagnostics["watch_html"] = "request_failed"
+        diagnostics["description"] = "not_available"
+        return _fail(diagnostics, "watch_page_request_failed")
+
+    try:
         player_response = _extract_player_response(html_text)
+        diagnostics["player_response"] = "ok"
+    except (ValueError, json.JSONDecodeError):
+        diagnostics["player_response"] = "parse_failed"
+        diagnostics["description"] = "not_available"
+        return _fail(diagnostics, "player_response_unavailable")
+
+    try:
         caption_tracks = (
             player_response.get("captions", {})
             .get("playerCaptionsTracklistRenderer", {})
             .get("captionTracks", [])
         )
+        diagnostics["caption_tracks"] = "found" if caption_tracks else "missing"
         base_url, source = _select_caption_track(caption_tracks)
+        diagnostics["selected_caption_source"] = source
         if base_url:
             try:
                 transcript = _fetch_caption_text(base_url)
                 if transcript:
-                    return {"text": transcript, "source": source}
+                    diagnostics["caption_fetch"] = "ok"
+                    diagnostics["description"] = "not_needed"
+                    return {"text": transcript, "source": source, "diagnostics": diagnostics}
+                diagnostics["caption_fetch"] = "empty"
             except (requests.RequestException, ET.ParseError):
-                pass
+                diagnostics["caption_fetch"] = "failed"
+        else:
+            diagnostics["caption_fetch"] = "not_attempted"
 
         description = _extract_description(player_response)
         if description:
-            return {"text": description, "source": "description"}
-    except requests.RequestException:
-        pass
-    except (ValueError, ET.ParseError, json.JSONDecodeError):
-        pass
+            diagnostics["description"] = "available"
+            return {"text": description, "source": "description", "diagnostics": diagnostics}
+        diagnostics["description"] = "empty"
+    except ET.ParseError:
+        diagnostics["caption_fetch"] = "failed"
 
-    return {"text": "", "source": "none"}
+    if diagnostics["caption_fetch"] == "failed":
+        return _fail(diagnostics, "caption_fetch_failed_and_description_empty")
+    if diagnostics["caption_tracks"] == "missing":
+        return _fail(diagnostics, "no_caption_tracks_and_description_empty")
+    if diagnostics["caption_fetch"] == "empty":
+        return _fail(diagnostics, "caption_track_empty_and_description_empty")
+    return _fail(diagnostics, "description_empty_after_caption_fallback")

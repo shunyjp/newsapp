@@ -1,0 +1,21 @@
+[
+  "tests/test_cleaner.py::CleanerTests::test_clean_text_deduplicates_repeated_lines_after_normalization",
+  "tests/test_cleaner.py::CleanerTests::test_clean_text_drops_social_cta_prefix_but_keeps_following_content",
+  "tests/test_cleaner.py::CleanerTests::test_clean_text_keeps_content_but_drops_description_noise",
+  "tests/test_cleaner.py::CleanerTests::test_clean_text_removes_caption_credit_lines",
+  "tests/test_cleaner.py::CleanerTests::test_clean_text_removes_common_subtitle_noise",
+  "tests/test_cleaner.py::CleanerTests::test_clean_text_removes_descriptive_non_speech_and_censor_markers",
+  "tests/test_cleaner.py::CleanerTests::test_clean_text_removes_quote_speakers_and_musical_note_noise",
+  "tests/test_cleaner.py::CleanerTests::test_clean_text_removes_role_based_speaker_labels",
+  "tests/test_cleaner.py::CleanerTests::test_clean_text_removes_srt_cue_ids_and_voiceover_variants",
+  "tests/test_cleaner.py::CleanerTests::test_clean_text_removes_vtt_note_region_style_metadata",
+  "tests/test_cleaner.py::CleanerTests::test_clean_text_removes_webvtt_headers_and_cue_timestamps",
+  "tests/test_export_notebooklm.py::NotebookLMExportTests::test_json_export_normalizes_nullable_and_scalar_fields",
+  "tests/test_export_notebooklm.py::NotebookLMExportTests::test_json_export_uses_stable_document_schema",
+  "tests/test_export_notebooklm.py::NotebookLMExportTests::test_markdown_export_includes_chunk_evidence_and_metadata_only_note",
+  "tests/test_metadata_only.py::MetadataOnlyReportTests::test_classify_description_cleaned_empty",
+  "tests/test_metadata_only.py::MetadataOnlyReportTests::test_classify_no_retrievable_content",
+  "tests/test_metadata_only.py::MetadataOnlyReportTests::test_report_counts_rows_by_reason",
+  "tests/test_metadata_only.py::PipelineWarningTests::test_description_only_empty_content_uses_specific_warning",
+  "tests/test_metadata_only.py::TranscriptDiagnosticsTests::test_watch_failure_sets_specific_reason"
+]

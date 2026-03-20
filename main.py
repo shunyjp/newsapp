@@ -1,4 +1,5 @@
 import argparse
+import json
 import sys
 import warnings
 from pathlib import Path
@@ -15,8 +16,10 @@ warnings.filterwarnings(
 
 import requests
 
-from config import YOUTUBE_API_KEY
+from config import DB_PATH, YOUTUBE_API_KEY
+from db.database import Database
 from pipeline.pipeline import build_default_pipeline
+from pipeline.metadata_only_report import build_metadata_only_report
 from outputs.export_notebooklm import export_notebooklm_json, export_notebooklm_markdown
 from outputs.export_reader import export_reader_json, export_reader_markdown
 
@@ -100,12 +103,46 @@ def parse_args() -> argparse.Namespace:
         action="store_true",
         help="Export a NotebookLM-ready Markdown knowledge pack, including metadata-only unavailable videos",
     )
+    parser.add_argument(
+        "--report-metadata-only",
+        action="store_true",
+        help="Inspect existing SQLite records whose cleaned content is empty and summarize their patterns",
+    )
     return parser.parse_args()
+
+
+def _print_metadata_only_report() -> int:
+    db = Database(db_path=DB_PATH, schema_path="db/schema.sql")
+    report = build_metadata_only_report(db.get_metadata_only_rows())
+
+    print("Metadata-only report")
+    print(f"Total records: {report['total']}")
+    if not report["rows"]:
+        return 0
+
+    print("Pattern counts:")
+    for reason, count in sorted(
+        report["counts"].items(),
+        key=lambda item: (-item[1], item[0]),
+    ):
+        print(f"- {reason}: {count}")
+
+    print("Examples:")
+    for row in report["rows"]:
+        title = json.dumps(row["title"], ensure_ascii=False)
+        print(
+            f"- {row['video_id']} | reason={row['reason']} | source={row['transcript_source']} "
+            f"| description_len={row['description_length']} | raw_len={row['raw_text_length']} "
+            f"| title={title}"
+        )
+    return 0
 
 
 def main() -> int:
     _configure_stdio()
     args = parse_args()
+    if args.report_metadata_only:
+        return _print_metadata_only_report()
     if bool(args.query) == bool(args.channel_id):
         print("Provide exactly one of --query or --channel-id.", file=sys.stderr)
         return 1
@@ -140,6 +177,8 @@ def main() -> int:
         print(f"Channel: {item['channel']}")
         print(f"Transcript source: {item['transcript_source']}")
         print(f"Content status: {item['content_status']}")
+        if item.get("metadata_only_reason"):
+            print(f"Metadata-only reason: {item['metadata_only_reason']}")
         if item.get("content_warning"):
             print(f"Content warning: {item['content_warning']}")
         print(f"Short summary: {item['short_summary']}")

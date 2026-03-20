@@ -21,6 +21,29 @@ CONTENT_UNAVAILABLE_SUMMARY = "Content unavailable: transcript and description c
 CONTENT_UNAVAILABLE_DETAIL = (
     "This video was stored with metadata only because neither transcript nor usable description was available."
 )
+CONTENT_WARNING_BY_REASON = {
+    "watch_page_request_failed": (
+        "Content unavailable: watch page request failed and API description was empty."
+    ),
+    "player_response_unavailable": (
+        "Content unavailable: player response could not be extracted and API description was empty."
+    ),
+    "caption_fetch_failed_and_description_empty": (
+        "Content unavailable: caption track retrieval failed and no usable description was available."
+    ),
+    "no_caption_tracks_and_description_empty": (
+        "Content unavailable: no caption tracks were exposed and no usable description was available."
+    ),
+    "caption_track_empty_and_description_empty": (
+        "Content unavailable: caption track was empty and no usable description was available."
+    ),
+    "description_empty_after_caption_fallback": (
+        "Content unavailable: caption fallback failed and no usable description was available."
+    ),
+    "description_cleaned_empty": (
+        "Content unavailable: only description text was retrieved, but cleaning removed all usable content."
+    ),
+}
 
 
 class NewsPipeline:
@@ -81,6 +104,10 @@ class NewsPipeline:
             )
 
         has_content = bool(cleaned_text.strip())
+        metadata_only_reason = self._determine_metadata_only_reason(
+            transcript_payload,
+            has_content,
+        )
         stored_chunks, reused_chunks = self._resolve_chunks(video["video_id"], cleaned_text)
         chunk_summaries, reused_all_chunk_summaries = self._resolve_chunk_summaries(
             video["video_id"],
@@ -113,7 +140,9 @@ class NewsPipeline:
             "transcript_source": transcript_payload["source"],
             "transcript_length": len(transcript_payload.get("text", "")),
             "content_status": "available" if has_content else "unavailable",
-            "content_warning": "" if has_content else CONTENT_UNAVAILABLE_SUMMARY,
+            "content_warning": "" if has_content else self._build_content_warning(metadata_only_reason),
+            "metadata_only_reason": metadata_only_reason,
+            "retrieval_diagnostics": transcript_payload.get("diagnostics", {}),
             "cleaned_text": cleaned_text,
             "short_summary": aggregated["short_summary"],
             "detailed_summary": aggregated["detailed_summary"],
@@ -128,12 +157,13 @@ class NewsPipeline:
 
     def _resolve_transcript(
         self, video_id: str
-    ) -> tuple[dict[str, str], str]:
+    ) -> tuple[dict[str, Any], str]:
         existing = self.db.get_transcript(video_id) if self.resume_only_missing else None
         if existing and existing.get("cleaned_text"):
             return {
                 "text": existing.get("raw_text", ""),
                 "source": "cached",
+                "diagnostics": {},
             }, existing.get("cleaned_text", "")
 
         transcript_payload = get_transcript(video_id)
@@ -147,6 +177,26 @@ class NewsPipeline:
             len(raw_text),
         )
         return transcript_payload, cleaned_text
+
+    def _determine_metadata_only_reason(
+        self,
+        transcript_payload: dict[str, Any],
+        has_content: bool,
+    ) -> str:
+        if has_content:
+            return ""
+
+        source = transcript_payload.get("source", "none")
+        if source in {"description", "api_description"}:
+            return "description_cleaned_empty"
+
+        diagnostics = transcript_payload.get("diagnostics", {})
+        return diagnostics.get("failure_reason", "") or "content_unavailable"
+
+    def _build_content_warning(self, metadata_only_reason: str) -> str:
+        if not metadata_only_reason:
+            return ""
+        return CONTENT_WARNING_BY_REASON.get(metadata_only_reason, CONTENT_UNAVAILABLE_SUMMARY)
 
     def _resolve_chunks(
         self, video_id: str, cleaned_text: str

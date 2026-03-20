@@ -230,3 +230,26 @@ class Database:
                 (video_id,),
             ).fetchone()
         return dict(row) if row else None
+
+    def get_metadata_only_rows(self) -> list[dict[str, Any]]:
+        with self._connect() as connection:
+            rows = connection.execute(
+                """
+                SELECT
+                    v.video_id,
+                    v.title,
+                    v.channel,
+                    v.published_at,
+                    v.url,
+                    COALESCE(v.description, '') AS description,
+                    COALESCE(v.transcript_source, '') AS transcript_source,
+                    COALESCE(v.transcript_length, 0) AS transcript_length,
+                    COALESCE(t.raw_text, '') AS raw_text,
+                    COALESCE(t.cleaned_text, '') AS cleaned_text
+                FROM videos v
+                LEFT JOIN transcripts t ON t.video_id = v.video_id
+                WHERE COALESCE(t.cleaned_text, '') = ''
+                ORDER BY v.published_at DESC, v.video_id
+                """
+            ).fetchall()
+        return [dict(row) for row in rows]

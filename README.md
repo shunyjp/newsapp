@@ -105,6 +105,12 @@ Skip any video already stored in SQLite:
 python main.py --query "AI news" --max-videos 3 --skip-existing-videos
 ```
 
+Inspect existing metadata-only records in SQLite:
+
+```bash
+python main.py --report-metadata-only
+```
+
 Skip LLM calls entirely:
 
 ```bash
@@ -131,10 +137,11 @@ python main.py --query "AI news" --max-videos 2 --resume-only-missing --export-n
 
 NotebookLM export format:
 
-- JSON writes a stable `schema_version` payload into `outputs/notebooklm/`.
+- JSON writes the fixed production `schema_version` payload `notebooklm-pack.v1` into `outputs/notebooklm/`.
 - Each video is exported as one document with `video`, `retrieval`, `summary`, `analysis`, and `evidence` sections.
 - Markdown mirrors the same structure for direct NotebookLM ingestion: source metadata, retrieval status, aggregated evidence, chunk evidence, and cleaned transcript.
 - Metadata-only unavailable videos stay in the pack with explicit warnings and empty evidence lists rather than fabricated content.
+- The canonical field definition is documented in [docs/notebooklm_export_v1.md](docs/notebooklm_export_v1.md).
 
 ## Notes
 
@@ -158,9 +165,12 @@ Some YouTube videos do not expose usable captions and also do not provide a usab
 - The video is retained in SQLite as a metadata-only record so search/query coverage is preserved.
 - `transcript_source` remains `none` when neither captions nor fallback description can be retrieved.
 - `content_status` is set to `unavailable` and `content_warning` explains that transcript and description could not be retrieved.
+- CLI output also surfaces a `metadata_only_reason` so you can tell whether the failure came from watch-page fetch, player-response extraction, missing caption tracks, empty caption payloads, or description fallback being cleaned to nothing.
 - The pipeline does not fabricate chunks, extracted entities, or summary points from missing content.
 - A fixed metadata-only summary is stored instead so CLI and exports can clearly distinguish these records from normal summaries.
 - Reader and NotebookLM exports include these videos with the warning attached, rather than silently excluding them.
 - This keeps reruns idempotent and allows future reprocessing if transcript acquisition improves later.
+
+To audit existing failures already stored in SQLite, run `python main.py --report-metadata-only`. The report groups records by coarse pattern such as `no_retrievable_content` and `description_cleaned_empty`, then prints concrete video examples.
 
 In practice, treat `content_status=unavailable` as "tracked but not analyzable yet." These records are useful for auditability, gap tracking, and deciding whether to retry collection later.
