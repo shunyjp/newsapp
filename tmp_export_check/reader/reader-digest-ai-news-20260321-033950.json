@@ -1,0 +1,39 @@
+{
+  "generated_at": "2026-03-21T03:39:50.850966",
+  "query": "AI news",
+  "count": 2,
+  "available_count": 1,
+  "unavailable_count": 1,
+  "results": [
+    {
+      "video_id": "v1",
+      "title": "Available Video",
+      "channel": "Channel A",
+      "published_at": "2026-03-21T00:00:00Z",
+      "url": "https://example.com/v1",
+      "transcript_source": "manual",
+      "content_status": "available",
+      "content_warning": "",
+      "signal_score": 0.9,
+      "short_summary": "Short summary",
+      "reader_points": [
+        "Point 1"
+      ],
+      "why_it_matters": "Important because..."
+    },
+    {
+      "video_id": "v2",
+      "title": "Unavailable Video",
+      "channel": "Channel B",
+      "published_at": "2026-03-21T00:00:00Z",
+      "url": "https://example.com/v2",
+      "transcript_source": "none",
+      "content_status": "unavailable",
+      "content_warning": "Content unavailable: transcript and description could not be retrieved.",
+      "signal_score": 0.0,
+      "short_summary": "Content unavailable: transcript and description could not be retrieved.",
+      "reader_points": [],
+      "why_it_matters": "Content unavailable: transcript and description could not be retrieved."
+    }
+  ]
+}

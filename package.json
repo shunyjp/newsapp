@@ -1,0 +1,19 @@
+{
+  "name": "newsfeed1",
+  "version": "0.1.0",
+  "description": "Topic-focused news digest app for AI, SAP, and enterprise systems.",
+  "type": "module",
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "node --watch src/server.js"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.54.0",
+    "docx": "^9.5.1",
+    "dotenv": "^16.5.0",
+    "express": "^5.1.0",
+    "openai": "^6.0.1",
+    "playwright-core": "^1.54.2",
+    "rss-parser": "^3.13.0"
+  }
+}

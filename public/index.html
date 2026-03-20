@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Focused News Digest</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <main class="page">
+      <section class="hero">
+        <p class="eyebrow">Focused News Digest</p>
+        <h1>特定テーマの最新ニュースを、吸収しやすい形に整理します</h1>
+        <p class="lead">
+          AI / SAP / 基幹システムのニュースを集めて、技術・ビジネス・事例・学習の観点で要約します。
+        </p>
+      </section>
+
+      <section class="panel">
+        <form id="digest-form">
+          <div class="form-grid">
+            <div>
+              <h2>テーマ</h2>
+              <div id="topic-options" class="option-list"></div>
+            </div>
+
+            <div>
+              <h2>観点</h2>
+              <div id="viewpoint-options" class="option-list"></div>
+            </div>
+
+            <div>
+              <h2>出力形式</h2>
+              <div class="option-list">
+                <label class="option-card">
+                  <input type="checkbox" name="outputFormats" value="text" checked />
+                  <span>テキスト</span>
+                </label>
+                <label class="option-card">
+                  <input type="checkbox" name="outputFormats" value="word" checked />
+                  <span>Word</span>
+                </label>
+                <label class="option-card">
+                  <input type="checkbox" name="outputFormats" value="audio" />
+                  <span>音声</span>
+                </label>
+                <label class="option-card">
+                  <input type="checkbox" name="outputFormats" value="notebooklm" checked />
+                  <span>NotebookLM用原文</span>
+                </label>
+              </div>
+            </div>
+          </div>
+
+          <button id="submit-button" type="submit">ニュースを生成する</button>
+          <p id="status" class="status"></p>
+        </form>
+      </section>
+
+      <section class="panel import-panel">
+        <div class="import-header">
+          <div>
+            <p class="eyebrow">Nikkei Group</p>
+            <h2>Playwright ログイン状態</h2>
+            <p id="nikkei-status" class="status compact-status"></p>
+          </div>
+          <button id="nikkei-relogin" type="button" class="secondary-button">Playwrightで再ログイン</button>
+        </div>
+      </section>
+
+      <section class="panel import-panel">
+        <div class="import-header">
+          <div>
+            <p class="eyebrow">Browser Import</p>
+            <h2>ログイン済み記事を取り込む</h2>
+            <p class="lead compact">
+              日経クロステックや日経新聞の記事ページを開いた状態で、下のブックマークレットを使うと本文をこのアプリへ取り込めます。
+            </p>
+          </div>
+          <a id="bookmarklet-link" class="bookmarklet" href="#">記事を取り込む</a>
+        </div>
+
+        <div class="manual-import">
+          <label>
+            対象テーマ
+            <select id="import-topic"></select>
+          </label>
+          <p class="status small">
+            このリンクをブックマークバーへドラッグし、ログイン済みの記事ページでクリックしてください。
+          </p>
+        </div>
+
+        <section>
+          <h3>取り込み済み記事</h3>
+          <div id="imports" class="article-list single"></div>
+        </section>
+      </section>
+
+      <section id="results" class="results hidden">
+        <div class="result-header">
+          <div>
+            <p class="eyebrow">Generated Digest</p>
+            <h2>生成結果</h2>
+          </div>
+          <div id="downloads" class="downloads"></div>
+        </div>
+
+        <article id="summary" class="summary"></article>
+
+        <section>
+          <h3>取得した記事</h3>
+          <div id="articles" class="article-list"></div>
+        </section>
+      </section>
+    </main>
+
+    <script type="module" src="/app.js"></script>
+  </body>
+</html>
