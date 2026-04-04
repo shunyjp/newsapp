@@ -1,0 +1,11 @@
+[
+  {
+    "legacy_video_id": "video7",
+    "item_id": "youtube.default:video7",
+    "action": "create",
+    "body_kind": "full_text",
+    "evidence_strength": "medium",
+    "warning_code": "",
+    "warning_message": ""
+  }
+]

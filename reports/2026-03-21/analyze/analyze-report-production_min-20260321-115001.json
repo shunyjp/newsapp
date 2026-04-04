@@ -1,0 +1,1250 @@
+{
+  "source": null,
+  "source_set": "production_min",
+  "selection_rows": [
+    {
+      "item_id": "nikkei.xtech.candidate:xtech.nikkei.com/atcl/nxt/column/18/00001/11591",
+      "external_id": "xtech.nikkei.com/atcl/nxt/column/18/00001/11591",
+      "title": "製造業の暗黙知をAIで継承へ、慶大・栗原教授らが業界団体を発足",
+      "source_id": "nikkei.xtech.candidate",
+      "missing_reason_codes": [
+        "analyze.missing.cleaned_text_empty",
+        "analyze.missing.summary_missing",
+        "analyze.missing.quality_missing"
+      ],
+      "missing_reasons": [
+        {
+          "code": "analyze.missing.cleaned_text_empty",
+          "message": "cleaned_text is empty."
+        },
+        {
+          "code": "analyze.missing.summary_missing",
+          "message": "No item_summaries row exists."
+        },
+        {
+          "code": "analyze.missing.quality_missing",
+          "message": "Quality fields have not been evaluated yet."
+        }
+      ],
+      "retry_reason_codes": [],
+      "retry_reasons": [],
+      "retry_policy_audit": [],
+      "retry_policy_applied": [],
+      "retry_candidates": [],
+      "selected": true,
+      "selected_by_retry": false,
+      "analysis_state": {
+        "item_id": "nikkei.xtech.candidate:xtech.nikkei.com/atcl/nxt/column/18/00001/11591",
+        "missing_contents": false,
+        "missing_cleaned_text": true,
+        "missing_chunks": false,
+        "missing_summary": true,
+        "missing_quality": true,
+        "is_ineligible": false,
+        "is_low_quality": false
+      }
+    },
+    {
+      "item_id": "nikkei.xtech.candidate:xtech.nikkei.com/atcl/nxt/column/18/00001/11596",
+      "external_id": "xtech.nikkei.com/atcl/nxt/column/18/00001/11596",
+      "title": "SB子会社が音声対話AIの基盤技術で特許、音声の読み誤りを修正",
+      "source_id": "nikkei.xtech.candidate",
+      "missing_reason_codes": [
+        "analyze.missing.cleaned_text_empty",
+        "analyze.missing.summary_missing",
+        "analyze.missing.quality_missing"
+      ],
+      "missing_reasons": [
+        {
+          "code": "analyze.missing.cleaned_text_empty",
+          "message": "cleaned_text is empty."
+        },
+        {
+          "code": "analyze.missing.summary_missing",
+          "message": "No item_summaries row exists."
+        },
+        {
+          "code": "analyze.missing.quality_missing",
+          "message": "Quality fields have not been evaluated yet."
+        }
+      ],
+      "retry_reason_codes": [],
+      "retry_reasons": [],
+      "retry_policy_audit": [],
+      "retry_policy_applied": [],
+      "retry_candidates": [],
+      "selected": true,
+      "selected_by_retry": false,
+      "analysis_state": {
+        "item_id": "nikkei.xtech.candidate:xtech.nikkei.com/atcl/nxt/column/18/00001/11596",
+        "missing_contents": false,
+        "missing_cleaned_text": true,
+        "missing_chunks": false,
+        "missing_summary": true,
+        "missing_quality": true,
+        "is_ineligible": false,
+        "is_low_quality": false
+      }
+    },
+    {
+      "item_id": "nikkei.xtech.candidate:xtech.nikkei.com/atcl/nxt/special/18/00001/031000080",
+      "external_id": "xtech.nikkei.com/atcl/nxt/special/18/00001/031000080",
+      "title": "【PR】自ら考え動くAIエージェント、開発現場に貢献",
+      "source_id": "nikkei.xtech.candidate",
+      "missing_reason_codes": [
+        "analyze.missing.cleaned_text_empty",
+        "analyze.missing.summary_missing",
+        "analyze.missing.quality_missing"
+      ],
+      "missing_reasons": [
+        {
+          "code": "analyze.missing.cleaned_text_empty",
+          "message": "cleaned_text is empty."
+        },
+        {
+          "code": "analyze.missing.summary_missing",
+          "message": "No item_summaries row exists."
+        },
+        {
+          "code": "analyze.missing.quality_missing",
+          "message": "Quality fields have not been evaluated yet."
+        }
+      ],
+      "retry_reason_codes": [],
+      "retry_reasons": [],
+      "retry_policy_audit": [],
+      "retry_policy_applied": [],
+      "retry_candidates": [],
+      "selected": true,
+      "selected_by_retry": false,
+      "analysis_state": {
+        "item_id": "nikkei.xtech.candidate:xtech.nikkei.com/atcl/nxt/special/18/00001/031000080",
+        "missing_contents": false,
+        "missing_cleaned_text": true,
+        "missing_chunks": false,
+        "missing_summary": true,
+        "missing_quality": true,
+        "is_ineligible": false,
+        "is_low_quality": false
+      }
+    },
+    {
+      "item_id": "docs.python_insider:blog.python.org/2026/03/python-31213-31115-31020",
+      "external_id": "blog.python.org/2026/03/python-31213-31115-31020",
+      "title": "Python 3.12.13, 3.11.15 and 3.10.20 are now available!",
+      "source_id": "docs.python_insider",
+      "missing_reason_codes": [
+        "analyze.missing.cleaned_text_empty",
+        "analyze.missing.summary_missing",
+        "analyze.missing.quality_missing"
+      ],
+      "missing_reasons": [
+        {
+          "code": "analyze.missing.cleaned_text_empty",
+          "message": "cleaned_text is empty."
+        },
+        {
+          "code": "analyze.missing.summary_missing",
+          "message": "No item_summaries row exists."
+        },
+        {
+          "code": "analyze.missing.quality_missing",
+          "message": "Quality fields have not been evaluated yet."
+        }
+      ],
+      "retry_reason_codes": [],
+      "retry_reasons": [],
+      "retry_policy_audit": [],
+      "retry_policy_applied": [],
+      "retry_candidates": [],
+      "selected": true,
+      "selected_by_retry": false,
+      "analysis_state": {
+        "item_id": "docs.python_insider:blog.python.org/2026/03/python-31213-31115-31020",
+        "missing_contents": false,
+        "missing_cleaned_text": true,
+        "missing_chunks": false,
+        "missing_summary": true,
+        "missing_quality": true,
+        "is_ineligible": false,
+        "is_low_quality": false
+      }
+    },
+    {
+      "item_id": "docs.python_insider:blog.python.org/2026/03/cpython-codebase-growth",
+      "external_id": "blog.python.org/2026/03/cpython-codebase-growth",
+      "title": "CPython: 36 Years of Source Code",
+      "source_id": "docs.python_insider",
+      "missing_reason_codes": [
+        "analyze.missing.cleaned_text_empty",
+        "analyze.missing.summary_missing",
+        "analyze.missing.quality_missing"
+      ],
+      "missing_reasons": [
+        {
+          "code": "analyze.missing.cleaned_text_empty",
+          "message": "cleaned_text is empty."
+        },
+        {
+          "code": "analyze.missing.summary_missing",
+          "message": "No item_summaries row exists."
+        },
+        {
+          "code": "analyze.missing.quality_missing",
+          "message": "Quality fields have not been evaluated yet."
+        }
+      ],
+      "retry_reason_codes": [],
+      "retry_reasons": [],
+      "retry_policy_audit": [],
+      "retry_policy_applied": [],
+      "retry_candidates": [],
+      "selected": true,
+      "selected_by_retry": false,
+      "analysis_state": {
+        "item_id": "docs.python_insider:blog.python.org/2026/03/cpython-codebase-growth",
+        "missing_contents": false,
+        "missing_cleaned_text": true,
+        "missing_chunks": false,
+        "missing_summary": true,
+        "missing_quality": true,
+        "is_ineligible": false,
+        "is_low_quality": false
+      }
+    },
+    {
+      "item_id": "docs.python_insider:blog.python.org/2026/03/python-3150-alpha-7",
+      "external_id": "blog.python.org/2026/03/python-3150-alpha-7",
+      "title": "Python 3.15.0 alpha 7",
+      "source_id": "docs.python_insider",
+      "missing_reason_codes": [
+        "analyze.missing.cleaned_text_empty",
+        "analyze.missing.summary_missing",
+        "analyze.missing.quality_missing"
+      ],
+      "missing_reasons": [
+        {
+          "code": "analyze.missing.cleaned_text_empty",
+          "message": "cleaned_text is empty."
+        },
+        {
+          "code": "analyze.missing.summary_missing",
+          "message": "No item_summaries row exists."
+        },
+        {
+          "code": "analyze.missing.quality_missing",
+          "message": "Quality fields have not been evaluated yet."
+        }
+      ],
+      "retry_reason_codes": [],
+      "retry_reasons": [],
+      "retry_policy_audit": [],
+      "retry_policy_applied": [],
+      "retry_candidates": [],
+      "selected": true,
+      "selected_by_retry": false,
+      "analysis_state": {
+        "item_id": "docs.python_insider:blog.python.org/2026/03/python-3150-alpha-7",
+        "missing_contents": false,
+        "missing_cleaned_text": true,
+        "missing_chunks": false,
+        "missing_summary": true,
+        "missing_quality": true,
+        "is_ineligible": false,
+        "is_low_quality": false
+      }
+    },
+    {
+      "item_id": "blog.openai:openai.com/index/japan-teen-safety-blueprint",
+      "external_id": "openai.com/index/japan-teen-safety-blueprint",
+      "title": "OpenAI Japan announces Japan Teen Safety Blueprint to put teen safety first",
+      "source_id": "blog.openai",
+      "missing_reason_codes": [
+        "analyze.missing.cleaned_text_empty",
+        "analyze.missing.summary_missing",
+        "analyze.missing.quality_missing"
+      ],
+      "missing_reasons": [
+        {
+          "code": "analyze.missing.cleaned_text_empty",
+          "message": "cleaned_text is empty."
+        },
+        {
+          "code": "analyze.missing.summary_missing",
+          "message": "No item_summaries row exists."
+        },
+        {
+          "code": "analyze.missing.quality_missing",
+          "message": "Quality fields have not been evaluated yet."
+        }
+      ],
+      "retry_reason_codes": [],
+      "retry_reasons": [],
+      "retry_policy_audit": [],
+      "retry_policy_applied": [],
+      "retry_candidates": [],
+      "selected": true,
+      "selected_by_retry": false,
+      "analysis_state": {
+        "item_id": "blog.openai:openai.com/index/japan-teen-safety-blueprint",
+        "missing_contents": false,
+        "missing_cleaned_text": true,
+        "missing_chunks": false,
+        "missing_summary": true,
+        "missing_quality": true,
+        "is_ineligible": false,
+        "is_low_quality": false
+      }
+    },
+    {
+      "item_id": "blog.openai:openai.com/index/openai-to-acquire-astral",
+      "external_id": "openai.com/index/openai-to-acquire-astral",
+      "title": "OpenAI to acquire Astral",
+      "source_id": "blog.openai",
+      "missing_reason_codes": [
+        "analyze.missing.cleaned_text_empty",
+        "analyze.missing.summary_missing",
+        "analyze.missing.quality_missing"
+      ],
+      "missing_reasons": [
+        {
+          "code": "analyze.missing.cleaned_text_empty",
+          "message": "cleaned_text is empty."
+        },
+        {
+          "code": "analyze.missing.summary_missing",
+          "message": "No item_summaries row exists."
+        },
+        {
+          "code": "analyze.missing.quality_missing",
+          "message": "Quality fields have not been evaluated yet."
+        }
+      ],
+      "retry_reason_codes": [],
+      "retry_reasons": [],
+      "retry_policy_audit": [],
+      "retry_policy_applied": [],
+      "retry_candidates": [],
+      "selected": true,
+      "selected_by_retry": false,
+      "analysis_state": {
+        "item_id": "blog.openai:openai.com/index/openai-to-acquire-astral",
+        "missing_contents": false,
+        "missing_cleaned_text": true,
+        "missing_chunks": false,
+        "missing_summary": true,
+        "missing_quality": true,
+        "is_ineligible": false,
+        "is_low_quality": false
+      }
+    },
+    {
+      "item_id": "blog.openai:openai.com/index/how-we-monitor-internal-coding-agents-misalignment",
+      "external_id": "openai.com/index/how-we-monitor-internal-coding-agents-misalignment",
+      "title": "How we monitor internal coding agents for misalignment",
+      "source_id": "blog.openai",
+      "missing_reason_codes": [
+        "analyze.missing.cleaned_text_empty",
+        "analyze.missing.summary_missing",
+        "analyze.missing.quality_missing"
+      ],
+      "missing_reasons": [
+        {
+          "code": "analyze.missing.cleaned_text_empty",
+          "message": "cleaned_text is empty."
+        },
+        {
+          "code": "analyze.missing.summary_missing",
+          "message": "No item_summaries row exists."
+        },
+        {
+          "code": "analyze.missing.quality_missing",
+          "message": "Quality fields have not been evaluated yet."
+        }
+      ],
+      "retry_reason_codes": [],
+      "retry_reasons": [],
+      "retry_policy_audit": [],
+      "retry_policy_applied": [],
+      "retry_candidates": [],
+      "selected": true,
+      "selected_by_retry": false,
+      "analysis_state": {
+        "item_id": "blog.openai:openai.com/index/how-we-monitor-internal-coding-agents-misalignment",
+        "missing_contents": false,
+        "missing_cleaned_text": true,
+        "missing_chunks": false,
+        "missing_summary": true,
+        "missing_quality": true,
+        "is_ineligible": false,
+        "is_low_quality": false
+      }
+    }
+  ],
+  "analyzed_items": [
+    {
+      "item_id": "nikkei.xtech.candidate:xtech.nikkei.com/atcl/nxt/column/18/00001/11591",
+      "source_id": "nikkei.xtech.candidate",
+      "source_type": "article",
+      "external_id": "xtech.nikkei.com/atcl/nxt/column/18/00001/11591",
+      "title": "製造業の暗黙知をAIで継承へ、慶大・栗原教授らが業界団体を発足",
+      "author": "Nikkei xTECH Candidate",
+      "published_at": null,
+      "url": "https://xtech.nikkei.com/atcl/nxt/column/18/00001/11591/",
+      "body_kind": "metadata_only",
+      "content_status": "unavailable",
+      "content_warning": "Metadata only: body retrieval disabled for candidate collection.",
+      "retrieval_diagnostics": {
+        "candidate_only": true,
+        "candidate_mode": "metadata_only",
+        "feed_url": "https://xtech.nikkei.com/rss/index.rdf",
+        "metadata_only": true,
+        "category": "nikkei_xtech_candidate",
+        "provider": "nikkei_xtech_candidate",
+        "body_fetch_attempted": false,
+        "canonicalization_mode": "metadata_only",
+        "metadata_only_reason": "candidate_only_metadata",
+        "candidate_fetch_mode": "rss"
+      },
+      "language": null,
+      "trust_level": null,
+      "evidence_strength": "none",
+      "quality_tier": "reject",
+      "reader_eligibility": "eligible_with_warning",
+      "notebooklm_eligibility": "ineligible",
+      "created_at": "2026-03-21T02:46:54+00:00",
+      "updated_at": "2026-03-21T02:46:54+00:00",
+      "raw_text": "",
+      "cleaned_text": "",
+      "cleaning_version": "rule-based.v1",
+      "cleaning_diagnostics": {
+        "cleaner": "rule-based.v1",
+        "raw_length": 0,
+        "cleaned_length": 0,
+        "metadata_only": true
+      },
+      "short_summary": null,
+      "detailed_summary": null,
+      "summary_version": null,
+      "quality_reasons": [
+        "content_unavailable"
+      ],
+      "metrics": {
+        "cleaned_text_length": 0,
+        "mojibake_ratio": 0.0,
+        "url_ratio": 0.0,
+        "cta_ratio": 0.0
+      },
+      "analysis_state": {
+        "item_id": "nikkei.xtech.candidate:xtech.nikkei.com/atcl/nxt/column/18/00001/11591",
+        "missing_contents": false,
+        "missing_cleaned_text": true,
+        "missing_chunks": false,
+        "missing_summary": true,
+        "missing_quality": true,
+        "is_ineligible": false,
+        "is_low_quality": false
+      },
+      "analysis_report": {
+        "missing_reason_codes": [
+          "analyze.missing.cleaned_text_empty",
+          "analyze.missing.summary_missing",
+          "analyze.missing.quality_missing"
+        ],
+        "missing_reasons": [
+          {
+            "code": "analyze.missing.cleaned_text_empty",
+            "message": "cleaned_text is empty."
+          },
+          {
+            "code": "analyze.missing.summary_missing",
+            "message": "No item_summaries row exists."
+          },
+          {
+            "code": "analyze.missing.quality_missing",
+            "message": "Quality fields have not been evaluated yet."
+          }
+        ],
+        "retry_reason_codes": [],
+        "retry_reasons": [],
+        "retry_policy_applied": [],
+        "retry_policy_audit": [],
+        "retry_effect": {
+          "previous_quality_tier": null,
+          "current_quality_tier": "reject",
+          "quality_improved": true
+        }
+      }
+    },
+    {
+      "item_id": "nikkei.xtech.candidate:xtech.nikkei.com/atcl/nxt/column/18/00001/11596",
+      "source_id": "nikkei.xtech.candidate",
+      "source_type": "article",
+      "external_id": "xtech.nikkei.com/atcl/nxt/column/18/00001/11596",
+      "title": "SB子会社が音声対話AIの基盤技術で特許、音声の読み誤りを修正",
+      "author": "Nikkei xTECH Candidate",
+      "published_at": null,
+      "url": "https://xtech.nikkei.com/atcl/nxt/column/18/00001/11596/",
+      "body_kind": "metadata_only",
+      "content_status": "unavailable",
+      "content_warning": "Metadata only: body retrieval disabled for candidate collection.",
+      "retrieval_diagnostics": {
+        "candidate_only": true,
+        "candidate_mode": "metadata_only",
+        "feed_url": "https://xtech.nikkei.com/rss/index.rdf",
+        "metadata_only": true,
+        "category": "nikkei_xtech_candidate",
+        "provider": "nikkei_xtech_candidate",
+        "body_fetch_attempted": false,
+        "canonicalization_mode": "metadata_only",
+        "metadata_only_reason": "candidate_only_metadata",
+        "candidate_fetch_mode": "rss"
+      },
+      "language": null,
+      "trust_level": null,
+      "evidence_strength": "none",
+      "quality_tier": "reject",
+      "reader_eligibility": "eligible_with_warning",
+      "notebooklm_eligibility": "ineligible",
+      "created_at": "2026-03-21T02:46:54+00:00",
+      "updated_at": "2026-03-21T02:46:54+00:00",
+      "raw_text": "",
+      "cleaned_text": "",
+      "cleaning_version": "rule-based.v1",
+      "cleaning_diagnostics": {
+        "cleaner": "rule-based.v1",
+        "raw_length": 0,
+        "cleaned_length": 0,
+        "metadata_only": true
+      },
+      "short_summary": null,
+      "detailed_summary": null,
+      "summary_version": null,
+      "quality_reasons": [
+        "content_unavailable"
+      ],
+      "metrics": {
+        "cleaned_text_length": 0,
+        "mojibake_ratio": 0.0,
+        "url_ratio": 0.0,
+        "cta_ratio": 0.0
+      },
+      "analysis_state": {
+        "item_id": "nikkei.xtech.candidate:xtech.nikkei.com/atcl/nxt/column/18/00001/11596",
+        "missing_contents": false,
+        "missing_cleaned_text": true,
+        "missing_chunks": false,
+        "missing_summary": true,
+        "missing_quality": true,
+        "is_ineligible": false,
+        "is_low_quality": false
+      },
+      "analysis_report": {
+        "missing_reason_codes": [
+          "analyze.missing.cleaned_text_empty",
+          "analyze.missing.summary_missing",
+          "analyze.missing.quality_missing"
+        ],
+        "missing_reasons": [
+          {
+            "code": "analyze.missing.cleaned_text_empty",
+            "message": "cleaned_text is empty."
+          },
+          {
+            "code": "analyze.missing.summary_missing",
+            "message": "No item_summaries row exists."
+          },
+          {
+            "code": "analyze.missing.quality_missing",
+            "message": "Quality fields have not been evaluated yet."
+          }
+        ],
+        "retry_reason_codes": [],
+        "retry_reasons": [],
+        "retry_policy_applied": [],
+        "retry_policy_audit": [],
+        "retry_effect": {
+          "previous_quality_tier": null,
+          "current_quality_tier": "reject",
+          "quality_improved": true
+        }
+      }
+    },
+    {
+      "item_id": "nikkei.xtech.candidate:xtech.nikkei.com/atcl/nxt/special/18/00001/031000080",
+      "source_id": "nikkei.xtech.candidate",
+      "source_type": "article",
+      "external_id": "xtech.nikkei.com/atcl/nxt/special/18/00001/031000080",
+      "title": "【PR】自ら考え動くAIエージェント、開発現場に貢献",
+      "author": "Nikkei xTECH Candidate",
+      "published_at": null,
+      "url": "https://xtech.nikkei.com/atcl/nxt/special/18/00001/031000080/",
+      "body_kind": "metadata_only",
+      "content_status": "unavailable",
+      "content_warning": "Metadata only: body retrieval disabled for candidate collection.",
+      "retrieval_diagnostics": {
+        "candidate_only": true,
+        "candidate_mode": "metadata_only",
+        "feed_url": "https://xtech.nikkei.com/rss/index.rdf",
+        "metadata_only": true,
+        "category": "nikkei_xtech_candidate",
+        "provider": "nikkei_xtech_candidate",
+        "body_fetch_attempted": false,
+        "canonicalization_mode": "metadata_only",
+        "metadata_only_reason": "candidate_only_metadata",
+        "candidate_fetch_mode": "rss"
+      },
+      "language": null,
+      "trust_level": null,
+      "evidence_strength": "none",
+      "quality_tier": "reject",
+      "reader_eligibility": "eligible_with_warning",
+      "notebooklm_eligibility": "ineligible",
+      "created_at": "2026-03-21T02:46:54+00:00",
+      "updated_at": "2026-03-21T02:46:54+00:00",
+      "raw_text": "",
+      "cleaned_text": "",
+      "cleaning_version": "rule-based.v1",
+      "cleaning_diagnostics": {
+        "cleaner": "rule-based.v1",
+        "raw_length": 0,
+        "cleaned_length": 0,
+        "metadata_only": true
+      },
+      "short_summary": null,
+      "detailed_summary": null,
+      "summary_version": null,
+      "quality_reasons": [
+        "content_unavailable"
+      ],
+      "metrics": {
+        "cleaned_text_length": 0,
+        "mojibake_ratio": 0.0,
+        "url_ratio": 0.0,
+        "cta_ratio": 0.0
+      },
+      "analysis_state": {
+        "item_id": "nikkei.xtech.candidate:xtech.nikkei.com/atcl/nxt/special/18/00001/031000080",
+        "missing_contents": false,
+        "missing_cleaned_text": true,
+        "missing_chunks": false,
+        "missing_summary": true,
+        "missing_quality": true,
+        "is_ineligible": false,
+        "is_low_quality": false
+      },
+      "analysis_report": {
+        "missing_reason_codes": [
+          "analyze.missing.cleaned_text_empty",
+          "analyze.missing.summary_missing",
+          "analyze.missing.quality_missing"
+        ],
+        "missing_reasons": [
+          {
+            "code": "analyze.missing.cleaned_text_empty",
+            "message": "cleaned_text is empty."
+          },
+          {
+            "code": "analyze.missing.summary_missing",
+            "message": "No item_summaries row exists."
+          },
+          {
+            "code": "analyze.missing.quality_missing",
+            "message": "Quality fields have not been evaluated yet."
+          }
+        ],
+        "retry_reason_codes": [],
+        "retry_reasons": [],
+        "retry_policy_applied": [],
+        "retry_policy_audit": [],
+        "retry_effect": {
+          "previous_quality_tier": null,
+          "current_quality_tier": "reject",
+          "quality_improved": true
+        }
+      }
+    },
+    {
+      "item_id": "docs.python_insider:blog.python.org/2026/03/python-31213-31115-31020",
+      "source_id": "docs.python_insider",
+      "source_type": "article",
+      "external_id": "blog.python.org/2026/03/python-31213-31115-31020",
+      "title": "Python 3.12.13, 3.11.15 and 3.10.20 are now available!",
+      "author": "Python Insider",
+      "published_at": "2026-03-03T00:00:00+00:00",
+      "url": "https://blog.python.org/2026/03/python-31213-31115-31020/",
+      "body_kind": "metadata_only",
+      "content_status": "unavailable",
+      "content_warning": "Metadata only: body retrieval disabled for candidate collection.",
+      "retrieval_diagnostics": {
+        "candidate_only": true,
+        "candidate_mode": "metadata_only",
+        "feed_url": "https://blog.python.org/rss.xml",
+        "metadata_only": true,
+        "category": "releases",
+        "metadata_only_reason": "candidate_only_metadata",
+        "candidate_fetch_mode": "rss"
+      },
+      "language": null,
+      "trust_level": null,
+      "evidence_strength": "none",
+      "quality_tier": "reject",
+      "reader_eligibility": "eligible_with_warning",
+      "notebooklm_eligibility": "ineligible",
+      "created_at": "2026-03-21T02:46:52+00:00",
+      "updated_at": "2026-03-21T02:46:52+00:00",
+      "raw_text": "",
+      "cleaned_text": "",
+      "cleaning_version": "rule-based.v1",
+      "cleaning_diagnostics": {
+        "cleaner": "rule-based.v1",
+        "raw_length": 0,
+        "cleaned_length": 0,
+        "metadata_only": true
+      },
+      "short_summary": null,
+      "detailed_summary": null,
+      "summary_version": null,
+      "quality_reasons": [
+        "content_unavailable"
+      ],
+      "metrics": {
+        "cleaned_text_length": 0,
+        "mojibake_ratio": 0.0,
+        "url_ratio": 0.0,
+        "cta_ratio": 0.0
+      },
+      "analysis_state": {
+        "item_id": "docs.python_insider:blog.python.org/2026/03/python-31213-31115-31020",
+        "missing_contents": false,
+        "missing_cleaned_text": true,
+        "missing_chunks": false,
+        "missing_summary": true,
+        "missing_quality": true,
+        "is_ineligible": false,
+        "is_low_quality": false
+      },
+      "analysis_report": {
+        "missing_reason_codes": [
+          "analyze.missing.cleaned_text_empty",
+          "analyze.missing.summary_missing",
+          "analyze.missing.quality_missing"
+        ],
+        "missing_reasons": [
+          {
+            "code": "analyze.missing.cleaned_text_empty",
+            "message": "cleaned_text is empty."
+          },
+          {
+            "code": "analyze.missing.summary_missing",
+            "message": "No item_summaries row exists."
+          },
+          {
+            "code": "analyze.missing.quality_missing",
+            "message": "Quality fields have not been evaluated yet."
+          }
+        ],
+        "retry_reason_codes": [],
+        "retry_reasons": [],
+        "retry_policy_applied": [],
+        "retry_policy_audit": [],
+        "retry_effect": {
+          "previous_quality_tier": null,
+          "current_quality_tier": "reject",
+          "quality_improved": true
+        }
+      }
+    },
+    {
+      "item_id": "docs.python_insider:blog.python.org/2026/03/cpython-codebase-growth",
+      "source_id": "docs.python_insider",
+      "source_type": "article",
+      "external_id": "blog.python.org/2026/03/cpython-codebase-growth",
+      "title": "CPython: 36 Years of Source Code",
+      "author": "Python Insider",
+      "published_at": "2026-03-08T00:00:00+00:00",
+      "url": "https://blog.python.org/2026/03/cpython-codebase-growth/",
+      "body_kind": "metadata_only",
+      "content_status": "unavailable",
+      "content_warning": "Metadata only: body retrieval disabled for candidate collection.",
+      "retrieval_diagnostics": {
+        "candidate_only": true,
+        "candidate_mode": "metadata_only",
+        "feed_url": "https://blog.python.org/rss.xml",
+        "metadata_only": true,
+        "category": "history",
+        "metadata_only_reason": "candidate_only_metadata",
+        "candidate_fetch_mode": "rss"
+      },
+      "language": null,
+      "trust_level": null,
+      "evidence_strength": "none",
+      "quality_tier": "reject",
+      "reader_eligibility": "eligible_with_warning",
+      "notebooklm_eligibility": "ineligible",
+      "created_at": "2026-03-21T02:46:52+00:00",
+      "updated_at": "2026-03-21T02:46:52+00:00",
+      "raw_text": "",
+      "cleaned_text": "",
+      "cleaning_version": "rule-based.v1",
+      "cleaning_diagnostics": {
+        "cleaner": "rule-based.v1",
+        "raw_length": 0,
+        "cleaned_length": 0,
+        "metadata_only": true
+      },
+      "short_summary": null,
+      "detailed_summary": null,
+      "summary_version": null,
+      "quality_reasons": [
+        "content_unavailable"
+      ],
+      "metrics": {
+        "cleaned_text_length": 0,
+        "mojibake_ratio": 0.0,
+        "url_ratio": 0.0,
+        "cta_ratio": 0.0
+      },
+      "analysis_state": {
+        "item_id": "docs.python_insider:blog.python.org/2026/03/cpython-codebase-growth",
+        "missing_contents": false,
+        "missing_cleaned_text": true,
+        "missing_chunks": false,
+        "missing_summary": true,
+        "missing_quality": true,
+        "is_ineligible": false,
+        "is_low_quality": false
+      },
+      "analysis_report": {
+        "missing_reason_codes": [
+          "analyze.missing.cleaned_text_empty",
+          "analyze.missing.summary_missing",
+          "analyze.missing.quality_missing"
+        ],
+        "missing_reasons": [
+          {
+            "code": "analyze.missing.cleaned_text_empty",
+            "message": "cleaned_text is empty."
+          },
+          {
+            "code": "analyze.missing.summary_missing",
+            "message": "No item_summaries row exists."
+          },
+          {
+            "code": "analyze.missing.quality_missing",
+            "message": "Quality fields have not been evaluated yet."
+          }
+        ],
+        "retry_reason_codes": [],
+        "retry_reasons": [],
+        "retry_policy_applied": [],
+        "retry_policy_audit": [],
+        "retry_effect": {
+          "previous_quality_tier": null,
+          "current_quality_tier": "reject",
+          "quality_improved": true
+        }
+      }
+    },
+    {
+      "item_id": "docs.python_insider:blog.python.org/2026/03/python-3150-alpha-7",
+      "source_id": "docs.python_insider",
+      "source_type": "article",
+      "external_id": "blog.python.org/2026/03/python-3150-alpha-7",
+      "title": "Python 3.15.0 alpha 7",
+      "author": "Python Insider",
+      "published_at": "2026-03-10T00:00:00+00:00",
+      "url": "https://blog.python.org/2026/03/python-3150-alpha-7/",
+      "body_kind": "metadata_only",
+      "content_status": "unavailable",
+      "content_warning": "Metadata only: body retrieval disabled for candidate collection.",
+      "retrieval_diagnostics": {
+        "candidate_only": true,
+        "candidate_mode": "metadata_only",
+        "feed_url": "https://blog.python.org/rss.xml",
+        "metadata_only": true,
+        "category": "releases",
+        "metadata_only_reason": "candidate_only_metadata",
+        "candidate_fetch_mode": "rss"
+      },
+      "language": null,
+      "trust_level": null,
+      "evidence_strength": "none",
+      "quality_tier": "reject",
+      "reader_eligibility": "eligible_with_warning",
+      "notebooklm_eligibility": "ineligible",
+      "created_at": "2026-03-21T02:46:52+00:00",
+      "updated_at": "2026-03-21T02:46:52+00:00",
+      "raw_text": "",
+      "cleaned_text": "",
+      "cleaning_version": "rule-based.v1",
+      "cleaning_diagnostics": {
+        "cleaner": "rule-based.v1",
+        "raw_length": 0,
+        "cleaned_length": 0,
+        "metadata_only": true
+      },
+      "short_summary": null,
+      "detailed_summary": null,
+      "summary_version": null,
+      "quality_reasons": [
+        "content_unavailable"
+      ],
+      "metrics": {
+        "cleaned_text_length": 0,
+        "mojibake_ratio": 0.0,
+        "url_ratio": 0.0,
+        "cta_ratio": 0.0
+      },
+      "analysis_state": {
+        "item_id": "docs.python_insider:blog.python.org/2026/03/python-3150-alpha-7",
+        "missing_contents": false,
+        "missing_cleaned_text": true,
+        "missing_chunks": false,
+        "missing_summary": true,
+        "missing_quality": true,
+        "is_ineligible": false,
+        "is_low_quality": false
+      },
+      "analysis_report": {
+        "missing_reason_codes": [
+          "analyze.missing.cleaned_text_empty",
+          "analyze.missing.summary_missing",
+          "analyze.missing.quality_missing"
+        ],
+        "missing_reasons": [
+          {
+            "code": "analyze.missing.cleaned_text_empty",
+            "message": "cleaned_text is empty."
+          },
+          {
+            "code": "analyze.missing.summary_missing",
+            "message": "No item_summaries row exists."
+          },
+          {
+            "code": "analyze.missing.quality_missing",
+            "message": "Quality fields have not been evaluated yet."
+          }
+        ],
+        "retry_reason_codes": [],
+        "retry_reasons": [],
+        "retry_policy_applied": [],
+        "retry_policy_audit": [],
+        "retry_effect": {
+          "previous_quality_tier": null,
+          "current_quality_tier": "reject",
+          "quality_improved": true
+        }
+      }
+    },
+    {
+      "item_id": "blog.openai:openai.com/index/japan-teen-safety-blueprint",
+      "source_id": "blog.openai",
+      "source_type": "article",
+      "external_id": "openai.com/index/japan-teen-safety-blueprint",
+      "title": "OpenAI Japan announces Japan Teen Safety Blueprint to put teen safety first",
+      "author": "OpenAI Blog",
+      "published_at": "2026-03-17T10:00:00+00:00",
+      "url": "https://openai.com/index/japan-teen-safety-blueprint",
+      "body_kind": "metadata_only",
+      "content_status": "unavailable",
+      "content_warning": "Metadata only: body retrieval disabled for candidate collection.",
+      "retrieval_diagnostics": {
+        "candidate_only": true,
+        "candidate_mode": "metadata_only",
+        "feed_url": "https://openai.com/news/rss.xml",
+        "metadata_only": true,
+        "category": "Safety",
+        "metadata_only_reason": "candidate_only_metadata",
+        "candidate_fetch_mode": "rss"
+      },
+      "language": null,
+      "trust_level": null,
+      "evidence_strength": "none",
+      "quality_tier": "reject",
+      "reader_eligibility": "eligible_with_warning",
+      "notebooklm_eligibility": "ineligible",
+      "created_at": "2026-03-21T02:46:52+00:00",
+      "updated_at": "2026-03-21T02:46:52+00:00",
+      "raw_text": "",
+      "cleaned_text": "",
+      "cleaning_version": "rule-based.v1",
+      "cleaning_diagnostics": {
+        "cleaner": "rule-based.v1",
+        "raw_length": 0,
+        "cleaned_length": 0,
+        "metadata_only": true
+      },
+      "short_summary": null,
+      "detailed_summary": null,
+      "summary_version": null,
+      "quality_reasons": [
+        "content_unavailable"
+      ],
+      "metrics": {
+        "cleaned_text_length": 0,
+        "mojibake_ratio": 0.0,
+        "url_ratio": 0.0,
+        "cta_ratio": 0.0
+      },
+      "analysis_state": {
+        "item_id": "blog.openai:openai.com/index/japan-teen-safety-blueprint",
+        "missing_contents": false,
+        "missing_cleaned_text": true,
+        "missing_chunks": false,
+        "missing_summary": true,
+        "missing_quality": true,
+        "is_ineligible": false,
+        "is_low_quality": false
+      },
+      "analysis_report": {
+        "missing_reason_codes": [
+          "analyze.missing.cleaned_text_empty",
+          "analyze.missing.summary_missing",
+          "analyze.missing.quality_missing"
+        ],
+        "missing_reasons": [
+          {
+            "code": "analyze.missing.cleaned_text_empty",
+            "message": "cleaned_text is empty."
+          },
+          {
+            "code": "analyze.missing.summary_missing",
+            "message": "No item_summaries row exists."
+          },
+          {
+            "code": "analyze.missing.quality_missing",
+            "message": "Quality fields have not been evaluated yet."
+          }
+        ],
+        "retry_reason_codes": [],
+        "retry_reasons": [],
+        "retry_policy_applied": [],
+        "retry_policy_audit": [],
+        "retry_effect": {
+          "previous_quality_tier": null,
+          "current_quality_tier": "reject",
+          "quality_improved": true
+        }
+      }
+    },
+    {
+      "item_id": "blog.openai:openai.com/index/openai-to-acquire-astral",
+      "source_id": "blog.openai",
+      "source_type": "article",
+      "external_id": "openai.com/index/openai-to-acquire-astral",
+      "title": "OpenAI to acquire Astral",
+      "author": "OpenAI Blog",
+      "published_at": "2026-03-19T00:00:00+00:00",
+      "url": "https://openai.com/index/openai-to-acquire-astral",
+      "body_kind": "metadata_only",
+      "content_status": "unavailable",
+      "content_warning": "Metadata only: body retrieval disabled for candidate collection.",
+      "retrieval_diagnostics": {
+        "candidate_only": true,
+        "candidate_mode": "metadata_only",
+        "feed_url": "https://openai.com/news/rss.xml",
+        "metadata_only": true,
+        "category": "Company",
+        "metadata_only_reason": "candidate_only_metadata",
+        "candidate_fetch_mode": "rss"
+      },
+      "language": null,
+      "trust_level": null,
+      "evidence_strength": "none",
+      "quality_tier": "reject",
+      "reader_eligibility": "eligible_with_warning",
+      "notebooklm_eligibility": "ineligible",
+      "created_at": "2026-03-21T02:46:52+00:00",
+      "updated_at": "2026-03-21T02:46:52+00:00",
+      "raw_text": "",
+      "cleaned_text": "",
+      "cleaning_version": "rule-based.v1",
+      "cleaning_diagnostics": {
+        "cleaner": "rule-based.v1",
+        "raw_length": 0,
+        "cleaned_length": 0,
+        "metadata_only": true
+      },
+      "short_summary": null,
+      "detailed_summary": null,
+      "summary_version": null,
+      "quality_reasons": [
+        "content_unavailable"
+      ],
+      "metrics": {
+        "cleaned_text_length": 0,
+        "mojibake_ratio": 0.0,
+        "url_ratio": 0.0,
+        "cta_ratio": 0.0
+      },
+      "analysis_state": {
+        "item_id": "blog.openai:openai.com/index/openai-to-acquire-astral",
+        "missing_contents": false,
+        "missing_cleaned_text": true,
+        "missing_chunks": false,
+        "missing_summary": true,
+        "missing_quality": true,
+        "is_ineligible": false,
+        "is_low_quality": false
+      },
+      "analysis_report": {
+        "missing_reason_codes": [
+          "analyze.missing.cleaned_text_empty",
+          "analyze.missing.summary_missing",
+          "analyze.missing.quality_missing"
+        ],
+        "missing_reasons": [
+          {
+            "code": "analyze.missing.cleaned_text_empty",
+            "message": "cleaned_text is empty."
+          },
+          {
+            "code": "analyze.missing.summary_missing",
+            "message": "No item_summaries row exists."
+          },
+          {
+            "code": "analyze.missing.quality_missing",
+            "message": "Quality fields have not been evaluated yet."
+          }
+        ],
+        "retry_reason_codes": [],
+        "retry_reasons": [],
+        "retry_policy_applied": [],
+        "retry_policy_audit": [],
+        "retry_effect": {
+          "previous_quality_tier": null,
+          "current_quality_tier": "reject",
+          "quality_improved": true
+        }
+      }
+    },
+    {
+      "item_id": "blog.openai:openai.com/index/how-we-monitor-internal-coding-agents-misalignment",
+      "source_id": "blog.openai",
+      "source_type": "article",
+      "external_id": "openai.com/index/how-we-monitor-internal-coding-agents-misalignment",
+      "title": "How we monitor internal coding agents for misalignment",
+      "author": "OpenAI Blog",
+      "published_at": "2026-03-19T10:00:00+00:00",
+      "url": "https://openai.com/index/how-we-monitor-internal-coding-agents-misalignment",
+      "body_kind": "metadata_only",
+      "content_status": "unavailable",
+      "content_warning": "Metadata only: body retrieval disabled for candidate collection.",
+      "retrieval_diagnostics": {
+        "candidate_only": true,
+        "candidate_mode": "metadata_only",
+        "feed_url": "https://openai.com/news/rss.xml",
+        "metadata_only": true,
+        "category": "Safety",
+        "metadata_only_reason": "candidate_only_metadata",
+        "candidate_fetch_mode": "rss"
+      },
+      "language": null,
+      "trust_level": null,
+      "evidence_strength": "none",
+      "quality_tier": "reject",
+      "reader_eligibility": "eligible_with_warning",
+      "notebooklm_eligibility": "ineligible",
+      "created_at": "2026-03-21T02:46:52+00:00",
+      "updated_at": "2026-03-21T02:46:52+00:00",
+      "raw_text": "",
+      "cleaned_text": "",
+      "cleaning_version": "rule-based.v1",
+      "cleaning_diagnostics": {
+        "cleaner": "rule-based.v1",
+        "raw_length": 0,
+        "cleaned_length": 0,
+        "metadata_only": true
+      },
+      "short_summary": null,
+      "detailed_summary": null,
+      "summary_version": null,
+      "quality_reasons": [
+        "content_unavailable"
+      ],
+      "metrics": {
+        "cleaned_text_length": 0,
+        "mojibake_ratio": 0.0,
+        "url_ratio": 0.0,
+        "cta_ratio": 0.0
+      },
+      "analysis_state": {
+        "item_id": "blog.openai:openai.com/index/how-we-monitor-internal-coding-agents-misalignment",
+        "missing_contents": false,
+        "missing_cleaned_text": true,
+        "missing_chunks": false,
+        "missing_summary": true,
+        "missing_quality": true,
+        "is_ineligible": false,
+        "is_low_quality": false
+      },
+      "analysis_report": {
+        "missing_reason_codes": [
+          "analyze.missing.cleaned_text_empty",
+          "analyze.missing.summary_missing",
+          "analyze.missing.quality_missing"
+        ],
+        "missing_reasons": [
+          {
+            "code": "analyze.missing.cleaned_text_empty",
+            "message": "cleaned_text is empty."
+          },
+          {
+            "code": "analyze.missing.summary_missing",
+            "message": "No item_summaries row exists."
+          },
+          {
+            "code": "analyze.missing.quality_missing",
+            "message": "Quality fields have not been evaluated yet."
+          }
+        ],
+        "retry_reason_codes": [],
+        "retry_reasons": [],
+        "retry_policy_applied": [],
+        "retry_policy_audit": [],
+        "retry_effect": {
+          "previous_quality_tier": null,
+          "current_quality_tier": "reject",
+          "quality_improved": true
+        }
+      }
+    }
+  ],
+  "retry_metrics": {
+    "total_items": 9,
+    "retry_candidate_items": 0,
+    "retried_items": 0,
+    "retry_rate": 0.0,
+    "retry_success_count": 0,
+    "retry_success_rate": 0.0,
+    "retry_success_definition": "quality_tier_improved",
+    "blocked_reason_counts": {
+      "blocked_by_max_retries": 0,
+      "blocked_by_cooldown": 0,
+      "blocked_by_override": 0
+    },
+    "source_retry_distribution": {
+      "nikkei.xtech.candidate": {
+        "analyzed_count": 3,
+        "retry_candidate_count": 0,
+        "retried_count": 0
+      },
+      "docs.python_insider": {
+        "analyzed_count": 3,
+        "retry_candidate_count": 0,
+        "retried_count": 0
+      },
+      "blog.openai": {
+        "analyzed_count": 3,
+        "retry_candidate_count": 0,
+        "retried_count": 0
+      }
+    }
+  },
+  "readme": {
+    "retry_success_definition": "A retry counts as success only when quality_tier improved relative to the previous attempt.",
+    "blocked_reason_counts": "Counts retry candidates blocked by retry policy gates such as max retries, cooldown, or override-disabled rules.",
+    "source_retry_distribution": "Per source summary of analyzed items, retry candidates, and executed retries."
+  }
+}

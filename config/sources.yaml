@@ -1,0 +1,450 @@
+{
+  "source_sets": {
+    "youtube": [
+      "youtube.default"
+    ],
+    "official_blogs": [
+      "blog.openai",
+      "blog.anthropic",
+      "blog.google_gemini",
+      "blog.google_deepmind",
+      "blog.microsoft_ai",
+      "blog.aws_ml",
+      "blog.huggingface",
+      "blog.langchain",
+      "blog.pinecone",
+      "blog.weaviate"
+    ],
+    "technical_docs": [
+      "docs.python_insider"
+    ],
+    "nikkei_xtech_candidate": [
+      "nikkei.xtech.candidate"
+    ],
+    "nikkei_bizgate_genai": [
+      "nikkei.bizgate.genai"
+    ],
+    "nikkei_financial_ai": [
+      "nikkei.financial.ai"
+    ],
+    "nikkei_main_ai_candidate": [
+      "nikkei.main.ai"
+    ],
+    "nikkei_paid_ai": [
+      "nikkei.bizgate.genai",
+      "nikkei.financial.ai",
+      "nikkei.main.ai"
+    ],
+    "production_min": [
+      "blog.openai",
+      "blog.anthropic",
+      "blog.google_gemini",
+      "blog.google_deepmind",
+      "blog.microsoft_ai",
+      "blog.aws_ml",
+      "blog.huggingface",
+      "blog.langchain",
+      "blog.pinecone",
+      "blog.weaviate",
+      "docs.python_insider",
+      "nikkei.bizgate.genai",
+      "nikkei.xtech.candidate"
+    ]
+  },
+  "sources": [
+    {
+      "source_id": "youtube.default",
+      "source_name": "YouTube Default",
+      "source_type": "youtube_video",
+      "base_url": "https://www.youtube.com",
+      "collection_method": "youtube_api_search",
+      "cadence_type": "manual",
+      "priority": 100,
+      "trust_level": "medium",
+      "notebooklm_default_policy": "conditional_description_only",
+      "reader_default_policy": "include_with_warning",
+      "is_active": true,
+      "notes": "Existing YouTube pipeline source."
+    },
+    {
+      "source_id": "blog.openai",
+      "source_name": "OpenAI Blog",
+      "source_type": "article",
+      "base_url": "https://openai.com",
+      "collection_method": "rss_candidate_feed",
+      "cadence_type": "manual",
+      "priority": 80,
+      "trust_level": "high",
+      "notebooklm_default_policy": "exclude",
+      "reader_default_policy": "include_with_warning",
+      "is_active": true,
+      "provider": "rss_candidate",
+      "feed_url": "https://openai.com/news/rss.xml",
+      "scrape_url": "https://openai.com/news/",
+      "category": "official_blogs",
+      "candidate_mode": "metadata_only",
+      "notes": "Small official blog candidate feed for production_min."
+    },
+    {
+      "source_id": "blog.anthropic",
+      "source_name": "Anthropic News",
+      "source_type": "article",
+      "base_url": "https://www.anthropic.com",
+      "collection_method": "rss_candidate_feed",
+      "cadence_type": "manual",
+      "priority": 78,
+      "trust_level": "high",
+      "notebooklm_default_policy": "exclude",
+      "reader_default_policy": "include_with_warning",
+      "is_active": true,
+      "provider": "rss_candidate",
+      "feed_url": "https://www.anthropic.com/news",
+      "scrape_url": "https://www.anthropic.com/news",
+      "category": "official_blogs",
+      "candidate_mode": "metadata_only",
+      "entry_url_patterns": [
+        "/news/"
+      ],
+      "notes": "Anthropic newsroom page scraped as article candidates for production_min."
+    },
+    {
+      "source_id": "blog.google_gemini",
+      "source_name": "Google Gemini Blog",
+      "source_type": "article",
+      "base_url": "https://blog.google",
+      "collection_method": "rss_candidate_feed",
+      "cadence_type": "manual",
+      "priority": 76,
+      "trust_level": "high",
+      "notebooklm_default_policy": "exclude",
+      "reader_default_policy": "include_with_warning",
+      "is_active": true,
+      "provider": "rss_candidate",
+      "feed_url": "https://blog.google/products-and-platforms/products/gemini/",
+      "scrape_url": "https://blog.google/products-and-platforms/products/gemini/",
+      "category": "official_blogs",
+      "candidate_mode": "metadata_only",
+      "entry_url_patterns": [
+        "/products-and-platforms/products/gemini/"
+      ],
+      "notes": "Google Blog Gemini category page scraped as article candidates for production_min."
+    },
+    {
+      "source_id": "blog.google_deepmind",
+      "source_name": "Google DeepMind Blog",
+      "source_type": "article",
+      "base_url": "https://deepmind.google",
+      "collection_method": "rss_candidate_feed",
+      "cadence_type": "manual",
+      "priority": 75,
+      "trust_level": "high",
+      "notebooklm_default_policy": "exclude",
+      "reader_default_policy": "include_with_warning",
+      "is_active": true,
+      "provider": "rss_candidate",
+      "feed_url": "https://deepmind.google/blog/",
+      "scrape_url": "https://deepmind.google/blog/",
+      "category": "official_blogs",
+      "candidate_mode": "metadata_only",
+      "entry_url_patterns": [
+        "^https://deepmind\\.google/blog/.+"
+      ],
+      "notes": "Google DeepMind blog page scraped as article candidates for production_min."
+    },
+    {
+      "source_id": "blog.microsoft_ai",
+      "source_name": "Microsoft AI Blog",
+      "source_type": "article",
+      "base_url": "https://blogs.microsoft.com",
+      "collection_method": "rss_candidate_feed",
+      "cadence_type": "manual",
+      "priority": 74,
+      "trust_level": "high",
+      "notebooklm_default_policy": "exclude",
+      "reader_default_policy": "include_with_warning",
+      "is_active": true,
+      "provider": "rss_candidate",
+      "feed_url": "https://blogs.microsoft.com/blog/tag/ai/",
+      "scrape_url": "https://blogs.microsoft.com/blog/tag/ai/",
+      "category": "official_blogs",
+      "candidate_mode": "metadata_only",
+      "entry_url_patterns": [
+        "^https://blogs\\.microsoft\\.com/blog/\\d{4}/\\d{2}/\\d{2}/.+"
+      ],
+      "notes": "Microsoft official AI-tag page scraped as article candidates for production_min."
+    },
+    {
+      "source_id": "blog.aws_ml",
+      "source_name": "AWS Machine Learning Blog",
+      "source_type": "article",
+      "base_url": "https://aws.amazon.com",
+      "collection_method": "rss_candidate_feed",
+      "cadence_type": "manual",
+      "priority": 73,
+      "trust_level": "high",
+      "notebooklm_default_policy": "exclude",
+      "reader_default_policy": "include_with_warning",
+      "is_active": true,
+      "provider": "rss_candidate",
+      "feed_url": "https://aws.amazon.com/blogs/machine-learning/",
+      "scrape_url": "https://aws.amazon.com/blogs/machine-learning/",
+      "category": "official_blogs",
+      "candidate_mode": "metadata_only",
+      "entry_url_patterns": [
+        "^https://aws\\.amazon\\.com/blogs/machine-learning/.+"
+      ],
+      "exclude_entry_url_patterns": [
+        "/category/",
+        "/post-types/"
+      ],
+      "notes": "AWS Machine Learning blog page scraped as article candidates for production_min."
+    },
+    {
+      "source_id": "blog.huggingface",
+      "source_name": "Hugging Face Blog",
+      "source_type": "article",
+      "base_url": "https://huggingface.co",
+      "collection_method": "rss_candidate_feed",
+      "cadence_type": "manual",
+      "priority": 72,
+      "trust_level": "high",
+      "notebooklm_default_policy": "exclude",
+      "reader_default_policy": "include_with_warning",
+      "is_active": true,
+      "provider": "rss_candidate",
+      "feed_url": "https://huggingface.co/blog",
+      "scrape_url": "https://huggingface.co/blog",
+      "category": "official_blogs",
+      "candidate_mode": "metadata_only",
+      "entry_url_patterns": [
+        "^https://huggingface\\.co/blog/[^/#?]+/?$"
+      ],
+      "exclude_entry_url_patterns": [
+        "/blog$",
+        "/blog/$",
+        "/blog/community",
+        "/blog/zh",
+        "/blog/tag/",
+        "/blog/author/"
+      ],
+      "notes": "Hugging Face blog page scraped as article candidates for production_min."
+    },
+    {
+      "source_id": "blog.langchain",
+      "source_name": "LangChain Blog",
+      "source_type": "article",
+      "base_url": "https://blog.langchain.com",
+      "collection_method": "rss_candidate_feed",
+      "cadence_type": "manual",
+      "priority": 71,
+      "trust_level": "high",
+      "notebooklm_default_policy": "exclude",
+      "reader_default_policy": "include_with_warning",
+      "is_active": true,
+      "provider": "rss_candidate",
+      "feed_url": "https://blog.langchain.com/",
+      "scrape_url": "https://blog.langchain.com/",
+      "category": "official_blogs",
+      "candidate_mode": "metadata_only",
+      "entry_url_patterns": [
+        "^https://blog\\.langchain\\.com/[^/#?]+/?$"
+      ],
+      "notes": "LangChain blog page scraped as article candidates for production_min."
+    },
+    {
+      "source_id": "blog.pinecone",
+      "source_name": "Pinecone Blog",
+      "source_type": "article",
+      "base_url": "https://www.pinecone.io",
+      "collection_method": "rss_candidate_feed",
+      "cadence_type": "manual",
+      "priority": 70,
+      "trust_level": "high",
+      "notebooklm_default_policy": "exclude",
+      "reader_default_policy": "include_with_warning",
+      "is_active": true,
+      "provider": "rss_candidate",
+      "feed_url": "https://www.pinecone.io/blog/",
+      "scrape_url": "https://www.pinecone.io/blog/",
+      "category": "official_blogs",
+      "candidate_mode": "metadata_only",
+      "entry_url_patterns": [
+        "^https://www\\.pinecone\\.io/blog/[^/#?]+/?$"
+      ],
+      "exclude_entry_url_patterns": [
+        "/blog/$",
+        "/blog/category/",
+        "/blog/tag/"
+      ],
+      "notes": "Pinecone blog page scraped as article candidates for production_min."
+    },
+    {
+      "source_id": "blog.weaviate",
+      "source_name": "Weaviate Blog",
+      "source_type": "article",
+      "base_url": "https://weaviate.io",
+      "collection_method": "rss_candidate_feed",
+      "cadence_type": "manual",
+      "priority": 69,
+      "trust_level": "high",
+      "notebooklm_default_policy": "exclude",
+      "reader_default_policy": "include_with_warning",
+      "is_active": true,
+      "provider": "rss_candidate",
+      "feed_url": "https://weaviate.io/blog",
+      "scrape_url": "https://weaviate.io/blog",
+      "category": "official_blogs",
+      "candidate_mode": "metadata_only",
+      "entry_url_patterns": [
+        "^https://weaviate\\.io/blog/[^/#?]+/?$"
+      ],
+      "exclude_entry_url_patterns": [
+        "/blog/$",
+        "/blog/tag/",
+        "/blog/category/"
+      ],
+      "notes": "Weaviate blog page scraped as article candidates for production_min."
+    },
+    {
+      "source_id": "docs.python_insider",
+      "source_name": "Python Insider",
+      "source_type": "article",
+      "base_url": "https://blog.python.org",
+      "collection_method": "rss_candidate_feed",
+      "cadence_type": "manual",
+      "priority": 70,
+      "trust_level": "high",
+      "notebooklm_default_policy": "exclude",
+      "reader_default_policy": "include_with_warning",
+      "is_active": true,
+      "provider": "rss_candidate",
+      "feed_url": "https://blog.python.org/rss.xml",
+      "scrape_url": "https://blog.python.org/",
+      "category": "technical_docs",
+      "candidate_mode": "metadata_only",
+      "notes": "Small technical docs/release candidate feed for production_min."
+    },
+    {
+      "source_id": "nikkei.xtech.candidate",
+      "source_name": "Nikkei xTECH Candidate",
+      "source_type": "article",
+      "base_url": "https://xtech.nikkei.com",
+      "collection_method": "rss_candidate_feed",
+      "cadence_type": "manual",
+      "priority": 60,
+      "trust_level": "medium",
+      "notebooklm_default_policy": "exclude",
+      "reader_default_policy": "include_with_warning",
+      "is_active": true,
+      "provider": "nikkei_xtech_candidate",
+      "feed_url": "https://xtech.nikkei.com/rss/index.rdf",
+      "scrape_url": "https://xtech.nikkei.com/",
+      "category": "nikkei_xtech_candidate",
+      "candidate_mode": "metadata_only",
+      "notes": "Candidate-only metadata feed. Falls back to minimal public HTML scraping when RSS is unavailable."
+    },
+    {
+      "source_id": "nikkei.bizgate.genai",
+      "source_name": "NIKKEI BizGate GenAI",
+      "source_type": "article",
+      "base_url": "https://bizgate.nikkei.com",
+      "collection_method": "rss_candidate_feed",
+      "cadence_type": "manual",
+      "priority": 61,
+      "trust_level": "medium",
+      "notebooklm_default_policy": "exclude",
+      "reader_default_policy": "include_with_warning",
+      "is_active": true,
+      "provider": "nikkei_xtech_candidate",
+      "feed_url": "https://bizgate.nikkei.com/search?keyword=%E7%94%9F%E6%88%90AI",
+      "scrape_url": "https://bizgate.nikkei.com/search?keyword=%E7%94%9F%E6%88%90AI",
+      "category": "nikkei_bizgate_genai",
+      "candidate_mode": "metadata_only",
+      "entry_url_patterns": [
+        "^https://bizgate\\.nikkei\\.com/article/.+"
+      ],
+      "exclude_entry_url_patterns": [
+        "/projects/",
+        "/search"
+      ],
+      "include_title_patterns": [
+        "AI",
+        "生成AI",
+        "人工知能",
+        "LLM",
+        "Claude",
+        "Gemini",
+        "OpenAI"
+      ],
+      "notes": "BizGate generated-AI search source. Uses existing Nikkei authenticated fetch when public body is unavailable."
+    },
+    {
+      "source_id": "nikkei.financial.ai",
+      "source_name": "NIKKEI Financial AI",
+      "source_type": "article",
+      "base_url": "https://financial.nikkei.com",
+      "collection_method": "rss_candidate_feed",
+      "cadence_type": "manual",
+      "priority": 62,
+      "trust_level": "medium",
+      "notebooklm_default_policy": "exclude",
+      "reader_default_policy": "include_with_warning",
+      "is_active": true,
+      "provider": "nikkei_xtech_candidate",
+      "feed_url": "https://financial.nikkei.com/search?keyword=AI",
+      "scrape_url": "https://financial.nikkei.com/search?keyword=AI",
+      "category": "nikkei_financial_ai",
+      "candidate_mode": "metadata_only",
+      "entry_url_patterns": [
+        "^https://financial\\.nikkei\\.com/article/.+"
+      ],
+      "exclude_entry_url_patterns": [
+        "/search"
+      ],
+      "include_title_patterns": [
+        "AI",
+        "生成AI",
+        "人工知能",
+        "LLM",
+        "Claude",
+        "Gemini",
+        "OpenAI"
+      ],
+      "notes": "NIKKEI Financial AI search source. Uses existing Nikkei authenticated fetch when public body is unavailable."
+    },
+    {
+      "source_id": "nikkei.main.ai",
+      "source_name": "NIKKEI Main AI",
+      "source_type": "article",
+      "base_url": "https://www.nikkei.com",
+      "collection_method": "rss_candidate_feed",
+      "cadence_type": "manual",
+      "priority": 63,
+      "trust_level": "medium",
+      "notebooklm_default_policy": "exclude",
+      "reader_default_policy": "include_with_warning",
+      "is_active": true,
+      "provider": "nikkei_xtech_candidate",
+      "feed_url": "https://www.nikkei.com/search?keyword=AI",
+      "scrape_url": "https://www.nikkei.com/search?keyword=AI",
+      "category": "nikkei_main_ai_candidate",
+      "candidate_mode": "metadata_only",
+      "entry_url_patterns": [
+        "^https://www\\.nikkei\\.com/article/.+"
+      ],
+      "exclude_entry_url_patterns": [
+        "/search"
+      ],
+      "include_title_patterns": [
+        "AI",
+        "生成AI",
+        "人工知能",
+        "LLM",
+        "Claude",
+        "Gemini",
+        "OpenAI"
+      ],
+      "notes": "NIKKEI main-site AI search source. Uses existing Nikkei authenticated fetch when public body is unavailable."
+    }
+  ]
+}

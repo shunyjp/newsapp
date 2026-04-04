@@ -2,6 +2,7 @@ import argparse
 import json
 import sys
 import warnings
+from dataclasses import asdict
 from pathlib import Path
 
 
@@ -23,7 +24,15 @@ from pipeline.metadata_only_report import (
     classify_metadata_only_row,
     classify_retry_policy,
 )
+from pipeline.collect import collect_items
+from db.repository import ItemRepository
+from pipeline.cleanup import cleanup_explicit_noise_items
+from pipeline.analyze import analyze_items, build_analysis_metrics, build_analysis_report
+from pipeline.export import export_items
+from pipeline.migrate import backfill_items_from_videos, write_backfill_reports
 from pipeline.pipeline import build_default_pipeline
+from pipeline.reporting import build_run_label, copy_report_artifact, copy_to_latest, write_report_json
+from pipeline.source_config import load_source_config, resolve_source_ids
 from outputs.export_notebooklm import export_notebooklm_json, export_notebooklm_markdown
 from outputs.export_reader import export_reader_json, export_reader_markdown
 
@@ -42,6 +51,57 @@ def parse_args() -> argparse.Namespace:
             "(videos without retrievable content are retained as metadata-only records)"
         )
     )
+    subparsers = parser.add_subparsers(dest="command")
+
+    collect_parser = subparsers.add_parser("collect", help="Collect items from a source provider")
+    collect_parser.add_argument("--source", help="Registered source id")
+    collect_parser.add_argument("--source-set", help="Configured source set name")
+    collect_parser.add_argument("--query", help="Source query")
+    collect_parser.add_argument("--channel-id", help="YouTube channel ID")
+    collect_parser.add_argument("--max-items", type=int, default=5, help="Maximum items to collect")
+
+    analyze_parser = subparsers.add_parser("analyze", help="Analyze collected items")
+    analyze_parser.add_argument("--source", help="Registered source id to analyze")
+    analyze_parser.add_argument("--source-set", help="Configured source set name to analyze")
+    analyze_parser.add_argument("--item-source", help="Alias of --source for item-based analyze selection")
+    analyze_parser.add_argument("--only-missing", action="store_true", help="Analyze only items missing quality/summary data")
+    analyze_parser.add_argument("--retry-ineligible", action="store_true", help="Retry items currently marked ineligible")
+    analyze_parser.add_argument("--retry-low-quality", action="store_true", help="Retry items currently marked low quality")
+    analyze_parser.add_argument("--skip-llm", action="store_true", help="Skip chunk summarization")
+    analyze_parser.add_argument("--report-file", help="Write item-level missing/retry reason report as JSON")
+    analyze_parser.add_argument("--explain", action="store_true", help="Print item-level missing/retry reasons")
+
+    export_parser = subparsers.add_parser("export", help="Export analyzed items")
+    export_parser.add_argument("--source", help="Registered source id to export")
+    export_parser.add_argument("--source-set", help="Configured source set name to export")
+    export_parser.add_argument(
+        "--format",
+        required=True,
+        choices=("reader", "reader-json", "notebooklm-json", "notebooklm-markdown"),
+        help="Export format",
+    )
+    export_parser.add_argument("--query", help="Optional query label for output file naming")
+    export_parser.add_argument("--compare", action="store_true", help="Compare items-priority export against legacy fallback results")
+
+    migrate_parser = subparsers.add_parser("migrate", help="Backfill new item tables from legacy video tables")
+    migrate_parser.add_argument("--backfill-items-from-videos", action="store_true", help="Backfill items/item_contents/item_chunks/item_summaries from legacy video tables")
+    migrate_parser.add_argument("--only-missing", action="store_true", help="Only create missing item rows")
+    migrate_parser.add_argument("--dry-run", action="store_true", help="Estimate migration counts without writing")
+    migrate_parser.add_argument("--audit-file", help="Write per-legacy-record migration audit JSON")
+    migrate_parser.add_argument("--summary-file", help="Write migration summary JSON")
+
+    cleanup_parser = subparsers.add_parser("cleanup", help="Remove explicit noise items from item tables")
+    cleanup_parser.add_argument("--source", help="Registered source id to clean")
+    cleanup_parser.add_argument("--source-set", help="Configured source set name to clean")
+    cleanup_parser.add_argument("--remove-explicit-noise", action="store_true", help="Remove items whose titles match explicit PR/advertorial patterns")
+    cleanup_parser.add_argument("--dry-run", action="store_true", help="List cleanup targets without deleting them")
+
+    parser.add_argument(
+        "--reports-root",
+        default=str(Path(__file__).resolve().parent / "reports"),
+        help="Directory for dated operational report outputs",
+    )
+
     parser.add_argument("--query", help="YouTube search query")
     parser.add_argument("--channel-id", help="YouTube channel ID")
     parser.add_argument(
@@ -118,6 +178,339 @@ def parse_args() -> argparse.Namespace:
         help="Reprocess retryable metadata-only videos already stored in SQLite",
     )
     return parser.parse_args()
+
+
+def _run_collect_command(args: argparse.Namespace) -> int:
+    db = Database(db_path=DB_PATH, schema_path="db/schema.sql")
+    config = load_source_config()
+    source_ids = resolve_source_ids(config, source_id=args.source, source_set=args.source_set)
+    all_records: list[dict[str, object]] = []
+    source_errors: list[dict[str, str]] = []
+    for source_id in source_ids:
+        try:
+            records = collect_items(
+                db=db,
+                source_id=source_id,
+                source_set=None,
+                query=args.query,
+                channel_id=args.channel_id,
+                max_items=args.max_items,
+            )
+            all_records.extend(records)
+        except Exception as exc:
+            source_errors.append({"source_id": source_id, "error": str(exc)})
+            print(f"Collect failed for source={source_id}: {exc}", file=sys.stderr)
+    print(f"Collected {len(all_records)} item(s) from {args.source_set or args.source}.")
+    if source_errors:
+        print(f"Source failures: {len(source_errors)}")
+    reports_root = Path(args.reports_root)
+    collect_report_path = write_report_json(
+        reports_root,
+        "collect",
+        f"collect-result-{build_run_label(args.source, args.source_set)}",
+        {
+            "source": args.source,
+            "source_set": args.source_set,
+            "query": args.query,
+            "channel_id": args.channel_id,
+            "max_items": args.max_items,
+            "record_count": len(all_records),
+            "error_count": len(source_errors),
+            "errors": source_errors,
+            "records": [
+                {
+                    **{key: value for key, value in record.items() if key != "item"},
+                    "item": asdict(record["item"]),
+                }
+                for record in all_records
+            ],
+        },
+    )
+    latest_collect_report_path = copy_to_latest(reports_root, "collect", collect_report_path)
+    for record in all_records:
+        item = record["item"]
+        print("=" * 80)
+        print(item.title or "(untitled)")
+        print(item.url)
+        print(f"Body kind: {item.body_kind}")
+        print(f"Content status: {item.content_status}")
+    print(f"Collect report written: {collect_report_path}")
+    print(f"Latest collect report: {latest_collect_report_path}")
+    return 0
+
+
+def _run_analyze_command(args: argparse.Namespace) -> int:
+    db = Database(db_path=DB_PATH, schema_path="db/schema.sql")
+    source_id = args.item_source or args.source
+    source_ids = None
+    single_source_id = source_id
+    if source_id or args.source_set:
+        config = load_source_config()
+        source_ids = set(
+            resolve_source_ids(config, source_id=source_id, source_set=args.source_set)
+        )
+        single_source_id = next(iter(source_ids)) if len(source_ids) == 1 else None
+    repository = ItemRepository(db)
+    selection_rows = build_analysis_report(
+        repository,
+        repository.list_items(),
+        source_id=single_source_id,
+        source_ids=source_ids,
+        only_missing=args.only_missing,
+        retry_ineligible=args.retry_ineligible,
+        retry_low_quality=args.retry_low_quality,
+    )
+    if args.explain:
+        if args.explain:
+            print("Analysis selection report")
+            for row in selection_rows:
+                print("=" * 80)
+                print(row.get("title", "(untitled)"))
+                print(row.get("item_id", ""))
+                print(f"Selected: {row.get('selected', False)}")
+                missing_codes = ", ".join(row.get("missing_reason_codes", [])) or "-"
+                retry_codes = ", ".join(row.get("retry_reason_codes", [])) or "-"
+                missing_messages = ", ".join(reason["message"] for reason in row.get("missing_reasons", [])) or "-"
+                retry_messages = ", ".join(reason["message"] for reason in row.get("retry_reasons", [])) or "-"
+                print(f"Missing reason codes: {missing_codes}")
+                print(f"Missing reasons: {missing_messages}")
+                print(f"Retry reason codes: {retry_codes}")
+                print(f"Retry reasons: {retry_messages}")
+                if row.get("retry_policy_audit"):
+                    print("Retry policy audit: " + json.dumps(row["retry_policy_audit"], ensure_ascii=False, sort_keys=True))
+    analyzed = analyze_items(
+        db=db,
+        source_id=single_source_id,
+        source_ids=source_ids,
+        only_missing=args.only_missing,
+        retry_ineligible=args.retry_ineligible,
+        retry_low_quality=args.retry_low_quality,
+        skip_llm=args.skip_llm,
+    )
+    analysis_metrics = build_analysis_metrics(selection_rows, analyzed)
+    report_payload = {
+        "source": source_id,
+        "source_set": args.source_set,
+        "selection_rows": selection_rows,
+        "analyzed_items": analyzed,
+        "retry_metrics": analysis_metrics,
+        "readme": {
+            "retry_success_definition": "A retry counts as success only when quality_tier improved relative to the previous attempt.",
+            "blocked_reason_counts": "Counts retry candidates blocked by retry policy gates such as max retries, cooldown, or override-disabled rules.",
+            "source_retry_distribution": "Per source summary of analyzed items, retry candidates, and executed retries.",
+        },
+    }
+    if args.report_file:
+        report_path = Path(args.report_file)
+        report_path.parent.mkdir(parents=True, exist_ok=True)
+        report_path.write_text(
+            json.dumps(report_payload, ensure_ascii=False, indent=2),
+            encoding="utf-8",
+        )
+        print(f"Analysis report written: {report_path}")
+    reports_root = Path(args.reports_root)
+    auto_report_path = write_report_json(
+        reports_root,
+        "analyze",
+        f"analyze-report-{build_run_label(source_id, args.source_set)}",
+        report_payload,
+    )
+    latest_analyze_report_path = copy_to_latest(reports_root, "analyze", auto_report_path)
+    print(f"Analyzed {len(analyzed)} item(s).")
+    print("Retry metrics:")
+    print(f"- retry_rate: {analysis_metrics['retry_rate']:.3f}")
+    print(f"- retry_success_rate: {analysis_metrics['retry_success_rate']:.3f}")
+    print(f"- retry_success_definition: {analysis_metrics['retry_success_definition']}")
+    print("- blocked_reason_counts: " + json.dumps(analysis_metrics["blocked_reason_counts"], ensure_ascii=False, sort_keys=True))
+    print("- source_retry_distribution: " + json.dumps(analysis_metrics["source_retry_distribution"], ensure_ascii=False, sort_keys=True))
+    for item in analyzed:
+        print("=" * 80)
+        print(item.get("title", "(untitled)"))
+        print(item.get("url", ""))
+        print(f"Quality: {item.get('quality_tier', '')}")
+        print(f"Reader eligibility: {item.get('reader_eligibility', '')}")
+        print(f"NotebookLM eligibility: {item.get('notebooklm_eligibility', '')}")
+        if item.get("analysis_report"):
+            print("Missing reason codes: " + (", ".join(item["analysis_report"].get("missing_reason_codes", [])) or "-"))
+            print("Missing reasons: " + (", ".join(reason["message"] for reason in item["analysis_report"].get("missing_reasons", [])) or "-"))
+            print("Retry reason codes: " + (", ".join(item["analysis_report"].get("retry_reason_codes", [])) or "-"))
+            print("Retry reasons: " + (", ".join(reason["message"] for reason in item["analysis_report"].get("retry_reasons", [])) or "-"))
+            print("Retry policy applied: " + json.dumps(item["analysis_report"].get("retry_policy_applied", []), ensure_ascii=False, sort_keys=True))
+            print("Retry effect: " + json.dumps(item["analysis_report"].get("retry_effect", {}), ensure_ascii=False, sort_keys=True))
+    print(f"Operational analyze report: {auto_report_path}")
+    print(f"Latest analyze report: {latest_analyze_report_path}")
+    return 0
+
+
+def _run_migrate_command(args: argparse.Namespace) -> int:
+    if not args.backfill_items_from_videos:
+        print("No migrate operation selected.", file=sys.stderr)
+        return 1
+    db = Database(db_path=DB_PATH, schema_path="db/schema.sql")
+    summary = backfill_items_from_videos(
+        db=db,
+        only_missing=args.only_missing,
+        dry_run=args.dry_run,
+    )
+    write_backfill_reports(
+        summary,
+        audit_file=args.audit_file,
+        summary_file=args.summary_file,
+    )
+    print("Backfill summary")
+    print(f"- scanned: {summary.scanned}")
+    print(f"- created: {summary.created}")
+    print(f"- updated: {summary.updated}")
+    print(f"- skipped_existing: {summary.skipped_existing}")
+    print(f"- conflicts: {summary.conflicts}")
+    print(f"- warning_count: {summary.warning_count}")
+    print(f"- error_count: {summary.error_count}")
+    if summary.action_counts:
+        print(f"- action_counts: {json.dumps(summary.action_counts, ensure_ascii=False, sort_keys=True)}")
+    if summary.conflict_type_counts:
+        print(f"- conflict_type_counts: {json.dumps(summary.conflict_type_counts, ensure_ascii=False, sort_keys=True)}")
+    return 0
+
+
+def _run_cleanup_command(args: argparse.Namespace) -> int:
+    if not args.remove_explicit_noise:
+        print("No cleanup operation selected.", file=sys.stderr)
+        return 1
+    db = Database(db_path=DB_PATH, schema_path="db/schema.sql")
+    source_ids = None
+    if args.source or args.source_set:
+        config = load_source_config()
+        source_ids = set(
+            resolve_source_ids(config, source_id=args.source, source_set=args.source_set)
+        )
+    cleanup_report = cleanup_explicit_noise_items(
+        db,
+        source_ids=source_ids,
+        dry_run=args.dry_run,
+    )
+    reports_root = Path(args.reports_root)
+    cleanup_report_path = write_report_json(
+        reports_root,
+        "cleanup",
+        f"cleanup-report-{build_run_label(args.source, args.source_set)}",
+        {
+            "source": args.source,
+            "source_set": args.source_set,
+            "remove_explicit_noise": args.remove_explicit_noise,
+            **cleanup_report,
+        },
+    )
+    latest_cleanup_report_path = copy_to_latest(reports_root, "cleanup", cleanup_report_path)
+    print("Cleanup summary")
+    print(f"- dry_run: {cleanup_report['dry_run']}")
+    print(f"- matched_count: {cleanup_report['matched_count']}")
+    print(f"- deleted_count: {cleanup_report['deleted_count']}")
+    for item in cleanup_report["matched_items"]:
+        print("=" * 80)
+        print(item["title"] or "(untitled)")
+        print(item["url"])
+        print(f"Source: {item['source_id']}")
+        print(f"Body kind: {item['body_kind']}")
+        print(f"Content status: {item['content_status']}")
+    print(f"Cleanup report written: {cleanup_report_path}")
+    print(f"Latest cleanup report: {latest_cleanup_report_path}")
+    return 0
+
+
+def _run_export_command(args: argparse.Namespace) -> int:
+    db = Database(db_path=DB_PATH, schema_path="db/schema.sql")
+    source_ids = None
+    if args.source or args.source_set:
+        config = load_source_config()
+        source_ids = set(
+            resolve_source_ids(config, source_id=args.source, source_set=args.source_set)
+        )
+    output_dir = Path(__file__).resolve().parent / "outputs"
+    format_to_directory = {
+        "reader": output_dir / "reader",
+        "reader-json": output_dir / "reader",
+        "notebooklm-json": output_dir / "notebooklm",
+        "notebooklm-markdown": output_dir / "notebooklm",
+    }
+    export_result = export_items(
+        db=db,
+        export_format=args.format,
+        output_dir=format_to_directory[args.format],
+        query=args.query,
+        compare=args.compare,
+        source_ids=source_ids,
+    )
+    if args.compare:
+        export_path, compare_report = export_result
+    else:
+        export_path = export_result
+    print(f"Export written: {export_path}")
+    reports_root = Path(args.reports_root)
+    copied_export_path = copy_report_artifact(reports_root, "export", export_path)
+    latest_export_artifact_path = copy_to_latest(reports_root, "export", copied_export_path)
+    if args.compare:
+        print("Compare summary")
+        print(f"- items_priority_count: {compare_report.items_priority_count}")
+        print(f"- legacy_fallback_count: {compare_report.legacy_fallback_count}")
+        print(f"- overlapping_video_count: {compare_report.overlapping_video_count}")
+        print(f"- items_priority_only_count: {compare_report.items_priority_only_count}")
+        print(f"- legacy_only_count: {compare_report.legacy_only_count}")
+        print(f"- changed_video_count: {compare_report.changed_video_count}")
+        print("- items_priority_source_counts: " + json.dumps(compare_report.items_priority_source_counts, ensure_ascii=False, sort_keys=True))
+        print("- legacy_fallback_source_counts: " + json.dumps(compare_report.legacy_fallback_source_counts, ensure_ascii=False, sort_keys=True))
+        print("- source_count_diff: " + json.dumps(compare_report.source_count_diff, ensure_ascii=False, sort_keys=True))
+        print("- items_priority_exclusion_reasons: " + json.dumps(compare_report.items_priority_exclusion_reasons, ensure_ascii=False, sort_keys=True))
+        print("- legacy_exclusion_reasons: " + json.dumps(compare_report.legacy_exclusion_reasons, ensure_ascii=False, sort_keys=True))
+        print("- exclusion_reason_diff: " + json.dumps(compare_report.exclusion_reason_diff, ensure_ascii=False, sort_keys=True))
+        compare_report_path = write_report_json(
+            reports_root,
+            "export",
+            f"export-compare-{build_run_label(args.source, args.source_set)}",
+            {
+                "source": args.source,
+                "source_set": args.source_set,
+                "format": args.format,
+                "query": args.query,
+                "compare": args.compare,
+                "compare_report": {
+                    "items_priority_count": compare_report.items_priority_count,
+                    "legacy_fallback_count": compare_report.legacy_fallback_count,
+                    "overlapping_video_count": compare_report.overlapping_video_count,
+                    "items_priority_only_count": compare_report.items_priority_only_count,
+                    "legacy_only_count": compare_report.legacy_only_count,
+                    "changed_video_count": compare_report.changed_video_count,
+                    "items_priority_source_counts": compare_report.items_priority_source_counts,
+                    "legacy_fallback_source_counts": compare_report.legacy_fallback_source_counts,
+                    "source_count_diff": compare_report.source_count_diff,
+                    "items_priority_exclusion_reasons": compare_report.items_priority_exclusion_reasons,
+                    "legacy_exclusion_reasons": compare_report.legacy_exclusion_reasons,
+                    "exclusion_reason_diff": compare_report.exclusion_reason_diff,
+                },
+                "export_artifact": str(copied_export_path),
+            },
+        )
+        latest_export_report_path = copy_to_latest(reports_root, "export", compare_report_path)
+        print(f"Export compare report written: {compare_report_path}")
+    else:
+        export_report_path = write_report_json(
+            reports_root,
+            "export",
+            f"export-report-{build_run_label(args.source, args.source_set)}",
+            {
+                "source": args.source,
+                "source_set": args.source_set,
+                "format": args.format,
+                "query": args.query,
+                "compare": args.compare,
+                "export_artifact": str(copied_export_path),
+            },
+        )
+        latest_export_report_path = copy_to_latest(reports_root, "export", export_report_path)
+        print(f"Export report written: {export_report_path}")
+    print(f"Dated export artifact copy: {copied_export_path}")
+    print(f"Latest export artifact copy: {latest_export_artifact_path}")
+    print(f"Latest export report: {latest_export_report_path}")
+    return 0
 
 
 def _print_metadata_only_report() -> int:
@@ -251,6 +644,16 @@ def _build_retry_metadata_only_summary(
 def main() -> int:
     _configure_stdio()
     args = parse_args()
+    if args.command == "collect":
+        return _run_collect_command(args)
+    if args.command == "analyze":
+        return _run_analyze_command(args)
+    if args.command == "export":
+        return _run_export_command(args)
+    if args.command == "migrate":
+        return _run_migrate_command(args)
+    if args.command == "cleanup":
+        return _run_cleanup_command(args)
     if args.report_metadata_only:
         return _print_metadata_only_report()
     if args.retry_metadata_only and args.skip_existing_videos:

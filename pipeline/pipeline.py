@@ -10,7 +10,9 @@ from config import (
     VIDEO_WORKERS,
 )
 from db.database import Database
+from db.repository import ItemRepository
 from llm.summarizer import DEFAULT_SUMMARY, summarize_chunk
+from normalization.canonicalize import canonicalize_youtube_video
 from processing.chunker import split_into_chunks
 from processing.cleaner import clean_text
 from youtube.fetch_transcript import get_transcript
@@ -58,6 +60,7 @@ class NewsPipeline:
         skip_existing_videos: bool = False,
     ) -> None:
         self.db = db
+        self.item_repository = ItemRepository(db)
         self.model = model
         self.video_workers = max(1, video_workers)
         self.chunk_workers = max(1, chunk_workers)
@@ -125,7 +128,19 @@ class NewsPipeline:
             metadata_only_reason=metadata_only_reason,
             retrieval_diagnostics=transcript_payload.get("diagnostics", {}),
         )
+        canonical_item = canonicalize_youtube_video(
+            source_id="youtube.default",
+            video={**video, "content_warning": content_warning},
+            transcript_payload=transcript_payload,
+        )
+        canonical_item.content_status = content_status
+        canonical_item.content_warning = content_warning
+        self.item_repository.upsert_item(canonical_item)
         stored_chunks, reused_chunks = self._resolve_chunks(video["video_id"], cleaned_text)
+        self.item_repository.replace_chunks(
+            canonical_item.item_id,
+            [chunk["text"] for chunk in stored_chunks],
+        )
         chunk_summaries, reused_all_chunk_summaries = self._resolve_chunk_summaries(
             video["video_id"],
             stored_chunks,
@@ -147,6 +162,14 @@ class NewsPipeline:
                 "signal_score": 0.0,
             }
         chunk_summary_rows = self._build_chunk_summary_rows(stored_chunks, chunk_summaries)
+        item_chunk_rows = self.item_repository.get_item_chunks(canonical_item.item_id)
+        for chunk, summary in zip(item_chunk_rows, chunk_summaries):
+            self.item_repository.upsert_chunk_summary(chunk["chunk_id"], summary)
+        self.item_repository.upsert_item_summary(
+            canonical_item.item_id,
+            aggregated["short_summary"],
+            aggregated["detailed_summary"],
+        )
 
         return {
             "video_id": video["video_id"],

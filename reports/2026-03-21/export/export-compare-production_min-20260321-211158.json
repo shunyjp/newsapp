@@ -1,0 +1,52 @@
+{
+  "source": null,
+  "source_set": "production_min",
+  "format": "notebooklm-json",
+  "query": null,
+  "compare": true,
+  "compare_report": {
+    "items_priority_count": 84,
+    "legacy_fallback_count": 0,
+    "overlapping_video_count": 0,
+    "items_priority_only_count": 84,
+    "legacy_only_count": 0,
+    "changed_video_count": 0,
+    "items_priority_source_counts": {
+      "blog.anthropic": 4,
+      "blog.aws_ml": 5,
+      "blog.google_deepmind": 3,
+      "blog.google_gemini": 2,
+      "blog.huggingface": 4,
+      "blog.langchain": 3,
+      "blog.microsoft_ai": 3,
+      "blog.pinecone": 3,
+      "blog.weaviate": 3,
+      "nikkei.xtech.candidate": 14,
+      "docs.python_insider": 20,
+      "blog.openai": 20
+    },
+    "legacy_fallback_source_counts": {},
+    "source_count_diff": {
+      "blog.anthropic": 4,
+      "blog.aws_ml": 5,
+      "blog.google_deepmind": 3,
+      "blog.google_gemini": 2,
+      "blog.huggingface": 4,
+      "blog.langchain": 3,
+      "blog.microsoft_ai": 3,
+      "blog.openai": 20,
+      "blog.pinecone": 3,
+      "blog.weaviate": 3,
+      "docs.python_insider": 20,
+      "nikkei.xtech.candidate": 14
+    },
+    "items_priority_exclusion_reasons": {
+      "export.exclusion.quality_excluded": 5
+    },
+    "legacy_exclusion_reasons": {},
+    "exclusion_reason_diff": {
+      "export.exclusion.quality_excluded": 5
+    }
+  },
+  "export_artifact": "C:\\Users\\shunyjp\\OneDrive\\Documents\\検証勉強\\newsfeed1\\reports\\2026-03-21\\export\\notebooklm-pack-20260321-211158.json"
+}

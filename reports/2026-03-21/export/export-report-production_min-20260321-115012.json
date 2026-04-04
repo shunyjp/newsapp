@@ -1,0 +1,8 @@
+{
+  "source": null,
+  "source_set": "production_min",
+  "format": "reader-json",
+  "query": null,
+  "compare": false,
+  "export_artifact": "C:\\Users\\shunyjp\\OneDrive\\Documents\\検証勉強\\newsfeed1\\reports\\2026-03-21\\export\\reader-digest-20260321-115012.json"
+}

@@ -121,13 +121,21 @@ async function resolveCookieHeader(settings) {
 async function fetchAuthenticatedArticle(article) {
   const matched = findDomainSettings(article);
   if (!matched) {
-    return article;
+    return {
+      ...article,
+      authenticatedFetch: false,
+      authenticatedFetchReason: "unsupported_domain"
+    };
   }
 
   const [domain, settings] = matched;
   const cookieHeader = await resolveCookieHeader(settings);
   if (!cookieHeader) {
-    return article;
+    return {
+      ...article,
+      authenticatedFetch: false,
+      authenticatedFetchReason: "missing_cookie"
+    };
   }
 
   const response = await fetch(article.link, {
@@ -139,14 +147,25 @@ async function fetchAuthenticatedArticle(article) {
   });
 
   if (!response.ok) {
-    return article;
+    return {
+      ...article,
+      authenticatedFetch: false,
+      authenticatedFetchReason: `http_status:${response.status}`,
+      authenticatedStatusCode: response.status
+    };
   }
 
   const rawBytes = new Uint8Array(await response.arrayBuffer());
   const html = decodeDocument(rawBytes, response.headers.get("content-type") || "");
   const paragraphs = extractParagraphs(html);
   if (!paragraphs.length) {
-    return article;
+    return {
+      ...article,
+      title: extractTitle(html) || article.title,
+      authenticatedFetch: false,
+      authenticatedFetchReason: "empty_paragraphs",
+      authenticatedStatusCode: response.status
+    };
   }
 
   return {
@@ -156,7 +175,9 @@ async function fetchAuthenticatedArticle(article) {
     source: article.source || settings.label || domain,
     sourceType: `${article.sourceType || "trusted-domain-search"}+authenticated-fetch`,
     baseTrust: (article.baseTrust || 0) + settings.trustBonus,
-    authenticatedFetch: true
+    authenticatedFetch: true,
+    authenticatedFetchReason: "success",
+    authenticatedStatusCode: response.status
   };
 }
 

@@ -1,0 +1,19 @@
+{
+  "source": null,
+  "source_set": "production_min",
+  "remove_explicit_noise": true,
+  "dry_run": true,
+  "matched_count": 1,
+  "deleted_count": 0,
+  "matched_items": [
+    {
+      "item_id": "nikkei.xtech.candidate:xtech.nikkei.com/atcl/nxt/special/18/00001/031000080",
+      "source_id": "nikkei.xtech.candidate",
+      "title": "【PR】自ら考え動くAIエージェント、開発現場に貢献",
+      "url": "https://xtech.nikkei.com/atcl/nxt/special/18/00001/031000080/",
+      "body_kind": "metadata_only",
+      "content_status": "unavailable",
+      "quality_tier": "reject"
+    }
+  ]
+}

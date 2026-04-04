@@ -21,4 +21,13 @@ def _add_user_site_packages() -> None:
             sys.path.append(user_site_str)
 
 
+def _add_project_vendor() -> None:
+    vendor_dir = Path(__file__).resolve().parent / ".vendor"
+    if vendor_dir.exists():
+        vendor_dir_str = str(vendor_dir)
+        if vendor_dir_str not in sys.path:
+            sys.path.insert(0, vendor_dir_str)
+
+
 _add_user_site_packages()
+_add_project_vendor()

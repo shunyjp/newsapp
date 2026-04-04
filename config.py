@@ -1,9 +1,12 @@
 import os
+import json
 from pathlib import Path
+from typing import Any
 
 
 BASE_DIR = Path(__file__).resolve().parent
 DATA_DIR = BASE_DIR / "data"
+CONFIG_DIR = BASE_DIR / "config"
 DATA_DIR.mkdir(parents=True, exist_ok=True)
 
 
@@ -38,3 +41,10 @@ MAX_VIDEOS = 5
 SUMMARY_RETRIES = 3
 VIDEO_WORKERS = 2
 CHUNK_WORKERS = 2
+
+
+def load_structured_config(path: str | Path) -> dict[str, Any]:
+    config_path = Path(path)
+    if not config_path.is_absolute():
+        config_path = BASE_DIR / config_path
+    return json.loads(config_path.read_text(encoding="utf-8"))

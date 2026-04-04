@@ -1,0 +1,28 @@
+{
+  "source": null,
+  "source_set": "production_min",
+  "query": null,
+  "channel_id": null,
+  "max_items": 2,
+  "record_count": 0,
+  "error_count": 4,
+  "errors": [
+    {
+      "source_id": "youtube.default",
+      "error": "Provide exactly one of query or channel_id."
+    },
+    {
+      "source_id": "blog.openai",
+      "error": "HTTP Error 403: Forbidden"
+    },
+    {
+      "source_id": "docs.python_insider",
+      "error": "HTTP Error 404: Not Found"
+    },
+    {
+      "source_id": "nikkei.xtech.candidate",
+      "error": "HTTP Error 404: 404"
+    }
+  ],
+  "records": []
+}

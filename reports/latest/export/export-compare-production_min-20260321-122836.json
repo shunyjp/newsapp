@@ -1,0 +1,34 @@
+{
+  "source": null,
+  "source_set": "production_min",
+  "format": "notebooklm-json",
+  "query": null,
+  "compare": true,
+  "compare_report": {
+    "items_priority_count": 8,
+    "legacy_fallback_count": 0,
+    "overlapping_video_count": 0,
+    "items_priority_only_count": 8,
+    "legacy_only_count": 0,
+    "changed_video_count": 0,
+    "items_priority_source_counts": {
+      "nikkei.xtech.candidate": 2,
+      "docs.python_insider": 3,
+      "blog.openai": 3
+    },
+    "legacy_fallback_source_counts": {},
+    "source_count_diff": {
+      "blog.openai": 3,
+      "docs.python_insider": 3,
+      "nikkei.xtech.candidate": 2
+    },
+    "items_priority_exclusion_reasons": {
+      "export.exclusion.content_status_excluded": 1
+    },
+    "legacy_exclusion_reasons": {},
+    "exclusion_reason_diff": {
+      "export.exclusion.content_status_excluded": 1
+    }
+  },
+  "export_artifact": "C:\\Users\\shunyjp\\OneDrive\\Documents\\検証勉強\\newsfeed1\\reports\\2026-03-21\\export\\notebooklm-pack-20260321-122836.json"
+}

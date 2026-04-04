@@ -1,0 +1,326 @@
+{
+  "source": null,
+  "source_set": "nikkei_paid_ai",
+  "query": null,
+  "channel_id": null,
+  "max_items": 2,
+  "record_count": 6,
+  "error_count": 0,
+  "errors": [],
+  "records": [
+    {
+      "feed_entry": {
+        "title": "AI・トランプ・株高不況 経済4誌が2026年を大予測",
+        "url": "https://bizgate.nikkei.com/article/DGXZQOLM240UG024122025000000",
+        "published_at": null,
+        "category": "nikkei_bizgate_genai"
+      },
+      "source_id": "nikkei.bizgate.genai",
+      "item": {
+        "item_id": "nikkei.bizgate.genai:bizgate.nikkei.com/article/DGXZQOLM240UG024122025000000",
+        "source_id": "nikkei.bizgate.genai",
+        "source_type": "article",
+        "url": "https://bizgate.nikkei.com/article/DGXZQOLM240UG024122025000000",
+        "body_kind": "full_text",
+        "content_status": "available",
+        "evidence_strength": "medium",
+        "external_id": "bizgate.nikkei.com/article/DGXZQOLM240UG024122025000000",
+        "title": "AI・トランプ・株高不況 経済4誌が2026年を大予測",
+        "author": "NIKKEI BizGate GenAI",
+        "published_at": null,
+        "raw_text": "日経BizGate会員の方のみご利用になれます。保存した記事はスマホやタブレットでもご覧いただけます。\n\n経済4誌の「2026総予測」が出そろった。人工知能（AI）、トランプ米大統領、地政学リスクと時代を動かす主要テーマは、2025年とさほど変わらない。ただ、先行きへの不透明感が高まっているとの判断は4誌とも共通する。国内では日経平均株価の6万円台突破がひとつの焦点。一方で「株高不況」という言葉も現れ、各産業では競争激化・業界再編・構造改革が進む。2026年初頭に確実に言えることは「不確実性の高い1年が続く」ということだけかもしれない。\n\n「日経ビジネス」誌は恒例の10大予測と内外一流の有識者インタビューなどで構成。予測の内容は（1）米中対立が深刻化（2）日系企業の米国回帰（3）サプライチェーン複線化 (4) 人間はAIエージェントのマネジャーに（5）日本で業界特化型AIエージェント企業増加（6）ステーブルコイン増加で金融システムに転換期（7）東証改革で上場企業の減少幅は過去最大へ（8）金価格は歴史的高騰継続（9）炭素クレジット価格上昇（10）グリーン水素本格化――。2025年後半から進行している課題も少なくない。\n\n世界経済を揺さぶる「トランプ関税」は2026年も続きそうだ。日経ビジネスのインタビューで、ロバート・ゼーリック元世界銀行総裁は「トランプ氏の関税交渉に終わりはない」と予想する。日米貿易交渉の歴史にみるように、これまでの交渉は経済ルールの変更が最終目的だった。しかし、「トランプ氏は関税交渉を『万能の道具』とみている」とゼーリック氏は分析。今後も米国市場の保護や歳入拡大、他国への市場開放や経済制裁を目的に関税交渉が使われるとみる。\n\n「日経平均が6万円に到達するとしたら2026年初めと比較的早い時期」と木内登英・野村総合研究所エグゼクティブ・エコノミストは予想する。ただ、円安・物価高が企業収益にプラスに働いても、個人生活は厳しさが増す。企業と個人で二極化が進むと木内氏はみる。\n\n産業界ではAI開発競争が過熱化し、トヨタが初のソフトウエア定義車両（SDV）を投入するなど、自動車各社の「勝負車」が相次ぎ登場する予定だ。「半導体王国」復活への道筋はいまだ描き切れない。一方で、コンテンツ産業の海外売上高は半導体・鉄鋼業界を上回る年間約6兆円規模に達し、大手商社との連携で市場開拓が加速しそうだ。化学業界や食品スーパーは生き残りをかけた業界再編が本格化する。\n\n「ヒトはAI社会にどう向き合うべきか」は近年の重要テーマだが、これまでは抽象的な議論が多かった。日経ビジネスは今回、ひとつの具体的な対策を示した。「経営リーダーのリベラルアーツ習熟」がそれだ。2025年9月の第1回「京都会議」（主催・京都哲学研究所）にNTT、日立製作所、日本製鉄など大手企業の会長・最高経営責任者（CEO）らが参加したことが契機となり、AIと人間の違い、人間固有の価値といった課題が浮かび上がった。パーパスやウェルビーイングなどを通じて、企業の存在意義をはっきり示すには深い人間理解や哲学が求められる。加速するイノベーションにも知識の幅を広げ、異なるアイデアを結びつける知力が欠かせない。\n\n石橋湛山元首相の衣鉢を継ぐ「東洋経済」誌は3号連続で予想特集を組む（最終号は1月5日発売予定）。まず高市早苗政権の持続力をテーマに取り上げ、著名ノンフィクション作家の塩田潮氏は「2026年前半は衆院解散のタイミングを探る展開」と分析する。高い支持率があっても日本維新の会との連立は綱渡り的で不安定に映るが、塩田氏は多様な価値観の幅広い民意が投影された新時代の政党政治の形だとプラス面を強調する。2026年の政治テーマを、高市首相の政権手法・包括型だった自民の生き残り術・政党再編の可否――とみる。\n\n東洋経済の予測特集は例年、マーケット専門家10人のアンケートが売り物だ。今回は日経平均の高値が「5万4000〜6万円」、安値は「4万〜5万2000円」。高値は史上最高を更新するとほぼ全員が予想している。さらに武者陵司・武者リサーチ代表は「長期上昇トレンドに弾みがつき、2030〜33年に10万円台到達もおかしくない」と予想して見せた。ただ、AI関連株の反落リスク懸念は常に残っている。\n\n「ダイヤモンド」誌は黒田東彦・前日銀総裁の予測を掲載した。黒田氏は「2026年に世界経済は3%前半の成長が可能だ」と言う。ただ、前提として中国の4%台、米国の2%台の成長、日独経済の回復――といった条件が付く。中国が人口減と労働生産性の伸び悩みに直面するなど不確実な部分は少なくないが、ドイツ経済は防衛費を中心とする財政拡張で約1.3%成長する見込みだ。\n\n大きなリスクとして黒田氏が警戒を呼びかけているのは、ウクライナ戦争・トランプ関税・気候変動の3つ。ウクライナ戦争開始前に比べると、主要国の中で米国が中国からメキシコ、英国も中国からドイツへと最大輸入先が変わった。日本は最大輸出先が中国から米国になった。\n\n黒田氏はニューヨークのヘッジファンドと意見交換した際に「もう中国には投資できない」と話されたエピソードも紹介している。現地への視察で逮捕される恐れのある国には投資できないという。「世界経済の分断化が成長率を低下させる可能性がある」と黒田氏。これにトランプ関税の影響が加わるわけだ。\n\n「エコノミスト」誌は今回も2週連続で日本、世界経済をそれぞれ特集した。シンクタンク10社へのアンケート結果が興味深い。日銀の政策金利引き上げ（0.75%）を、高市政権と日銀の良好な調整と分析する。金融緩和を志向する高市政権が、日銀の独立性に十分配慮したとみられるからだ。今回の利上げ局面のターミナルレート（到達金利）予想は1.75%（伊藤忠総研）、1.50%（BNPパリバ証券、日本総合研究所、ニッセイ基礎研究所）、1.00%（第一生命経済研究所など6社）となっている。\n\n為替相場は2026年12月時点で1ドル=160円が最も円安の予想で、賃上げ率は4.8〜5.2%とみる。消費者物価指数（生鮮食品を除く）は前年同月比でプラス2.4%（1社）、2.0%（2社）1%台後半（7社）。高まる株価と生活実感との乖離（かいり）を「株高不況」と第一生命経済研究所の藤代宏一・主席エコノミストと指摘する。\n\n世界経済では米国の景況感が現在進行形で悪化。消費者マインドと賃料が下落傾向にある中、失業や若者層らへの貸し倒れが増えている。生成AIの普及でホワイトカラーが解雇される「AI失業」も目立ってきた。一方で、中・上流階級が保有する株式評価益は膨らんでおり、「K字型経済」の中でトランプ政権と米連邦準備理事会（FRB）が誰を優先するかという難局に直面しているという。\n\n世界経済へのリスクとして、新型コロナウイルス禍に政府の対策分科会会長を務めた尾身茂・結核予防会理事長へのインタビューも掲載した。「グローバリゼーションや温暖化などでパンデミック（世界的な大流行）の間隔は短くなっている」といい、パンデミックはいつ再び起きてもおかしくない。その際は「正しい情報で判断することが重要だ」と尾身氏は呼びかけている。\n\n「日経BizGateイベントガイド」では、 企業が主催する法人向け無料イベント・セミナー情報をご紹介しています。",
+        "cleaned_text": "日経BizGate会員の方のみご利用になれます。保存した記事はスマホやタブレットでもご覧いただけます。 経済4誌の「2026総予測」が出そろった。人工知能（AI）、トランプ米大統領、地政学リスクと時代を動かす主要テーマは、2025年とさほど変わらない。ただ、先行きへの不透明感が高まっているとの判断は4誌とも共通する。国内では日経平均株価の6万円台突破がひとつの焦点。一方で「株高不況」という言葉も現れ、各産業では競争激化・業界再編・構造改革が進む。2026年初頭に確実に言えることは「不確実性の高い1年が続く」ということだけかもしれない。 「日経ビジネス」誌は恒例の10大予測と内外一流の有識者インタビューなどで構成。予測の内容は（1）米中対立が深刻化（2）日系企業の米国回帰（3）サプライチェーン複線化 (4) 人間はAIエージェントのマネジャーに（5）日本で業界特化型AIエージェント企業増加（6）ステーブルコイン増加で金融システムに転換期（7）東証改革で上場企業の減少幅は過去最大へ（8）金価格は歴史的高騰継続（9）炭素クレジット価格上昇（10）グリーン水素本格化――。2025年後半から進行している課題も少なくない。 世界経済を揺さぶる「トランプ関税」は2026年も続きそうだ。日経ビジネスのインタビューで、ロバート・ゼーリック元世界銀行総裁は「トランプ氏の関税交渉に終わりはない」と予想する。日米貿易交渉の歴史にみるように、これまでの交渉は経済ルールの変更が最終目的だった。しかし、「トランプ氏は関税交渉を『万能の道具』とみている」とゼーリック氏は分析。今後も米国市場の保護や歳入拡大、他国への市場開放や経済制裁を目的に関税交渉が使われるとみる。 「日経平均が6万円に到達するとしたら2026年初めと比較的早い時期」と木内登英・野村総合研究所エグゼクティブ・エコノミストは予想する。ただ、円安・物価高が企業収益にプラスに働いても、個人生活は厳しさが増す。企業と個人で二極化が進むと木内氏はみる。 産業界ではAI開発競争が過熱化し、トヨタが初のソフトウエア定義車両（SDV）を投入するなど、自動車各社の「勝負車」が相次ぎ登場する予定だ。「半導体王国」復活への道筋はいまだ描き切れない。一方で、コンテンツ産業の海外売上高は半導体・鉄鋼業界を上回る年間約6兆円規模に達し、大手商社との連携で市場開拓が加速しそうだ。化学業界や食品スーパーは生き残りをかけた業界再編が本格化する。 「ヒトはAI社会にどう向き合うべきか」は近年の重要テーマだが、これまでは抽象的な議論が多かった。日経ビジネスは今回、ひとつの具体的な対策を示した。「経営リーダーのリベラルアーツ習熟」がそれだ。2025年9月の第1回「京都会議」（主催・京都哲学研究所）にNTT、日立製作所、日本製鉄など大手企業の会長・最高経営責任者（CEO）らが参加したことが契機となり、AIと人間の違い、人間固有の価値といった課題が浮かび上がった。パーパスやウェルビーイングなどを通じて、企業の存在意義をはっきり示すには深い人間理解や哲学が求められる。加速するイノベーションにも知識の幅を広げ、異なるアイデアを結びつける知力が欠かせない。 石橋湛山元首相の衣鉢を継ぐ「東洋経済」誌は3号連続で予想特集を組む（最終号は1月5日発売予定）。まず高市早苗政権の持続力をテーマに取り上げ、著名ノンフィクション作家の塩田潮氏は「2026年前半は衆院解散のタイミングを探る展開」と分析する。高い支持率があっても日本維新の会との連立は綱渡り的で不安定に映るが、塩田氏は多様な価値観の幅広い民意が投影された新時代の政党政治の形だとプラス面を強調する。2026年の政治テーマを、高市首相の政権手法・包括型だった自民の生き残り術・政党再編の可否――とみる。 東洋経済の予測特集は例年、マーケット専門家10人のアンケートが売り物だ。今回は日経平均の高値が「5万4000〜6万円」、安値は「4万〜5万2000円」。高値は史上最高を更新するとほぼ全員が予想している。さらに武者陵司・武者リサーチ代表は「長期上昇トレンドに弾みがつき、2030〜33年に10万円台到達もおかしくない」と予想して見せた。ただ、AI関連株の反落リスク懸念は常に残っている。 「ダイヤモンド」誌は黒田東彦・前日銀総裁の予測を掲載した。黒田氏は「2026年に世界経済は3%前半の成長が可能だ」と言う。ただ、前提として中国の4%台、米国の2%台の成長、日独経済の回復――といった条件が付く。中国が人口減と労働生産性の伸び悩みに直面するなど不確実な部分は少なくないが、ドイツ経済は防衛費を中心とする財政拡張で約1.3%成長する見込みだ。 大きなリスクとして黒田氏が警戒を呼びかけているのは、ウクライナ戦争・トランプ関税・気候変動の3つ。ウクライナ戦争開始前に比べると、主要国の中で米国が中国からメキシコ、英国も中国からドイツへと最大輸入先が変わった。日本は最大輸出先が中国から米国になった。 黒田氏はニューヨークのヘッジファンドと意見交換した際に「もう中国には投資できない」と話されたエピソードも紹介している。現地への視察で逮捕される恐れのある国には投資できないという。「世界経済の分断化が成長率を低下させる可能性がある」と黒田氏。これにトランプ関税の影響が加わるわけだ。 「エコノミスト」誌は今回も2週連続で日本、世界経済をそれぞれ特集した。シンクタンク10社へのアンケート結果が興味深い。日銀の政策金利引き上げ（0.75%）を、高市政権と日銀の良好な調整と分析する。金融緩和を志向する高市政権が、日銀の独立性に十分配慮したとみられるからだ。今回の利上げ局面のターミナルレート（到達金利）予想は1.75%（伊藤忠総研）、1.50%（BNPパリバ証券、日本総合研究所、ニッセイ基礎研究所）、1.00%（第一生命経済研究所など6社）となっている。 為替相場は2026年12月時点で1ドル=160円が最も円安の予想で、賃上げ率は4.8〜5.2%とみる。消費者物価指数（生鮮食品を除く）は前年同月比でプラス2.4%（1社）、2.0%（2社）1%台後半（7社）。高まる株価と生活実感との乖離（かいり）を「株高不況」と第一生命経済研究所の藤代宏一・主席エコノミストと指摘する。 世界経済では米国の景況感が現在進行形で悪化。消費者マインドと賃料が下落傾向にある中、失業や若者層らへの貸し倒れが増えている。生成AIの普及でホワイトカラーが解雇される「AI失業」も目立ってきた。一方で、中・上流階級が保有する株式評価益は膨らんでおり、「K字型経済」の中でトランプ政権と米連邦準備理事会（FRB）が誰を優先するかという難局に直面しているという。 世界経済へのリスクとして、新型コロナウイルス禍に政府の対策分科会会長を務めた尾身茂・結核予防会理事長へのインタビューも掲載した。「グローバリゼーションや温暖化などでパンデミック（世界的な大流行）の間隔は短くなっている」といい、パンデミックはいつ再び起きてもおかしくない。その際は「正しい情報で判断することが重要だ」と尾身氏は呼びかけている。 「日経BizGateイベントガイド」では、 企業が主催する法人向け無料イベント・セミナー情報をご紹介しています。",
+        "content_warning": null,
+        "retrieval_diagnostics": {
+          "candidate_only": true,
+          "candidate_mode": "metadata_only",
+          "feed_url": "https://bizgate.nikkei.com/search?keyword=%E7%94%9F%E6%88%90AI",
+          "metadata_only": false,
+          "body_fetch_attempted": true,
+          "category": "nikkei_bizgate_genai",
+          "provider": "nikkei_xtech_candidate",
+          "canonicalization_mode": "public_html",
+          "candidate_fetch_mode": "html_fallback",
+          "body_fetch_mode": "public_html"
+        },
+        "language": "ja",
+        "trust_level": "medium",
+        "quality_tier": null,
+        "reader_eligibility": null,
+        "notebooklm_eligibility": null,
+        "cleaning_version": "rule-based.v1",
+        "cleaning_diagnostics": {
+          "cleaner": "rule-based.v1",
+          "raw_length": 3054,
+          "cleaned_length": 3038,
+          "fetch_kind": "public_html"
+        },
+        "created_at": null,
+        "updated_at": null
+      }
+    },
+    {
+      "feed_entry": {
+        "title": "イーロン・マスクからタレントまで AIとの向き合い方を考える",
+        "url": "https://bizgate.nikkei.com/article/DGXZQOLM176VK017122025000000",
+        "published_at": null,
+        "category": "nikkei_bizgate_genai"
+      },
+      "source_id": "nikkei.bizgate.genai",
+      "item": {
+        "item_id": "nikkei.bizgate.genai:bizgate.nikkei.com/article/DGXZQOLM176VK017122025000000",
+        "source_id": "nikkei.bizgate.genai",
+        "source_type": "article",
+        "url": "https://bizgate.nikkei.com/article/DGXZQOLM176VK017122025000000",
+        "body_kind": "full_text",
+        "content_status": "available",
+        "evidence_strength": "medium",
+        "external_id": "bizgate.nikkei.com/article/DGXZQOLM176VK017122025000000",
+        "title": "イーロン・マスクからタレントまで AIとの向き合い方を考える",
+        "author": "NIKKEI BizGate GenAI",
+        "published_at": null,
+        "raw_text": "日経BizGate会員の方のみご利用になれます。保存した記事はスマホやタブレットでもご覧いただけます。\n\n2025年もいよいよ年の瀬を迎えます。今年は生成AI（人工知能）が多くの人々の働き方から生活までも変え始めた年でした。2026年はこうした傾向が一層加速しそうです。日経BizGateは急速に進化するAIをテーマとする講演やインタビュー記事を多く掲載してきました。すでに生成AIを頻繁に利用している人も、まだ使ったことのない人も、年末年始はAIとの向き合い方を考える良い時期かもしれません。過去に記事を公開した5人のAIに関するコメントを紹介します。（日経BizGate編集長 原田洋）\n\n最初に紹介するのが、米起業家のイーロン・マスク氏が2024年6月、南フランス・カンヌ市で開催された世界最大の広告祭「カンヌライオンズ国際クリエイティビティ・フェスティバル2024」の対談イベントで語った生成AIに関するコメントです。\n\nマスク氏は対談の中で、AIが人類にもたらす影響について「財やサービスが誰にでも利用可能となり、地球上の誰にとっても財やサービスに不足がなくなる」と語りました。AIが人間の創造性な仕事を奪うのではという懸念に対しては「（AIは）人間の知性を強化する。そうすることで私たちはAIに追いつき、AIと共生できるようになる」と答えました。一方で「潜在的なマイナス面には注意したい」とも述べました。\n\n早稲田大学大学院・早稲田大学ビジネススクール教授の入山章栄氏は、半導体に関するインタビューの中で、生成AIを調べ物で頻繁に活用するため「検索しなくなりました」と語りました。文章を作成する際も生成AIを活用しているそうです。\n\n生成AIがビジネスパーソンの働き方やキャリア形成に与える影響については「短期的には大差がつく」としつつ、「コモディティー（汎用品）化してくるので、中長期的には誰でも使うようになって差が出なくなります」と予想。ビジネスパーソンの競争力を左右するのは「その人の能力や知見、ブランドみたいなもの」と強調しました。\n\n入山章栄氏が考えるAI時代の勝ち筋と半導体王国の復活（2025年3月26日公開）\n\n2025年7月に投開票された参院選（比例区）で初当選し、大きな話題を呼んだ「チームみらい」党首の安野貴博氏はインタビューの中で、欧米人に比べて日本人のAIへの許容度が高いとされる理由について「（日本人の）モノづくりの経験が、最新技術を受容しやすい文化を培っているから」と分析しました。\n\n米国と中国が主導するAI基盤モデルの開発競争に参入するより、日本企業は「AI×自動車、AI×介護ロボット、AI×見守りカメラのように、モノづくりの質の高さとAIを結びつければ、機能性と利便性を飛躍的に高めることができる」と力説しました。\n\n安野チームみらい党首が説く AI×ハードの列島改造論（2025年7月22日公開）\n\n台湾を代表するAIスタートアップ、iKala（アイカラ）の最高経営責任者（CEO）である程世嘉（セガ・チェン）氏は、桜美林大学大学院特任教授の山田周平氏によるインタビューで「AIは人間の職業を奪う技術ではなく、人間の能力を補完・強化するものだ。AIの利用者に大切なのはAIの技術トレンドを追うことではなく、AIによって伸ばすべき自分の個性を磨いておくことだ」と語りました。\n\n世界のAI産業の中で日本には「二つの強みがある」とし、「美食からアニメ・マンガに至るまで、独自の文化を確立していること」と「ロボットや精密機械で世界トップ級の技術を持つこと」を挙げました。日本の実情とAIに詳しいチェン氏の見解は、日本のAI産業の将来を占う上で参考になりそうです。\n\n台湾AIスタートアップCEO 日本の強みは文化とロボット（2025年11月6日公開）\n\n2025年10月に都内で開かれた「生成AIサミット（GenAI/SUM）2025」のパネル討論にゲストとして参加した村上信五氏は、エンターテインメント業界におけるAIの活用について「テクノロジーと人間が共創することで、ライブや舞台の感覚をアップデートし、より価値を高められている」と期待を示しました。\n\nタレントとしていち早く自身の分身AI「AIシンゴ」を開発した村上氏は「『AIが進化したら仕事がなくなるかもしれない』と思っていたが、実際は使い方次第だった。分身がいれば、万一のけがや体調不良で動けないときを含めて、いつでもどこでもファンにエンタメを届けられる」と自身の体験をもとにAIの有用性を語りました。\n\n村上信五さんが語る分身AI エンタメ業界と「共演」へ（2025年11月17日公開）\n\n「日経BizGateイベントガイド」では、 企業が主催する法人向け無料イベント・セミナー情報をご紹介しています。",
+        "cleaned_text": "日経BizGate会員の方のみご利用になれます。保存した記事はスマホやタブレットでもご覧いただけます。 2025年もいよいよ年の瀬を迎えます。今年は生成AI（人工知能）が多くの人々の働き方から生活までも変え始めた年でした。2026年はこうした傾向が一層加速しそうです。日経BizGateは急速に進化するAIをテーマとする講演やインタビュー記事を多く掲載してきました。すでに生成AIを頻繁に利用している人も、まだ使ったことのない人も、年末年始はAIとの向き合い方を考える良い時期かもしれません。過去に記事を公開した5人のAIに関するコメントを紹介します。（日経BizGate編集長 原田洋） 最初に紹介するのが、米起業家のイーロン・マスク氏が2024年6月、南フランス・カンヌ市で開催された世界最大の広告祭「カンヌライオンズ国際クリエイティビティ・フェスティバル2024」の対談イベントで語った生成AIに関するコメントです。 マスク氏は対談の中で、AIが人類にもたらす影響について「財やサービスが誰にでも利用可能となり、地球上の誰にとっても財やサービスに不足がなくなる」と語りました。AIが人間の創造性な仕事を奪うのではという懸念に対しては「（AIは）人間の知性を強化する。そうすることで私たちはAIに追いつき、AIと共生できるようになる」と答えました。一方で「潜在的なマイナス面には注意したい」とも述べました。 早稲田大学大学院・早稲田大学ビジネススクール教授の入山章栄氏は、半導体に関するインタビューの中で、生成AIを調べ物で頻繁に活用するため「検索しなくなりました」と語りました。文章を作成する際も生成AIを活用しているそうです。 生成AIがビジネスパーソンの働き方やキャリア形成に与える影響については「短期的には大差がつく」としつつ、「コモディティー（汎用品）化してくるので、中長期的には誰でも使うようになって差が出なくなります」と予想。ビジネスパーソンの競争力を左右するのは「その人の能力や知見、ブランドみたいなもの」と強調しました。 入山章栄氏が考えるAI時代の勝ち筋と半導体王国の復活（2025年3月26日公開） 2025年7月に投開票された参院選（比例区）で初当選し、大きな話題を呼んだ「チームみらい」党首の安野貴博氏はインタビューの中で、欧米人に比べて日本人のAIへの許容度が高いとされる理由について「（日本人の）モノづくりの経験が、最新技術を受容しやすい文化を培っているから」と分析しました。 米国と中国が主導するAI基盤モデルの開発競争に参入するより、日本企業は「AI×自動車、AI×介護ロボット、AI×見守りカメラのように、モノづくりの質の高さとAIを結びつければ、機能性と利便性を飛躍的に高めることができる」と力説しました。 安野チームみらい党首が説く AI×ハードの列島改造論（2025年7月22日公開） 台湾を代表するAIスタートアップ、iKala（アイカラ）の最高経営責任者（CEO）である程世嘉（セガ・チェン）氏は、桜美林大学大学院特任教授の山田周平氏によるインタビューで「AIは人間の職業を奪う技術ではなく、人間の能力を補完・強化するものだ。AIの利用者に大切なのはAIの技術トレンドを追うことではなく、AIによって伸ばすべき自分の個性を磨いておくことだ」と語りました。 世界のAI産業の中で日本には「二つの強みがある」とし、「美食からアニメ・マンガに至るまで、独自の文化を確立していること」と「ロボットや精密機械で世界トップ級の技術を持つこと」を挙げました。日本の実情とAIに詳しいチェン氏の見解は、日本のAI産業の将来を占う上で参考になりそうです。 台湾AIスタートアップCEO 日本の強みは文化とロボット（2025年11月6日公開） 2025年10月に都内で開かれた「生成AIサミット（GenAI/SUM）2025」のパネル討論にゲストとして参加した村上信五氏は、エンターテインメント業界におけるAIの活用について「テクノロジーと人間が共創することで、ライブや舞台の感覚をアップデートし、より価値を高められている」と期待を示しました。 タレントとしていち早く自身の分身AI「AIシンゴ」を開発した村上氏は「『AIが進化したら仕事がなくなるかもしれない』と思っていたが、実際は使い方次第だった。分身がいれば、万一のけがや体調不良で動けないときを含めて、いつでもどこでもファンにエンタメを届けられる」と自身の体験をもとにAIの有用性を語りました。 村上信五さんが語る分身AI エンタメ業界と「共演」へ（2025年11月17日公開） 「日経BizGateイベントガイド」では、 企業が主催する法人向け無料イベント・セミナー情報をご紹介しています。",
+        "content_warning": null,
+        "retrieval_diagnostics": {
+          "candidate_only": true,
+          "candidate_mode": "metadata_only",
+          "feed_url": "https://bizgate.nikkei.com/search?keyword=%E7%94%9F%E6%88%90AI",
+          "metadata_only": false,
+          "body_fetch_attempted": true,
+          "category": "nikkei_bizgate_genai",
+          "provider": "nikkei_xtech_candidate",
+          "canonicalization_mode": "public_html",
+          "candidate_fetch_mode": "html_fallback",
+          "body_fetch_mode": "public_html"
+        },
+        "language": "ja",
+        "trust_level": "medium",
+        "quality_tier": null,
+        "reader_eligibility": null,
+        "notebooklm_eligibility": null,
+        "cleaning_version": "rule-based.v1",
+        "cleaning_diagnostics": {
+          "cleaner": "rule-based.v1",
+          "raw_length": 2006,
+          "cleaned_length": 1990,
+          "fetch_kind": "public_html"
+        },
+        "created_at": null,
+        "updated_at": null
+      }
+    },
+    {
+      "feed_entry": {
+        "title": "米スパイの悔悟 真珠湾や同時テロの教訓、AI戦争時代に生きるか",
+        "url": "https://financial.nikkei.com/article/DGXZQOGN072XC0X00C26A3000000/",
+        "published_at": null,
+        "category": "nikkei_financial_ai"
+      },
+      "source_id": "nikkei.financial.ai",
+      "item": {
+        "item_id": "nikkei.financial.ai:financial.nikkei.com/article/DGXZQOGN072XC0X00C26A3000000",
+        "source_id": "nikkei.financial.ai",
+        "source_type": "article",
+        "url": "https://financial.nikkei.com/article/DGXZQOGN072XC0X00C26A3000000/",
+        "body_kind": "metadata_only",
+        "content_status": "unavailable",
+        "evidence_strength": "none",
+        "external_id": "financial.nikkei.com/article/DGXZQOGN072XC0X00C26A3000000",
+        "title": "米スパイの悔悟 真珠湾や同時テロの教訓、AI戦争時代に生きるか",
+        "author": "NIKKEI Financial AI",
+        "published_at": null,
+        "raw_text": "",
+        "cleaned_text": "",
+        "content_warning": "Metadata only: body retrieval disabled for candidate collection.",
+        "retrieval_diagnostics": {
+          "candidate_only": true,
+          "candidate_mode": "metadata_only",
+          "feed_url": "https://financial.nikkei.com/search?keyword=AI",
+          "metadata_only": true,
+          "body_fetch_attempted": true,
+          "category": "nikkei_financial_ai",
+          "provider": "nikkei_xtech_candidate",
+          "canonicalization_mode": "metadata_only",
+          "candidate_fetch_mode": "html_fallback",
+          "failure_reason": "body_fetch_failed:HTTPError",
+          "authenticated_fetch_attempted": true,
+          "authenticated_fetch": false,
+          "authenticated_fetch_reason": "missing_cookie",
+          "metadata_only_reason": "candidate_only_metadata"
+        },
+        "language": null,
+        "trust_level": null,
+        "quality_tier": null,
+        "reader_eligibility": null,
+        "notebooklm_eligibility": null,
+        "cleaning_version": "rule-based.v1",
+        "cleaning_diagnostics": {
+          "cleaner": "rule-based.v1",
+          "raw_length": 0,
+          "cleaned_length": 0,
+          "metadata_only": true
+        },
+        "created_at": null,
+        "updated_at": null
+      }
+    },
+    {
+      "feed_entry": {
+        "title": "スクエニ、ドラクエ10にGoogle「Gemini」搭載 AIキャラ自然な会話",
+        "url": "https://financial.nikkei.com/article/DGXZQOUC212HX0R20C26A3000000/",
+        "published_at": null,
+        "category": "nikkei_financial_ai"
+      },
+      "source_id": "nikkei.financial.ai",
+      "item": {
+        "item_id": "nikkei.financial.ai:financial.nikkei.com/article/DGXZQOUC212HX0R20C26A3000000",
+        "source_id": "nikkei.financial.ai",
+        "source_type": "article",
+        "url": "https://financial.nikkei.com/article/DGXZQOUC212HX0R20C26A3000000/",
+        "body_kind": "metadata_only",
+        "content_status": "unavailable",
+        "evidence_strength": "none",
+        "external_id": "financial.nikkei.com/article/DGXZQOUC212HX0R20C26A3000000",
+        "title": "スクエニ、ドラクエ10にGoogle「Gemini」搭載 AIキャラ自然な会話",
+        "author": "NIKKEI Financial AI",
+        "published_at": null,
+        "raw_text": "",
+        "cleaned_text": "",
+        "content_warning": "Metadata only: body retrieval disabled for candidate collection.",
+        "retrieval_diagnostics": {
+          "candidate_only": true,
+          "candidate_mode": "metadata_only",
+          "feed_url": "https://financial.nikkei.com/search?keyword=AI",
+          "metadata_only": true,
+          "body_fetch_attempted": true,
+          "category": "nikkei_financial_ai",
+          "provider": "nikkei_xtech_candidate",
+          "canonicalization_mode": "metadata_only",
+          "candidate_fetch_mode": "html_fallback",
+          "failure_reason": "body_fetch_failed:HTTPError",
+          "authenticated_fetch_attempted": true,
+          "authenticated_fetch": false,
+          "authenticated_fetch_reason": "missing_cookie",
+          "metadata_only_reason": "candidate_only_metadata"
+        },
+        "language": null,
+        "trust_level": null,
+        "quality_tier": null,
+        "reader_eligibility": null,
+        "notebooklm_eligibility": null,
+        "cleaning_version": "rule-based.v1",
+        "cleaning_diagnostics": {
+          "cleaner": "rule-based.v1",
+          "raw_length": 0,
+          "cleaned_length": 0,
+          "metadata_only": true
+        },
+        "created_at": null,
+        "updated_at": null
+      }
+    },
+    {
+      "feed_entry": {
+        "title": "米スパイの悔悟 真珠湾や同時テロの教訓、AI戦争時代に生きるか",
+        "url": "https://www.nikkei.com/article/DGXZQOGN072XC0X00C26A3000000/",
+        "published_at": null,
+        "category": "nikkei_main_ai_candidate"
+      },
+      "source_id": "nikkei.main.ai",
+      "item": {
+        "item_id": "nikkei.main.ai:www.nikkei.com/article/DGXZQOGN072XC0X00C26A3000000",
+        "source_id": "nikkei.main.ai",
+        "source_type": "article",
+        "url": "https://www.nikkei.com/article/DGXZQOGN072XC0X00C26A3000000/",
+        "body_kind": "full_text",
+        "content_status": "available",
+        "evidence_strength": "medium",
+        "external_id": "www.nikkei.com/article/DGXZQOGN072XC0X00C26A3000000",
+        "title": "米スパイの悔悟 真珠湾や同時テロの教訓、AI戦争時代に生きるか",
+        "author": "NIKKEI Main AI",
+        "published_at": null,
+        "raw_text": "企業での記事共有や会議資料への転載・複製、注文印刷などをご希望の方は、リンク先をご覧ください。\n\n国家の安全は正確な情報を集めたからといって維持できるとは限らない。どう読み解いて指導者の適切な判断につなげられるかが肝となる。\n\n米ワシントン中心部にある国際スパイ博物館はそうした歴史をいまに伝える。館内には冷戦期に米中央情報局（CIA）や旧ソ連の国家保安委員会（KGB）が使った腕時計型カメラや発信器を仕込んだ靴、拷問用の道具などが並ぶ。\n\n有料登録すると続きをお読みいただけます。無料登録でも記事消費（一定数限定）をすることで閲覧できます。",
+        "cleaned_text": "企業での記事共有や会議資料への転載・複製、注文印刷などをご希望の方は、リンク先をご覧ください。 国家の安全は正確な情報を集めたからといって維持できるとは限らない。どう読み解いて指導者の適切な判断につなげられるかが肝となる。 米ワシントン中心部にある国際スパイ博物館はそうした歴史をいまに伝える。館内には冷戦期に米中央情報局（CIA）や旧ソ連の国家保安委員会（KGB）が使った腕時計型カメラや発信器を仕込んだ靴、拷問用の道具などが並ぶ。 有料登録すると続きをお読みいただけます。無料登録でも記事消費（一定数限定）をすることで閲覧できます。",
+        "content_warning": null,
+        "retrieval_diagnostics": {
+          "candidate_only": true,
+          "candidate_mode": "metadata_only",
+          "feed_url": "https://www.nikkei.com/search?keyword=AI",
+          "metadata_only": false,
+          "body_fetch_attempted": true,
+          "category": "nikkei_main_ai_candidate",
+          "provider": "nikkei_xtech_candidate",
+          "canonicalization_mode": "public_html",
+          "candidate_fetch_mode": "html_fallback",
+          "body_fetch_mode": "public_html"
+        },
+        "language": "ja",
+        "trust_level": "medium",
+        "quality_tier": null,
+        "reader_eligibility": null,
+        "notebooklm_eligibility": null,
+        "cleaning_version": "rule-based.v1",
+        "cleaning_diagnostics": {
+          "cleaner": "rule-based.v1",
+          "raw_length": 271,
+          "cleaned_length": 268,
+          "fetch_kind": "public_html"
+        },
+        "created_at": null,
+        "updated_at": null
+      }
+    },
+    {
+      "feed_entry": {
+        "title": "スクエニ、ドラクエ10にGoogle「Gemini」搭載 AIキャラ自然な会話",
+        "url": "https://www.nikkei.com/article/DGXZQOUC212HX0R20C26A3000000/",
+        "published_at": null,
+        "category": "nikkei_main_ai_candidate"
+      },
+      "source_id": "nikkei.main.ai",
+      "item": {
+        "item_id": "nikkei.main.ai:www.nikkei.com/article/DGXZQOUC212HX0R20C26A3000000",
+        "source_id": "nikkei.main.ai",
+        "source_type": "article",
+        "url": "https://www.nikkei.com/article/DGXZQOUC212HX0R20C26A3000000/",
+        "body_kind": "full_text",
+        "content_status": "available",
+        "evidence_strength": "medium",
+        "external_id": "www.nikkei.com/article/DGXZQOUC212HX0R20C26A3000000",
+        "title": "スクエニ、ドラクエ10にGoogle「Gemini」搭載 AIキャラ自然な会話",
+        "author": "NIKKEI Main AI",
+        "published_at": null,
+        "raw_text": "企業での記事共有や会議資料への転載・複製、注文印刷などをご希望の方は、リンク先をご覧ください。\n\nスクウェア・エニックス・ホールディングス （HD）は21日、同社が運営するオンラインRPG（ロールプレイングゲーム）「ドラゴンクエスト10」に米グーグルの生成AI（人工知能）「Gemini（ジェミニ）」を搭載すると発表した。ゲーム内でプレーヤーと会話できる対話型のキャラクターとして登場する。音声や文字入力、ゲーム画面を認識してプレーヤーへの応答を自動生成する。\n\nAIを搭載するのはゲーム内の対話型バディ「おしゃべりスラミィ」。「死神見習い」との設定で、プレーヤーのゲーム履歴を「死神手帳」に記録する。日常会話のようなコミュニケーションのほか、ゲームを進めるための助言などもくれる。\n\nゲーム外の現実世界の情報や質問には対応しない。自分のバディ以外の会話は学習されず、公開もされない。不適切な回答が出ないようAIによるチェックもするようにした。30日までベータテスト（試験提供）の参加者を募集している。\n\n「ドラクエ10」の開発や運営の責任者を務める安西崇氏は「子どものころ友達と一緒にゲームをしたように自分だけの相棒になる。新規のプレーヤーが孤独にならない」と特徴を説明した。\n\nドラクエ10は人気ゲーム「ドラゴンクエスト」シリーズ初のオンラインRPGとして、2012年にサービスを開始した。何度もアップデートを重ね、現在でも月間ユーザー数は数十万人に達するという。スクエニHDは今後もゲームへのAI導入を進める。",
+        "cleaned_text": "企業での記事共有や会議資料への転載・複製、注文印刷などをご希望の方は、リンク先をご覧ください。 スクウェア・エニックス・ホールディングス （HD）は21日、同社が運営するオンラインRPG（ロールプレイングゲーム）「ドラゴンクエスト10」に米グーグルの生成AI（人工知能）「Gemini（ジェミニ）」を搭載すると発表した。ゲーム内でプレーヤーと会話できる対話型のキャラクターとして登場する。音声や文字入力、ゲーム画面を認識してプレーヤーへの応答を自動生成する。 AIを搭載するのはゲーム内の対話型バディ「おしゃべりスラミィ」。「死神見習い」との設定で、プレーヤーのゲーム履歴を「死神手帳」に記録する。日常会話のようなコミュニケーションのほか、ゲームを進めるための助言などもくれる。 ゲーム外の現実世界の情報や質問には対応しない。自分のバディ以外の会話は学習されず、公開もされない。不適切な回答が出ないようAIによるチェックもするようにした。30日までベータテスト（試験提供）の参加者を募集している。 「ドラクエ10」の開発や運営の責任者を務める安西崇氏は「子どものころ友達と一緒にゲームをしたように自分だけの相棒になる。新規のプレーヤーが孤独にならない」と特徴を説明した。 ドラクエ10は人気ゲーム「ドラゴンクエスト」シリーズ初のオンラインRPGとして、2012年にサービスを開始した。何度もアップデートを重ね、現在でも月間ユーザー数は数十万人に達するという。スクエニHDは今後もゲームへのAI導入を進める。",
+        "content_warning": null,
+        "retrieval_diagnostics": {
+          "candidate_only": true,
+          "candidate_mode": "metadata_only",
+          "feed_url": "https://www.nikkei.com/search?keyword=AI",
+          "metadata_only": false,
+          "body_fetch_attempted": true,
+          "category": "nikkei_main_ai_candidate",
+          "provider": "nikkei_xtech_candidate",
+          "canonicalization_mode": "public_html",
+          "candidate_fetch_mode": "html_fallback",
+          "body_fetch_mode": "public_html"
+        },
+        "language": "ja",
+        "trust_level": "medium",
+        "quality_tier": null,
+        "reader_eligibility": null,
+        "notebooklm_eligibility": null,
+        "cleaning_version": "rule-based.v1",
+        "cleaning_diagnostics": {
+          "cleaner": "rule-based.v1",
+          "raw_length": 658,
+          "cleaned_length": 653,
+          "fetch_kind": "public_html"
+        },
+        "created_at": null,
+        "updated_at": null
+      }
+    }
+  ]
+}

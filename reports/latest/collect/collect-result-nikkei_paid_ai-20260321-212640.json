@@ -1,0 +1,115 @@
+{
+  "source": null,
+  "source_set": "nikkei_paid_ai",
+  "query": null,
+  "channel_id": null,
+  "max_items": 2,
+  "record_count": 2,
+  "error_count": 0,
+  "errors": [],
+  "records": [
+    {
+      "feed_entry": {
+        "title": "米スパイの悔悟 真珠湾や同時テロの教訓、AI戦争時代に生きるか",
+        "url": "https://financial.nikkei.com/article/DGXZQOGN072XC0X00C26A3000000/",
+        "published_at": null,
+        "category": "nikkei_financial_ai"
+      },
+      "source_id": "nikkei.financial.ai",
+      "item": {
+        "item_id": "nikkei.financial.ai:financial.nikkei.com/article/DGXZQOGN072XC0X00C26A3000000",
+        "source_id": "nikkei.financial.ai",
+        "source_type": "article",
+        "url": "https://financial.nikkei.com/article/DGXZQOGN072XC0X00C26A3000000/",
+        "body_kind": "metadata_only",
+        "content_status": "unavailable",
+        "evidence_strength": "none",
+        "external_id": "financial.nikkei.com/article/DGXZQOGN072XC0X00C26A3000000",
+        "title": "米スパイの悔悟 真珠湾や同時テロの教訓、AI戦争時代に生きるか",
+        "author": "NIKKEI Financial AI",
+        "published_at": null,
+        "raw_text": "",
+        "cleaned_text": "",
+        "content_warning": "Metadata only: body retrieval disabled for candidate collection.",
+        "retrieval_diagnostics": {
+          "candidate_only": true,
+          "candidate_mode": "metadata_only",
+          "feed_url": "https://financial.nikkei.com/search?keyword=AI",
+          "metadata_only": true,
+          "body_fetch_attempted": true,
+          "category": "nikkei_financial_ai",
+          "provider": "nikkei_xtech_candidate",
+          "canonicalization_mode": "metadata_only",
+          "candidate_fetch_mode": "html_fallback",
+          "failure_reason": "body_fetch_failed:HTTPError",
+          "metadata_only_reason": "candidate_only_metadata"
+        },
+        "language": null,
+        "trust_level": null,
+        "quality_tier": null,
+        "reader_eligibility": null,
+        "notebooklm_eligibility": null,
+        "cleaning_version": "rule-based.v1",
+        "cleaning_diagnostics": {
+          "cleaner": "rule-based.v1",
+          "raw_length": 0,
+          "cleaned_length": 0,
+          "metadata_only": true
+        },
+        "created_at": null,
+        "updated_at": null
+      }
+    },
+    {
+      "feed_entry": {
+        "title": "米スパイの悔悟 真珠湾や同時テロの教訓、AI戦争時代に生きるか",
+        "url": "https://www.nikkei.com/article/DGXZQOGN072XC0X00C26A3000000/",
+        "published_at": null,
+        "category": "nikkei_main_ai_candidate"
+      },
+      "source_id": "nikkei.main.ai",
+      "item": {
+        "item_id": "nikkei.main.ai:www.nikkei.com/article/DGXZQOGN072XC0X00C26A3000000",
+        "source_id": "nikkei.main.ai",
+        "source_type": "article",
+        "url": "https://www.nikkei.com/article/DGXZQOGN072XC0X00C26A3000000/",
+        "body_kind": "full_text",
+        "content_status": "available",
+        "evidence_strength": "medium",
+        "external_id": "www.nikkei.com/article/DGXZQOGN072XC0X00C26A3000000",
+        "title": "米スパイの悔悟 真珠湾や同時テロの教訓、AI戦争時代に生きるか",
+        "author": "NIKKEI Main AI",
+        "published_at": null,
+        "raw_text": "企業での記事共有や会議資料への転載・複製、注文印刷などをご希望の方は、リンク先をご覧ください。\n\n国家の安全は正確な情報を集めたからといって維持できるとは限らない。どう読み解いて指導者の適切な判断につなげられるかが肝となる。\n\n米ワシントン中心部にある国際スパイ博物館はそうした歴史をいまに伝える。館内には冷戦期に米中央情報局（CIA）や旧ソ連の国家保安委員会（KGB）が使った腕時計型カメラや発信器を仕込んだ靴、拷問用の道具などが並ぶ。\n\n有料登録すると続きをお読みいただけます。無料登録でも記事消費（一定数限定）をすることで閲覧できます。",
+        "cleaned_text": "企業での記事共有や会議資料への転載・複製、注文印刷などをご希望の方は、リンク先をご覧ください。 国家の安全は正確な情報を集めたからといって維持できるとは限らない。どう読み解いて指導者の適切な判断につなげられるかが肝となる。 米ワシントン中心部にある国際スパイ博物館はそうした歴史をいまに伝える。館内には冷戦期に米中央情報局（CIA）や旧ソ連の国家保安委員会（KGB）が使った腕時計型カメラや発信器を仕込んだ靴、拷問用の道具などが並ぶ。 有料登録すると続きをお読みいただけます。無料登録でも記事消費（一定数限定）をすることで閲覧できます。",
+        "content_warning": null,
+        "retrieval_diagnostics": {
+          "candidate_only": true,
+          "candidate_mode": "metadata_only",
+          "feed_url": "https://www.nikkei.com/search?keyword=AI",
+          "metadata_only": false,
+          "body_fetch_attempted": true,
+          "category": "nikkei_main_ai_candidate",
+          "provider": "nikkei_xtech_candidate",
+          "canonicalization_mode": "public_html",
+          "candidate_fetch_mode": "html_fallback",
+          "body_fetch_mode": "public_html"
+        },
+        "language": "ja",
+        "trust_level": "medium",
+        "quality_tier": null,
+        "reader_eligibility": null,
+        "notebooklm_eligibility": null,
+        "cleaning_version": "rule-based.v1",
+        "cleaning_diagnostics": {
+          "cleaner": "rule-based.v1",
+          "raw_length": 271,
+          "cleaned_length": 268,
+          "fetch_kind": "public_html"
+        },
+        "created_at": null,
+        "updated_at": null
+      }
+    }
+  ]
+}

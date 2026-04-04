@@ -1,0 +1,453 @@
+{
+  "source": null,
+  "source_set": "production_min",
+  "query": null,
+  "channel_id": null,
+  "max_items": 3,
+  "record_count": 9,
+  "error_count": 0,
+  "errors": [],
+  "records": [
+    {
+      "feed_entry": {
+        "title": "How we monitor internal coding agents for misalignment",
+        "url": "https://openai.com/index/how-we-monitor-internal-coding-agents-misalignment",
+        "published_at": "2026-03-19T10:00:00+00:00",
+        "category": "Safety"
+      },
+      "source_id": "blog.openai",
+      "item": {
+        "item_id": "blog.openai:openai.com/index/how-we-monitor-internal-coding-agents-misalignment",
+        "source_id": "blog.openai",
+        "source_type": "article",
+        "url": "https://openai.com/index/how-we-monitor-internal-coding-agents-misalignment",
+        "body_kind": "metadata_only",
+        "content_status": "unavailable",
+        "evidence_strength": "none",
+        "external_id": "openai.com/index/how-we-monitor-internal-coding-agents-misalignment",
+        "title": "How we monitor internal coding agents for misalignment",
+        "author": "OpenAI Blog",
+        "published_at": "2026-03-19T10:00:00+00:00",
+        "raw_text": "",
+        "cleaned_text": "",
+        "content_warning": "Metadata only: body retrieval disabled for candidate collection.",
+        "retrieval_diagnostics": {
+          "candidate_only": true,
+          "candidate_mode": "metadata_only",
+          "feed_url": "https://openai.com/news/rss.xml",
+          "metadata_only": true,
+          "category": "Safety",
+          "metadata_only_reason": "candidate_only_metadata",
+          "candidate_fetch_mode": "rss"
+        },
+        "language": null,
+        "trust_level": null,
+        "quality_tier": null,
+        "reader_eligibility": null,
+        "notebooklm_eligibility": null,
+        "cleaning_version": "rule-based.v1",
+        "cleaning_diagnostics": {
+          "cleaner": "rule-based.v1",
+          "raw_length": 0,
+          "cleaned_length": 0,
+          "metadata_only": true
+        },
+        "created_at": null,
+        "updated_at": null
+      }
+    },
+    {
+      "feed_entry": {
+        "title": "OpenAI to acquire Astral",
+        "url": "https://openai.com/index/openai-to-acquire-astral",
+        "published_at": "2026-03-19T00:00:00+00:00",
+        "category": "Company"
+      },
+      "source_id": "blog.openai",
+      "item": {
+        "item_id": "blog.openai:openai.com/index/openai-to-acquire-astral",
+        "source_id": "blog.openai",
+        "source_type": "article",
+        "url": "https://openai.com/index/openai-to-acquire-astral",
+        "body_kind": "metadata_only",
+        "content_status": "unavailable",
+        "evidence_strength": "none",
+        "external_id": "openai.com/index/openai-to-acquire-astral",
+        "title": "OpenAI to acquire Astral",
+        "author": "OpenAI Blog",
+        "published_at": "2026-03-19T00:00:00+00:00",
+        "raw_text": "",
+        "cleaned_text": "",
+        "content_warning": "Metadata only: body retrieval disabled for candidate collection.",
+        "retrieval_diagnostics": {
+          "candidate_only": true,
+          "candidate_mode": "metadata_only",
+          "feed_url": "https://openai.com/news/rss.xml",
+          "metadata_only": true,
+          "category": "Company",
+          "metadata_only_reason": "candidate_only_metadata",
+          "candidate_fetch_mode": "rss"
+        },
+        "language": null,
+        "trust_level": null,
+        "quality_tier": null,
+        "reader_eligibility": null,
+        "notebooklm_eligibility": null,
+        "cleaning_version": "rule-based.v1",
+        "cleaning_diagnostics": {
+          "cleaner": "rule-based.v1",
+          "raw_length": 0,
+          "cleaned_length": 0,
+          "metadata_only": true
+        },
+        "created_at": null,
+        "updated_at": null
+      }
+    },
+    {
+      "feed_entry": {
+        "title": "OpenAI Japan announces Japan Teen Safety Blueprint to put teen safety first",
+        "url": "https://openai.com/index/japan-teen-safety-blueprint",
+        "published_at": "2026-03-17T10:00:00+00:00",
+        "category": "Safety"
+      },
+      "source_id": "blog.openai",
+      "item": {
+        "item_id": "blog.openai:openai.com/index/japan-teen-safety-blueprint",
+        "source_id": "blog.openai",
+        "source_type": "article",
+        "url": "https://openai.com/index/japan-teen-safety-blueprint",
+        "body_kind": "metadata_only",
+        "content_status": "unavailable",
+        "evidence_strength": "none",
+        "external_id": "openai.com/index/japan-teen-safety-blueprint",
+        "title": "OpenAI Japan announces Japan Teen Safety Blueprint to put teen safety first",
+        "author": "OpenAI Blog",
+        "published_at": "2026-03-17T10:00:00+00:00",
+        "raw_text": "",
+        "cleaned_text": "",
+        "content_warning": "Metadata only: body retrieval disabled for candidate collection.",
+        "retrieval_diagnostics": {
+          "candidate_only": true,
+          "candidate_mode": "metadata_only",
+          "feed_url": "https://openai.com/news/rss.xml",
+          "metadata_only": true,
+          "category": "Safety",
+          "metadata_only_reason": "candidate_only_metadata",
+          "candidate_fetch_mode": "rss"
+        },
+        "language": null,
+        "trust_level": null,
+        "quality_tier": null,
+        "reader_eligibility": null,
+        "notebooklm_eligibility": null,
+        "cleaning_version": "rule-based.v1",
+        "cleaning_diagnostics": {
+          "cleaner": "rule-based.v1",
+          "raw_length": 0,
+          "cleaned_length": 0,
+          "metadata_only": true
+        },
+        "created_at": null,
+        "updated_at": null
+      }
+    },
+    {
+      "feed_entry": {
+        "title": "Python 3.15.0 alpha 7",
+        "url": "https://blog.python.org/2026/03/python-3150-alpha-7/",
+        "published_at": "2026-03-10T00:00:00+00:00",
+        "category": "releases"
+      },
+      "source_id": "docs.python_insider",
+      "item": {
+        "item_id": "docs.python_insider:blog.python.org/2026/03/python-3150-alpha-7",
+        "source_id": "docs.python_insider",
+        "source_type": "article",
+        "url": "https://blog.python.org/2026/03/python-3150-alpha-7/",
+        "body_kind": "metadata_only",
+        "content_status": "unavailable",
+        "evidence_strength": "none",
+        "external_id": "blog.python.org/2026/03/python-3150-alpha-7",
+        "title": "Python 3.15.0 alpha 7",
+        "author": "Python Insider",
+        "published_at": "2026-03-10T00:00:00+00:00",
+        "raw_text": "",
+        "cleaned_text": "",
+        "content_warning": "Metadata only: body retrieval disabled for candidate collection.",
+        "retrieval_diagnostics": {
+          "candidate_only": true,
+          "candidate_mode": "metadata_only",
+          "feed_url": "https://blog.python.org/rss.xml",
+          "metadata_only": true,
+          "category": "releases",
+          "metadata_only_reason": "candidate_only_metadata",
+          "candidate_fetch_mode": "rss"
+        },
+        "language": null,
+        "trust_level": null,
+        "quality_tier": null,
+        "reader_eligibility": null,
+        "notebooklm_eligibility": null,
+        "cleaning_version": "rule-based.v1",
+        "cleaning_diagnostics": {
+          "cleaner": "rule-based.v1",
+          "raw_length": 0,
+          "cleaned_length": 0,
+          "metadata_only": true
+        },
+        "created_at": null,
+        "updated_at": null
+      }
+    },
+    {
+      "feed_entry": {
+        "title": "CPython: 36 Years of Source Code",
+        "url": "https://blog.python.org/2026/03/cpython-codebase-growth/",
+        "published_at": "2026-03-08T00:00:00+00:00",
+        "category": "history"
+      },
+      "source_id": "docs.python_insider",
+      "item": {
+        "item_id": "docs.python_insider:blog.python.org/2026/03/cpython-codebase-growth",
+        "source_id": "docs.python_insider",
+        "source_type": "article",
+        "url": "https://blog.python.org/2026/03/cpython-codebase-growth/",
+        "body_kind": "metadata_only",
+        "content_status": "unavailable",
+        "evidence_strength": "none",
+        "external_id": "blog.python.org/2026/03/cpython-codebase-growth",
+        "title": "CPython: 36 Years of Source Code",
+        "author": "Python Insider",
+        "published_at": "2026-03-08T00:00:00+00:00",
+        "raw_text": "",
+        "cleaned_text": "",
+        "content_warning": "Metadata only: body retrieval disabled for candidate collection.",
+        "retrieval_diagnostics": {
+          "candidate_only": true,
+          "candidate_mode": "metadata_only",
+          "feed_url": "https://blog.python.org/rss.xml",
+          "metadata_only": true,
+          "category": "history",
+          "metadata_only_reason": "candidate_only_metadata",
+          "candidate_fetch_mode": "rss"
+        },
+        "language": null,
+        "trust_level": null,
+        "quality_tier": null,
+        "reader_eligibility": null,
+        "notebooklm_eligibility": null,
+        "cleaning_version": "rule-based.v1",
+        "cleaning_diagnostics": {
+          "cleaner": "rule-based.v1",
+          "raw_length": 0,
+          "cleaned_length": 0,
+          "metadata_only": true
+        },
+        "created_at": null,
+        "updated_at": null
+      }
+    },
+    {
+      "feed_entry": {
+        "title": "Python 3.12.13, 3.11.15 and 3.10.20 are now available!",
+        "url": "https://blog.python.org/2026/03/python-31213-31115-31020/",
+        "published_at": "2026-03-03T00:00:00+00:00",
+        "category": "releases"
+      },
+      "source_id": "docs.python_insider",
+      "item": {
+        "item_id": "docs.python_insider:blog.python.org/2026/03/python-31213-31115-31020",
+        "source_id": "docs.python_insider",
+        "source_type": "article",
+        "url": "https://blog.python.org/2026/03/python-31213-31115-31020/",
+        "body_kind": "metadata_only",
+        "content_status": "unavailable",
+        "evidence_strength": "none",
+        "external_id": "blog.python.org/2026/03/python-31213-31115-31020",
+        "title": "Python 3.12.13, 3.11.15 and 3.10.20 are now available!",
+        "author": "Python Insider",
+        "published_at": "2026-03-03T00:00:00+00:00",
+        "raw_text": "",
+        "cleaned_text": "",
+        "content_warning": "Metadata only: body retrieval disabled for candidate collection.",
+        "retrieval_diagnostics": {
+          "candidate_only": true,
+          "candidate_mode": "metadata_only",
+          "feed_url": "https://blog.python.org/rss.xml",
+          "metadata_only": true,
+          "category": "releases",
+          "metadata_only_reason": "candidate_only_metadata",
+          "candidate_fetch_mode": "rss"
+        },
+        "language": null,
+        "trust_level": null,
+        "quality_tier": null,
+        "reader_eligibility": null,
+        "notebooklm_eligibility": null,
+        "cleaning_version": "rule-based.v1",
+        "cleaning_diagnostics": {
+          "cleaner": "rule-based.v1",
+          "raw_length": 0,
+          "cleaned_length": 0,
+          "metadata_only": true
+        },
+        "created_at": null,
+        "updated_at": null
+      }
+    },
+    {
+      "feed_entry": {
+        "title": "SB子会社が音声対話AIの基盤技術で特許、音声の読み誤りを修正",
+        "url": "https://xtech.nikkei.com/atcl/nxt/column/18/00001/11596/",
+        "published_at": null,
+        "category": null
+      },
+      "source_id": "nikkei.xtech.candidate",
+      "item": {
+        "item_id": "nikkei.xtech.candidate:xtech.nikkei.com/atcl/nxt/column/18/00001/11596",
+        "source_id": "nikkei.xtech.candidate",
+        "source_type": "article",
+        "url": "https://xtech.nikkei.com/atcl/nxt/column/18/00001/11596/",
+        "body_kind": "metadata_only",
+        "content_status": "unavailable",
+        "evidence_strength": "none",
+        "external_id": "xtech.nikkei.com/atcl/nxt/column/18/00001/11596",
+        "title": "SB子会社が音声対話AIの基盤技術で特許、音声の読み誤りを修正",
+        "author": "Nikkei xTECH Candidate",
+        "published_at": null,
+        "raw_text": "",
+        "cleaned_text": "",
+        "content_warning": "Metadata only: body retrieval disabled for candidate collection.",
+        "retrieval_diagnostics": {
+          "candidate_only": true,
+          "candidate_mode": "metadata_only",
+          "feed_url": "https://xtech.nikkei.com/rss/index.rdf",
+          "metadata_only": true,
+          "category": "nikkei_xtech_candidate",
+          "provider": "nikkei_xtech_candidate",
+          "body_fetch_attempted": false,
+          "canonicalization_mode": "metadata_only",
+          "metadata_only_reason": "candidate_only_metadata",
+          "candidate_fetch_mode": "rss"
+        },
+        "language": null,
+        "trust_level": null,
+        "quality_tier": null,
+        "reader_eligibility": null,
+        "notebooklm_eligibility": null,
+        "cleaning_version": "rule-based.v1",
+        "cleaning_diagnostics": {
+          "cleaner": "rule-based.v1",
+          "raw_length": 0,
+          "cleaned_length": 0,
+          "metadata_only": true
+        },
+        "created_at": null,
+        "updated_at": null
+      }
+    },
+    {
+      "feed_entry": {
+        "title": "製造業の暗黙知をAIで継承へ、慶大・栗原教授らが業界団体を発足",
+        "url": "https://xtech.nikkei.com/atcl/nxt/column/18/00001/11591/",
+        "published_at": null,
+        "category": null
+      },
+      "source_id": "nikkei.xtech.candidate",
+      "item": {
+        "item_id": "nikkei.xtech.candidate:xtech.nikkei.com/atcl/nxt/column/18/00001/11591",
+        "source_id": "nikkei.xtech.candidate",
+        "source_type": "article",
+        "url": "https://xtech.nikkei.com/atcl/nxt/column/18/00001/11591/",
+        "body_kind": "metadata_only",
+        "content_status": "unavailable",
+        "evidence_strength": "none",
+        "external_id": "xtech.nikkei.com/atcl/nxt/column/18/00001/11591",
+        "title": "製造業の暗黙知をAIで継承へ、慶大・栗原教授らが業界団体を発足",
+        "author": "Nikkei xTECH Candidate",
+        "published_at": null,
+        "raw_text": "",
+        "cleaned_text": "",
+        "content_warning": "Metadata only: body retrieval disabled for candidate collection.",
+        "retrieval_diagnostics": {
+          "candidate_only": true,
+          "candidate_mode": "metadata_only",
+          "feed_url": "https://xtech.nikkei.com/rss/index.rdf",
+          "metadata_only": true,
+          "category": "nikkei_xtech_candidate",
+          "provider": "nikkei_xtech_candidate",
+          "body_fetch_attempted": false,
+          "canonicalization_mode": "metadata_only",
+          "metadata_only_reason": "candidate_only_metadata",
+          "candidate_fetch_mode": "rss"
+        },
+        "language": null,
+        "trust_level": null,
+        "quality_tier": null,
+        "reader_eligibility": null,
+        "notebooklm_eligibility": null,
+        "cleaning_version": "rule-based.v1",
+        "cleaning_diagnostics": {
+          "cleaner": "rule-based.v1",
+          "raw_length": 0,
+          "cleaned_length": 0,
+          "metadata_only": true
+        },
+        "created_at": null,
+        "updated_at": null
+      }
+    },
+    {
+      "feed_entry": {
+        "title": "【PR】自ら考え動くAIエージェント、開発現場に貢献",
+        "url": "https://xtech.nikkei.com/atcl/nxt/special/18/00001/031000080/",
+        "published_at": null,
+        "category": null
+      },
+      "source_id": "nikkei.xtech.candidate",
+      "item": {
+        "item_id": "nikkei.xtech.candidate:xtech.nikkei.com/atcl/nxt/special/18/00001/031000080",
+        "source_id": "nikkei.xtech.candidate",
+        "source_type": "article",
+        "url": "https://xtech.nikkei.com/atcl/nxt/special/18/00001/031000080/",
+        "body_kind": "metadata_only",
+        "content_status": "unavailable",
+        "evidence_strength": "none",
+        "external_id": "xtech.nikkei.com/atcl/nxt/special/18/00001/031000080",
+        "title": "【PR】自ら考え動くAIエージェント、開発現場に貢献",
+        "author": "Nikkei xTECH Candidate",
+        "published_at": null,
+        "raw_text": "",
+        "cleaned_text": "",
+        "content_warning": "Metadata only: body retrieval disabled for candidate collection.",
+        "retrieval_diagnostics": {
+          "candidate_only": true,
+          "candidate_mode": "metadata_only",
+          "feed_url": "https://xtech.nikkei.com/rss/index.rdf",
+          "metadata_only": true,
+          "category": "nikkei_xtech_candidate",
+          "provider": "nikkei_xtech_candidate",
+          "body_fetch_attempted": false,
+          "canonicalization_mode": "metadata_only",
+          "metadata_only_reason": "candidate_only_metadata",
+          "candidate_fetch_mode": "rss"
+        },
+        "language": null,
+        "trust_level": null,
+        "quality_tier": null,
+        "reader_eligibility": null,
+        "notebooklm_eligibility": null,
+        "cleaning_version": "rule-based.v1",
+        "cleaning_diagnostics": {
+          "cleaner": "rule-based.v1",
+          "raw_length": 0,
+          "cleaned_length": 0,
+          "metadata_only": true
+        },
+        "created_at": null,
+        "updated_at": null
+      }
+    }
+  ]
+}

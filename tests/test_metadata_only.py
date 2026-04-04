@@ -2,6 +2,11 @@ import unittest
 from unittest.mock import MagicMock, patch
 from pathlib import Path
 from uuid import uuid4
+import sys
+
+VENDOR_DIR = Path(__file__).resolve().parents[1] / ".vendor"
+if VENDOR_DIR.exists():
+    sys.path.insert(0, str(VENDOR_DIR))
 
 import requests
 

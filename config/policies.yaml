@@ -1,0 +1,40 @@
+{
+  "quality": {
+    "minimum_cleaned_text_length": 120,
+    "warning_cleaned_text_length": 280,
+    "max_mojibake_ratio": 0.08,
+    "max_url_ratio": 0.03,
+    "max_cta_ratio": 0.04,
+    "cta_terms": [
+      "subscribe",
+      "like and subscribe",
+      "smash that like button",
+      "hit the bell",
+      "turn on notifications",
+      "check out our sponsor",
+      "link in the description",
+      "follow us on social media",
+      "follow me on social media"
+    ]
+  },
+  "notebooklm": {
+    "exclude_body_kinds": [
+      "metadata_only"
+    ],
+    "exclude_content_statuses": [
+      "unavailable"
+    ],
+    "conditional_body_kinds": [
+      "description_only"
+    ],
+    "allow_low_quality_with_warning": false
+  },
+  "reader": {
+    "warning_body_kinds": [
+      "metadata_only",
+      "description_only"
+    ],
+    "include_unavailable": true,
+    "include_low_quality_with_warning": true
+  }
+}

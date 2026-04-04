@@ -1,0 +1,36 @@
+{
+  "history_limit": 10,
+  "reason_rules": {
+    "analyze.retry.ineligible": {
+      "mode": "any",
+      "match": {
+        "reader_eligibility": [
+          "ineligible"
+        ],
+        "notebooklm_eligibility": [
+          "ineligible"
+        ]
+      },
+      "max_retries": 3,
+      "cooldown_hours": 24,
+      "source_overrides": {},
+      "body_kind_overrides": {}
+    },
+    "analyze.retry.low_quality": {
+      "mode": "any",
+      "match": {
+        "quality_tier": [
+          "low"
+        ]
+      },
+      "max_retries": 3,
+      "cooldown_hours": 24,
+      "source_overrides": {
+        "youtube.default": {
+          "enabled": false
+        }
+      },
+      "body_kind_overrides": {}
+    }
+  }
+}

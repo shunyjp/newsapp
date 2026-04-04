@@ -1,0 +1,26 @@
+{
+  "source": null,
+  "source_set": "production_min",
+  "format": "notebooklm-json",
+  "query": null,
+  "compare": true,
+  "compare_report": {
+    "items_priority_count": 0,
+    "legacy_fallback_count": 0,
+    "overlapping_video_count": 0,
+    "items_priority_only_count": 0,
+    "legacy_only_count": 0,
+    "changed_video_count": 0,
+    "items_priority_source_counts": {},
+    "legacy_fallback_source_counts": {},
+    "source_count_diff": {},
+    "items_priority_exclusion_reasons": {
+      "export.exclusion.content_status_excluded": 9
+    },
+    "legacy_exclusion_reasons": {},
+    "exclusion_reason_diff": {
+      "export.exclusion.content_status_excluded": 9
+    }
+  },
+  "export_artifact": "C:\\Users\\shunyjp\\OneDrive\\Documents\\検証勉強\\newsfeed1\\reports\\2026-03-21\\export\\notebooklm-pack-20260321-115028.json"
+}

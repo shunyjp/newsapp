@@ -310,3 +310,44 @@ class Database:
                 item["retrieval_diagnostics"] = {}
             results.append(item)
         return results
+
+    def list_legacy_videos(self) -> list[dict[str, Any]]:
+        with self._connect() as connection:
+            rows = connection.execute(
+                """
+                SELECT
+                    v.video_id,
+                    v.title,
+                    v.channel,
+                    v.published_at,
+                    v.url,
+                    COALESCE(v.description, '') AS description,
+                    COALESCE(v.transcript_source, '') AS transcript_source,
+                    COALESCE(v.transcript_length, 0) AS transcript_length,
+                    COALESCE(v.content_status, '') AS content_status,
+                    COALESCE(v.content_warning, '') AS content_warning,
+                    COALESCE(v.metadata_only_reason, '') AS metadata_only_reason,
+                    COALESCE(v.retrieval_diagnostics, '{}') AS retrieval_diagnostics,
+                    COALESCE(t.raw_text, '') AS raw_text,
+                    COALESCE(t.cleaned_text, '') AS cleaned_text,
+                    COALESCE(vs.short_summary, '') AS short_summary,
+                    COALESCE(vs.detailed_summary, '') AS detailed_summary
+                FROM videos v
+                LEFT JOIN transcripts t ON t.video_id = v.video_id
+                LEFT JOIN video_summaries vs ON vs.video_id = v.video_id
+                ORDER BY v.published_at DESC, v.video_id
+                """
+            ).fetchall()
+        results: list[dict[str, Any]] = []
+        for row in rows:
+            item = dict(row)
+            try:
+                item["retrieval_diagnostics"] = json.loads(
+                    item.get("retrieval_diagnostics") or "{}"
+                )
+            except json.JSONDecodeError:
+                item["retrieval_diagnostics"] = {}
+            item["chunks"] = self.get_chunks(item["video_id"])
+            item["chunk_summaries"] = self.get_chunk_summaries(item["video_id"])
+            results.append(item)
+        return results
