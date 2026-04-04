@@ -9,6 +9,7 @@ const __dirname = path.dirname(__filename);
 const projectRoot = path.resolve(__dirname, "..");
 const sessionDir = path.join(projectRoot, "data");
 const storageStatePath = path.join(sessionDir, "nikkei-storage-state.json");
+const loginAttemptPath = path.join(sessionDir, "nikkei-login-attempt.json");
 let lastLoginAttempt = null;
 
 const DEFAULT_BROWSER_PATHS = [
@@ -98,6 +99,27 @@ async function loadStorageState() {
   return JSON.parse(await fs.readFile(storageStatePath, "utf8"));
 }
 
+async function loadLastLoginAttempt() {
+  if (lastLoginAttempt) {
+    return lastLoginAttempt;
+  }
+  if (!(await fileExists(loginAttemptPath))) {
+    return null;
+  }
+  try {
+    lastLoginAttempt = JSON.parse(await fs.readFile(loginAttemptPath, "utf8"));
+    return lastLoginAttempt;
+  } catch {
+    return null;
+  }
+}
+
+async function saveLastLoginAttempt(attempt) {
+  lastLoginAttempt = attempt;
+  await ensureSessionDir();
+  await fs.writeFile(loginAttemptPath, JSON.stringify(attempt, null, 2), "utf8");
+}
+
 function filterRelevantCookies(cookies = []) {
   return cookies.filter((cookie) => {
     const domain = cookie.domain || "";
@@ -143,6 +165,7 @@ export async function saveStorageState(state) {
 
 export async function getNikkeiLoginStatus() {
   const state = await loadStorageState();
+  const savedAttempt = await loadLastLoginAttempt();
   const cookies = filterRelevantCookies(state?.cookies || []);
   const activeCookies = cookiesToHeader(cookies);
   const cookieDomains = summarizeCookieDomains(cookies);
@@ -159,8 +182,8 @@ export async function getNikkeiLoginStatus() {
     cookieDomains,
     loginAvailable: loginAvailability.available,
     loginReason: loginAvailability.reason,
-    loginDetails: loginAvailability.details || lastLoginAttempt?.details || "",
-    lastLoginAttempt
+    loginDetails: loginAvailability.details || savedAttempt?.details || "",
+    lastLoginAttempt: savedAttempt
   };
 }
 
@@ -267,7 +290,7 @@ export async function loginToNikkeiAndPersistSession({ force = false } = {}) {
   if (!force) {
     const existingHeader = await getSavedNikkeiCookieHeader();
     if (existingHeader) {
-      lastLoginAttempt = { ok: true, reused: true, details: "saved-session-reused" };
+      await saveLastLoginAttempt({ ok: true, reused: true, details: "saved-session-reused" });
       return { ok: true, reused: true };
     }
   }
@@ -289,7 +312,7 @@ export async function loginToNikkeiAndPersistSession({ force = false } = {}) {
     const state = await context.storageState();
     await saveStorageState(state);
     await browser.close();
-    lastLoginAttempt = { ok: true, reused: false, details: "login-succeeded", attemptedUrls };
+    await saveLastLoginAttempt({ ok: true, reused: false, details: "login-succeeded", attemptedUrls });
     return { ok: true, reused: false, attemptedUrls };
   } catch (error) {
     const failure = {
@@ -297,7 +320,7 @@ export async function loginToNikkeiAndPersistSession({ force = false } = {}) {
       reason: "playwright-login-failed",
       details: error instanceof Error ? error.message : String(error)
     };
-    lastLoginAttempt = failure;
+    await saveLastLoginAttempt(failure);
     return {
       ok: false,
       reason: failure.reason,
