@@ -1,8 +1,13 @@
+import { existsSync } from "node:fs";
 import fs from "node:fs/promises";
 import path from "node:path";
+import { fileURLToPath } from "node:url";
 import { chromium } from "playwright-core";
 
-const sessionDir = path.join(process.cwd(), "data");
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+const projectRoot = path.resolve(__dirname, "..");
+const sessionDir = path.join(projectRoot, "data");
 const storageStatePath = path.join(sessionDir, "nikkei-storage-state.json");
 
 const DEFAULT_BROWSER_PATHS = [
@@ -46,7 +51,33 @@ async function fileExists(targetPath) {
 }
 
 function getBrowserExecutablePath() {
-  return DEFAULT_BROWSER_PATHS.find((candidate) => candidate);
+  return DEFAULT_BROWSER_PATHS.find((candidate) => candidate && existsSync(candidate));
+}
+
+function getLoginAvailability() {
+  if (!hasCredentials()) {
+    return {
+      available: false,
+      reason: "missing-credentials",
+      details: "NIKKEI_LOGIN_ID / NIKKEI_LOGIN_PASSWORD が未設定です。"
+    };
+  }
+
+  const executablePath = getBrowserExecutablePath();
+  if (!executablePath) {
+    return {
+      available: false,
+      reason: "missing-browser",
+      details: "Playwright 用ブラウザがサーバー環境に見つかりません。Zeabur では自動再ログインは使えず、Cookie 事前設定が必要です。"
+    };
+  }
+
+  return {
+    available: true,
+    reason: "available",
+    details: "",
+    executablePath
+  };
 }
 
 async function loadStorageState() {
@@ -104,6 +135,7 @@ export async function getNikkeiLoginStatus() {
   const cookies = filterRelevantCookies(state?.cookies || []);
   const activeCookies = cookiesToHeader(cookies);
   const cookieDomains = summarizeCookieDomains(cookies);
+  const loginAvailability = getLoginAvailability();
 
   return {
     hasCredentials: hasCredentials(),
@@ -113,7 +145,10 @@ export async function getNikkeiLoginStatus() {
     sessionUsable: Boolean(activeCookies),
     storageStatePath,
     targetUrls: getTargetUrls(),
-    cookieDomains
+    cookieDomains,
+    loginAvailable: loginAvailability.available,
+    loginReason: loginAvailability.reason,
+    loginDetails: loginAvailability.details
   };
 }
 
@@ -170,8 +205,9 @@ async function performLogin(page, url, selectors) {
 }
 
 export async function loginToNikkeiAndPersistSession({ force = false } = {}) {
-  if (!hasCredentials()) {
-    return { ok: false, reason: "missing-credentials" };
+  const availability = getLoginAvailability();
+  if (!availability.available) {
+    return { ok: false, reason: availability.reason, details: availability.details };
   }
 
   if (!force) {
@@ -181,13 +217,15 @@ export async function loginToNikkeiAndPersistSession({ force = false } = {}) {
     }
   }
 
-  const browser = await launchBrowser();
-  const context = await browser.newContext();
-  const page = await context.newPage();
-  const selectors = loginSelectors();
-  const attemptedUrls = [];
+  let browser;
 
   try {
+    browser = await launchBrowser();
+    const context = await browser.newContext();
+    const page = await context.newPage();
+    const selectors = loginSelectors();
+    const attemptedUrls = [];
+
     for (const url of getTargetUrls()) {
       attemptedUrls.push(url);
       await performLogin(page, url, selectors);
@@ -195,8 +233,15 @@ export async function loginToNikkeiAndPersistSession({ force = false } = {}) {
 
     const state = await context.storageState();
     await saveStorageState(state);
-    return { ok: true, reused: false, attemptedUrls };
-  } finally {
     await browser.close();
+    return { ok: true, reused: false, attemptedUrls };
+  } catch (error) {
+    return {
+      ok: false,
+      reason: "playwright-login-failed",
+      details: error instanceof Error ? error.message : String(error)
+    };
+  } finally {
+    await browser?.close().catch(() => {});
   }
 }

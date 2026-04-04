@@ -172,6 +172,10 @@ function renderNikkeiStatus(status) {
   ].filter(Boolean);
 
   nikkeiStatusNode.textContent = lines.join(" / ");
+  if (status.loginDetails) {
+    nikkeiStatusNode.textContent += ` / diagnostic: ${status.loginDetails}`;
+  }
+  nikkeiReloginButton.disabled = status.loginAvailable === false;
 }
 
 async function refreshNikkeiStatus() {
@@ -188,7 +192,7 @@ async function forceNikkeiLogin() {
     const response = await fetch("/api/auth/nikkei/login", { method: "POST" });
     const data = await response.json();
     if (!response.ok) {
-      throw new Error(data.error || data.details || "login failed");
+      throw new Error(data.details || data.error || "login failed");
     }
 
     renderNikkeiStatus(data.status);

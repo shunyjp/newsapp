@@ -1,0 +1,15 @@
+
+app.get("/api/auth/nikkei/status", async (_req, res) => {
+  res.json(await getNikkeiLoginStatus());
+});
+
+app.post("/api/auth/nikkei/login", async (_req, res) => {
+  try {
+    const result = await loginToNikkeiAndPersistSession({ force: true });
+    if (!result.ok) {
+      return res.status(400).json({ error: "日経グループサイト�Eログイン惁E��が未設定です、E });
+    }
+
+    return res.json({ ok: true, result, status: await getNikkeiLoginStatus() });
+  } catch (error) {
+    return res.status(500).json({
