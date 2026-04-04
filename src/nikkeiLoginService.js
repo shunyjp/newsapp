@@ -208,7 +208,18 @@ function loginSelectors() {
     loginId:
       process.env.NIKKEI_LOGIN_ID_SELECTOR ||
       process.env.NIKKEI_XTECH_LOGIN_ID_SELECTOR ||
-      'input[type="email"], input[name="mail"], input[name="userId"], input[name="loginId"], input[type="text"]',
+      [
+        'input[type="email"]',
+        'input[name="mail"]',
+        'input[name="email"]',
+        'input[name="userId"]',
+        'input[name="loginId"]',
+        'input[id*="mail"]',
+        'input[id*="email"]',
+        'input[autocomplete="username"]',
+        'input[inputmode="email"]',
+        'input[type="text"]'
+      ].join(", "),
     password:
       process.env.NIKKEI_LOGIN_PASSWORD_SELECTOR ||
       process.env.NIKKEI_XTECH_LOGIN_PASSWORD_SELECTOR ||
@@ -224,29 +235,82 @@ function loginSelectors() {
   };
 }
 
+async function locateFirst(locatorFactory, page) {
+  for (const frame of page.frames()) {
+    const locator = locatorFactory(frame);
+    const count = await locator.count().catch(() => 0);
+    if (count > 0) {
+      return { frame, locator, count };
+    }
+  }
+
+  return { frame: page.mainFrame(), locator: locatorFactory(page.mainFrame()), count: 0 };
+}
+
+async function buildFrameSummary(page, selectors) {
+  const summary = [];
+  for (const frame of page.frames()) {
+    summary.push({
+      url: frame.url(),
+      loginId: await frame.locator(selectors.loginId).count().catch(() => 0),
+      password: await frame.locator(selectors.password).count().catch(() => 0),
+      submit: await frame.locator(selectors.submit).count().catch(() => 0),
+      success: await frame.locator(selectors.success).count().catch(() => 0)
+    });
+  }
+  return summary;
+}
+
 async function performLogin(page, url, selectors) {
   await page.goto(url, { waitUntil: "domcontentloaded", timeout: 60000 });
 
-  const loginButtonLocator = page.locator(selectors.loginButton);
-  const loginButtonCount = await loginButtonLocator.count().catch(() => 0);
-  const loginButton = loginButtonLocator.first();
+  const loginButtonMatch = await locateFirst((frame) => frame.locator(selectors.loginButton), page);
+  const loginButtonCount = loginButtonMatch.count;
+  const loginButton = loginButtonMatch.locator.first();
   if (loginButtonCount) {
     await loginButton.click({ timeout: 10000 }).catch(() => {});
+    await page.waitForLoadState("domcontentloaded", { timeout: 10000 }).catch(() => {});
   }
 
-  const loginIdLocator = page.locator(selectors.loginId);
-  const passwordLocator = page.locator(selectors.password);
-  const submitLocator = page.locator(selectors.submit);
-  const successLocator = page.locator(selectors.success);
+  const loginIdMatch = await locateFirst((frame) => frame.locator(selectors.loginId), page);
+  const submitMatch = await locateFirst((frame) => frame.locator(selectors.submit), page);
+  const passwordMatchBefore = await locateFirst((frame) => frame.locator(selectors.password), page);
+  const successMatchBefore = await locateFirst((frame) => frame.locator(selectors.success), page);
 
-  const loginIdCount = await loginIdLocator.count().catch(() => 0);
-  const passwordCount = await passwordLocator.count().catch(() => 0);
-  const submitCount = await submitLocator.count().catch(() => 0);
-  const successCount = await successLocator.count().catch(() => 0);
+  const loginIdCount = loginIdMatch.count;
+  const passwordCountBefore = passwordMatchBefore.count;
+  const submitCount = submitMatch.count;
+  const successCountBefore = successMatchBefore.count;
 
-  if (!loginIdCount || !passwordCount || !submitCount) {
+  if (!loginIdCount || !submitCount) {
     throw new Error(JSON.stringify({
       stage: "selector-check",
+      url,
+      currentUrl: page.url(),
+      title: await page.title().catch(() => ""),
+      counts: {
+        loginButton: loginButtonCount,
+        loginId: loginIdCount,
+        password: passwordCountBefore,
+        submit: submitCount,
+        success: successCountBefore
+      },
+      frames: await buildFrameSummary(page, selectors)
+    }));
+  }
+
+  await loginIdMatch.locator.first().fill(getLoginId(), { timeout: 15000 });
+  await submitMatch.locator.first().click({ timeout: 15000 });
+  await page.waitForLoadState("domcontentloaded", { timeout: 10000 }).catch(() => {});
+
+  const passwordMatch = await locateFirst((frame) => frame.locator(selectors.password), page);
+  const successMatch = await locateFirst((frame) => frame.locator(selectors.success), page);
+  const passwordCount = passwordMatch.count;
+  const successCount = successMatch.count;
+
+  if (!passwordCount) {
+    throw new Error(JSON.stringify({
+      stage: "password-check",
       url,
       currentUrl: page.url(),
       title: await page.title().catch(() => ""),
@@ -256,15 +320,16 @@ async function performLogin(page, url, selectors) {
         password: passwordCount,
         submit: submitCount,
         success: successCount
-      }
+      },
+      frames: await buildFrameSummary(page, selectors)
     }));
   }
 
-  await loginIdLocator.first().fill(getLoginId(), { timeout: 15000 });
-  await passwordLocator.first().fill(getLoginPassword(), { timeout: 15000 });
-  await submitLocator.first().click({ timeout: 15000 });
+  const submitAfterPasswordMatch = await locateFirst((frame) => frame.locator(selectors.submit), page);
+  await passwordMatch.locator.first().fill(getLoginPassword(), { timeout: 15000 });
+  await submitAfterPasswordMatch.locator.first().click({ timeout: 15000 });
   await page.waitForLoadState("networkidle", { timeout: 60000 }).catch(() => {});
-  await successLocator.first().waitFor({ timeout: 15000 }).catch(async () => {
+  await successMatch.locator.first().waitFor({ timeout: 15000 }).catch(async () => {
     throw new Error(JSON.stringify({
       stage: "success-check",
       url,
@@ -274,9 +339,10 @@ async function performLogin(page, url, selectors) {
         loginButton: loginButtonCount,
         loginId: loginIdCount,
         password: passwordCount,
-        submit: submitCount,
-        success: await successLocator.count().catch(() => 0)
-      }
+        submit: await submitAfterPasswordMatch.locator.count().catch(() => 0),
+        success: await successMatch.locator.count().catch(() => 0)
+      },
+      frames: await buildFrameSummary(page, selectors)
     }));
   });
 }
