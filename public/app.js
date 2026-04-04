@@ -217,6 +217,8 @@ async function forceNikkeiLogin() {
 
 async function submitNikkeiOtp() {
   nikkeiOtpSubmitButton.disabled = true;
+  nikkeiOtpCodeNode.disabled = true;
+  statusNode.textContent = "ワンタイムパスワードを送信中です...";
 
   try {
     const response = await fetch("/api/auth/nikkei/otp", {
@@ -236,6 +238,7 @@ async function submitNikkeiOtp() {
     statusNode.textContent = `ワンタイムパスワード認証に失敗しました: ${error.message}`;
   } finally {
     nikkeiOtpSubmitButton.disabled = false;
+    nikkeiOtpCodeNode.disabled = false;
   }
 }
 
@@ -304,6 +307,14 @@ form.addEventListener("submit", async (event) => {
 importTopicNode.addEventListener("change", buildBookmarklet);
 nikkeiReloginButton.addEventListener("click", forceNikkeiLogin);
 nikkeiOtpSubmitButton.addEventListener("click", submitNikkeiOtp);
+nikkeiOtpCodeNode.addEventListener("keydown", (event) => {
+  if (event.key === "Enter") {
+    event.preventDefault();
+    if (!nikkeiOtpSubmitButton.disabled) {
+      submitNikkeiOtp();
+    }
+  }
+});
 
 bootstrap().catch((error) => {
   statusNode.textContent = `初期化に失敗しました: ${error.message}`;
