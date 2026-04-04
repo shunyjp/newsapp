@@ -139,6 +139,16 @@ function otpSelectors() {
   };
 }
 
+async function waitForOtpTransition(page) {
+  const startUrl = page.url();
+
+  await Promise.race([
+    page.waitForURL((nextUrl) => nextUrl !== startUrl, { timeout: 15000 }).catch(() => {}),
+    page.waitForLoadState("domcontentloaded", { timeout: 15000 }).catch(() => {}),
+    page.waitForTimeout(5000)
+  ]);
+}
+
 async function clearPendingOtpSession() {
   if (!pendingOtpSession) {
     return;
@@ -294,6 +304,20 @@ async function locateFirst(locatorFactory, page) {
   return { frame: page.mainFrame(), locator: locatorFactory(page.mainFrame()), count: 0 };
 }
 
+async function waitForFirst(locatorFactory, page, { timeout = 10000, interval = 250 } = {}) {
+  const deadline = Date.now() + timeout;
+
+  while (Date.now() < deadline) {
+    const match = await locateFirst(locatorFactory, page);
+    if (match.count > 0) {
+      return match;
+    }
+    await page.waitForTimeout(interval).catch(() => {});
+  }
+
+  return locateFirst(locatorFactory, page);
+}
+
 async function buildFrameSummary(page, selectors) {
   const summary = [];
   for (const frame of page.frames()) {
@@ -324,10 +348,10 @@ async function performLogin(page, url, selectors) {
     await page.waitForLoadState("domcontentloaded", { timeout: 10000 }).catch(() => {});
   }
 
-  const loginIdMatch = await locateFirst((frame) => frame.locator(selectors.loginId), page);
-  const submitMatch = await locateFirst((frame) => frame.locator(selectors.submit), page);
-  const passwordMatchBefore = await locateFirst((frame) => frame.locator(selectors.password), page);
-  const successMatchBefore = await locateFirst((frame) => frame.locator(selectors.success), page);
+  const loginIdMatch = await waitForFirst((frame) => frame.locator(selectors.loginId), page, { timeout: 12000 });
+  const submitMatch = await waitForFirst((frame) => frame.locator(selectors.submit), page, { timeout: 12000 });
+  const passwordMatchBefore = await waitForFirst((frame) => frame.locator(selectors.password), page, { timeout: 4000 });
+  const successMatchBefore = await waitForFirst((frame) => frame.locator(selectors.success), page, { timeout: 4000 });
 
   const loginIdCount = loginIdMatch.count;
   const passwordCountBefore = passwordMatchBefore.count;
@@ -355,8 +379,8 @@ async function performLogin(page, url, selectors) {
   await submitMatch.locator.first().click({ timeout: 15000 });
   await page.waitForLoadState("domcontentloaded", { timeout: 10000 }).catch(() => {});
 
-  const passwordMatch = await locateFirst((frame) => frame.locator(selectors.password), page);
-  const successMatch = await locateFirst((frame) => frame.locator(selectors.success), page);
+  const passwordMatch = await waitForFirst((frame) => frame.locator(selectors.password), page, { timeout: 12000 });
+  const successMatch = await waitForFirst((frame) => frame.locator(selectors.success), page, { timeout: 4000 });
   const passwordCount = passwordMatch.count;
   const successCount = successMatch.count;
 
@@ -377,7 +401,7 @@ async function performLogin(page, url, selectors) {
     }));
   }
 
-  const submitAfterPasswordMatch = await locateFirst((frame) => frame.locator(selectors.submit), page);
+  const submitAfterPasswordMatch = await waitForFirst((frame) => frame.locator(selectors.submit), page, { timeout: 12000 });
   await passwordMatch.locator.first().fill(getLoginPassword(), { timeout: 15000 });
   await submitAfterPasswordMatch.locator.first().click({ timeout: 15000 });
   await page.waitForLoadState("domcontentloaded", { timeout: 15000 }).catch(() => {});
@@ -542,8 +566,12 @@ export async function submitNikkeiOtpAndPersistSession(code) {
       await otpMatch.locator.first().press("Enter").catch(() => {});
     }
 
-    await session.page.waitForLoadState("domcontentloaded", { timeout: 15000 }).catch(() => {});
-    await session.page.waitForLoadState("networkidle", { timeout: 60000 }).catch(() => {});
+    await waitForOtpTransition(session.page);
+
+    const remainingOtp = await locateOtpInputs(session.page);
+    if (remainingOtp.count > 0) {
+      throw new Error("otp_input_still_visible");
+    }
 
     const state = await session.context.storageState();
     await saveStorageState(state);

@@ -1,9 +1,8 @@
-import Anthropic from "@anthropic-ai/sdk";
 import OpenAI from "openai";
 
 const configuredSummaryProvider = (process.env.SUMMARY_PROVIDER || "auto").toLowerCase();
 const openaiSummaryModel = process.env.OPENAI_SUMMARY_MODEL || "gpt-5";
-const anthropicSummaryModel = process.env.ANTHROPIC_SUMMARY_MODEL || "claude-sonnet-4-20250514";
+const geminiSummaryModel = process.env.GEMINI_SUMMARY_MODEL || "gemini-2.5-flash";
 const ttsModel = process.env.OPENAI_TTS_MODEL || "gpt-4o-mini-tts";
 const translationLimit = Number.parseInt(process.env.TRANSLATION_LIMIT || "12", 10);
 
@@ -11,25 +10,29 @@ function getOpenAIClient() {
   return process.env.OPENAI_API_KEY ? new OpenAI({ apiKey: process.env.OPENAI_API_KEY }) : null;
 }
 
-function getAnthropicClient() {
-  return process.env.ANTHROPIC_API_KEY ? new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY }) : null;
+function getGeminiApiKey() {
+  return process.env.GEMINI_API_KEY || "";
+}
+
+function hasGemini() {
+  return Boolean(getGeminiApiKey());
 }
 
 function getProviderOrder() {
   const hasOpenAI = Boolean(process.env.OPENAI_API_KEY);
-  const hasAnthropic = Boolean(process.env.ANTHROPIC_API_KEY);
+  const hasGeminiProvider = hasGemini();
 
   if (configuredSummaryProvider === "openai") {
-    return hasOpenAI ? ["openai"] : hasAnthropic ? ["anthropic"] : [];
+    return hasOpenAI ? ["openai"] : hasGeminiProvider ? ["gemini"] : [];
   }
 
-  if (configuredSummaryProvider === "anthropic") {
-    return hasAnthropic ? ["anthropic"] : hasOpenAI ? ["openai"] : [];
+  if (configuredSummaryProvider === "gemini" || configuredSummaryProvider === "anthropic") {
+    return hasGeminiProvider ? ["gemini"] : hasOpenAI ? ["openai"] : [];
   }
 
   const order = [];
-  if (hasAnthropic) {
-    order.push("anthropic");
+  if (hasGeminiProvider) {
+    order.push("gemini");
   }
   if (hasOpenAI) {
     order.push("openai");
@@ -63,23 +66,16 @@ function buildDigestPrompt(newsData) {
     .join("\n");
 
   return `
-あなたはエグゼクティブ向けニュース編集者です。
-次のニュース群をもとに、日本語で「吸収しやすい」ニュースブリーフを作ってください。
+縺ゅ↑縺溘・繧ｨ繧ｰ繧ｼ繧ｯ繝・ぅ繝門髄縺代ル繝･繝ｼ繧ｹ邱ｨ髮・・〒縺吶・谺｡縺ｮ繝九Η繝ｼ繧ｹ鄒､繧偵ｂ縺ｨ縺ｫ縲∵律譛ｬ隱槭〒縲悟精蜿弱＠繧・☆縺・阪ル繝･繝ｼ繧ｹ繝悶Μ繝ｼ繝輔ｒ菴懊▲縺ｦ縺上□縺輔＞縲・
+隕∽ｻｶ:
+- 縺ｾ縺・-5陦後〒蜈ｨ菴薙し繝槭Μ
+- 谺｡縺ｫ縲御ｻ頑款縺輔∴繧九∋縺阪・繧､繝ｳ繝医阪ｒ3轤ｹ
+- 縺昴・蠕後∬ｦｳ轤ｹ縺斐→縺ｫ遶繧貞・縺代ｋ: 謚陦灘虚蜷・/ 繝薙ず繝阪せ蜍募髄 / 莨∵･ｭ莠倶ｾ・/ 蟄ｦ鄙偵さ繝ｳ繝・Φ繝・- 蜷・ｫ縺ｯ縲・㍾隕√ヨ繝斐ャ繧ｯ2-4轤ｹ縲∽ｽ輔′襍ｷ縺阪◆縺九√↑縺憺㍾隕√°縲∵ｬ｡縺ｫ隕九ｋ縺ｹ縺阪％縺ｨ 繧堤ｰ｡貎斐↓譖ｸ縺・- 譛蠕後↓縲後♀縺吶☆繧√い繧ｯ繧ｷ繝ｧ繝ｳ縲阪ｒ縲∵ュ蝣ｱ蜿朱寔繝ｻ讌ｭ蜍咎←逕ｨ繝ｻ蟄ｦ鄙偵・3蛹ｺ蛻・〒譖ｸ縺・- 隕句・縺励→邂・擅譖ｸ縺阪ｒ菴ｿ縺・∝・髟ｷ縺ｫ縺励↑縺・- 謗ｨ貂ｬ縺励☆縺弱★縲∬ｨ倅ｺ区ュ蝣ｱ縺九ｉ螯･蠖薙↑遽・峇縺ｧ謨ｴ逅・☆繧・- trust_score 縺碁ｫ倥＞險倅ｺ九→ curated-feed 繧貞━蜈医＠縺ｦ蛻､譁ｭ縺吶ｋ
 
-要件:
-- まず3-5行で全体サマリ
-- 次に「今押さえるべきポイント」を3点
-- その後、観点ごとに章を分ける: 技術動向 / ビジネス動向 / 企業事例 / 学習コンテンツ
-- 各章は、重要トピック2-4点、何が起きたか、なぜ重要か、次に見るべきこと を簡潔に書く
-- 最後に「おすすめアクション」を、情報収集・業務適用・学習の3区分で書く
-- 見出しと箇条書きを使い、冗長にしない
-- 推測しすぎず、記事情報から妥当な範囲で整理する
-- trust_score が高い記事と curated-feed を優先して判断する
-
-観点:
+隕ｳ轤ｹ:
 ${viewpointBlock}
 
-記事一覧:
+險倅ｺ倶ｸ隕ｧ:
 ${articleLines.join("\n\n")}
   `.trim();
 }
@@ -99,6 +95,38 @@ function parseJsonObject(text = "") {
   }
 }
 
+async function callGemini({ prompt, systemInstruction = "", maxOutputTokens = 2200, temperature = 0.2, responseMimeType }) {
+  const apiKey = getGeminiApiKey();
+  if (!apiKey) {
+    return null;
+  }
+
+  const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${geminiSummaryModel}:generateContent?key=${apiKey}`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      systemInstruction: systemInstruction ? { parts: [{ text: systemInstruction }] } : undefined,
+      contents: [{ parts: [{ text: prompt }] }],
+      generationConfig: {
+        temperature,
+        maxOutputTokens,
+        responseMimeType
+      }
+    })
+  });
+
+  const data = await response.json().catch(() => ({}));
+  if (!response.ok) {
+    throw new Error(data.error?.message || `Gemini request failed with status ${response.status}`);
+  }
+
+  return (data.candidates || [])
+    .flatMap((candidate) => candidate.content?.parts || [])
+    .map((part) => part.text || "")
+    .join("\n")
+    .trim();
+}
+
 async function translateOneWithOpenAI(article) {
   const client = getOpenAIClient();
   if (!client) {
@@ -106,12 +134,8 @@ async function translateOneWithOpenAI(article) {
   }
 
   const prompt = `
-以下のニュース記事のタイトルと本文を自然な日本語に翻訳してください。
-- 意味を変えない
-- 固有名詞、製品名、企業名は維持する
-- 余計な解説を足さない
-- JSONオブジェクトのみを返す
-形式: {"titleJa":"...","contentJa":"..."}
+莉･荳九・繝九Η繝ｼ繧ｹ險倅ｺ九・繧ｿ繧､繝医Ν縺ｨ譛ｬ譁・ｒ閾ｪ辟ｶ縺ｪ譌･譛ｬ隱槭↓鄙ｻ險ｳ縺励※縺上□縺輔＞縲・- 諢丞袖繧貞､峨∴縺ｪ縺・- 蝗ｺ譛牙錐隧槭∬｣ｽ蜩∝錐縲∽ｼ∵･ｭ蜷阪・邯ｭ謖√☆繧・- 菴呵ｨ医↑隗｣隱ｬ繧定ｶｳ縺輔↑縺・- JSON繧ｪ繝悶ず繧ｧ繧ｯ繝医・縺ｿ繧定ｿ斐☆
+蠖｢蠑・ {"titleJa":"...","contentJa":"..."}
 
 title:
 ${article.title || ""}
@@ -128,32 +152,21 @@ ${(article.contentSnippet || "").slice(0, 3500)}
   return parseJsonObject(response.output_text || "");
 }
 
-async function translateOneWithAnthropic(article) {
-  const client = getAnthropicClient();
-  if (!client) {
+async function translateOneWithGemini(article) {
+  if (!hasGemini()) {
     return null;
   }
 
-  const response = await client.messages.create({
-    model: anthropicSummaryModel,
-    max_tokens: 1800,
-    system: "ニュース記事のタイトルと本文を自然な日本語に翻訳してください。JSONオブジェクトのみを返してください。",
-    messages: [
-      {
-        role: "user",
-        content: [
-          '形式: {"titleJa":"...","contentJa":"..."}',
-          `title:\n${article.title || ""}`,
-          `content:\n${(article.contentSnippet || "").slice(0, 3500)}`
-        ].join("\n\n")
-      }
-    ]
+  const text = await callGemini({
+    systemInstruction: "繝九Η繝ｼ繧ｹ險倅ｺ九・繧ｿ繧､繝医Ν縺ｨ譛ｬ譁・ｒ閾ｪ辟ｶ縺ｪ譌･譛ｬ隱槭↓鄙ｻ險ｳ縺励※縺上□縺輔＞縲・SON繧ｪ繝悶ず繧ｧ繧ｯ繝医・縺ｿ繧定ｿ斐＠縺ｦ縺上□縺輔＞縲・,
+    prompt: [
+      '蠖｢蠑・ {"titleJa":"...","contentJa":"..."}',
+      `title:\n${article.title || ""}`,
+      `content:\n${(article.contentSnippet || "").slice(0, 3500)}`
+    ].join("\n\n"),
+    maxOutputTokens: 1800,
+    responseMimeType: "application/json"
   });
-
-  const text = response.content
-    .filter((item) => item.type === "text")
-    .map((item) => item.text)
-    .join("\n");
 
   return parseJsonObject(text);
 }
@@ -170,7 +183,7 @@ async function translateOneArticle(article) {
 
   for (const provider of providers) {
     try {
-      translated = provider === "anthropic" ? await translateOneWithAnthropic(article) : await translateOneWithOpenAI(article);
+      translated = provider === "gemini" ? await translateOneWithGemini(article) : await translateOneWithOpenAI(article);
       if (translated) {
         break;
       }
@@ -222,36 +235,23 @@ async function generateOpenAISummary(newsData) {
   return response.output_text?.trim() || null;
 }
 
-async function generateAnthropicSummary(newsData) {
-  const client = getAnthropicClient();
-  if (!client) {
+async function generateGeminiSummary(newsData) {
+  if (!hasGemini()) {
     return null;
   }
 
-  const response = await client.messages.create({
-    model: anthropicSummaryModel,
-    max_tokens: 2200,
-    system: "あなたはエグゼクティブ向けニュース編集者です。日本語で簡潔かつ構造化されたニュース要約を書いてください。",
-    messages: [
-      {
-        role: "user",
-        content: buildDigestPrompt(newsData)
-      }
-    ]
+  return callGemini({
+    systemInstruction: "縺ゅ↑縺溘・繧ｨ繧ｰ繧ｼ繧ｯ繝・ぅ繝門髄縺代ル繝･繝ｼ繧ｹ邱ｨ髮・・〒縺吶よ律譛ｬ隱槭〒邁｡貎斐°縺､讒矩蛹悶＆繧後◆繝九Η繝ｼ繧ｹ隕∫ｴ・ｒ譖ｸ縺・※縺上□縺輔＞縲・,
+    prompt: buildDigestPrompt(newsData),
+    maxOutputTokens: 2200
   });
-
-  return response.content
-    .filter((item) => item.type === "text")
-    .map((item) => item.text)
-    .join("\n")
-    .trim() || null;
 }
 
 export async function generateSummary(newsData) {
   const providers = getProviderOrder();
 
   for (const provider of providers) {
-    const summary = provider === "anthropic" ? await generateAnthropicSummary(newsData) : await generateOpenAISummary(newsData);
+    const summary = provider === "gemini" ? await generateGeminiSummary(newsData) : await generateOpenAISummary(newsData);
     if (summary) {
       return summary;
     }
@@ -282,20 +282,20 @@ export function buildFallbackSummary(newsData) {
   const sections = newsData.groupedByViewpoint.map((group) => {
     const lines = group.articles
       .slice(0, 3)
-      .map((article) => `- ${article.title}\n  重要性: ${article.contentSnippet || "関連ニュースとして注視"}`);
+      .map((article) => `- ${article.title}\n  驥崎ｦ∵ｧ: ${article.contentSnippet || "髢｢騾｣繝九Η繝ｼ繧ｹ縺ｨ縺励※豕ｨ隕・}`);
     return `## ${group.label}\n${lines.join("\n")}`;
   });
 
   return [
-    "# ニュースブリーフ",
+    "# 繝九Η繝ｼ繧ｹ繝悶Μ繝ｼ繝・,
     "",
-    `対象テーマ: ${overview}`,
-    `生成日時: ${new Date(newsData.generatedAt).toLocaleString("ja-JP")}`,
+    `蟇ｾ雎｡繝・・繝・ ${overview}`,
+    `逕滓・譌･譎・ ${new Date(newsData.generatedAt).toLocaleString("ja-JP")}`,
     "",
-    "## 全体サマリ",
-    "直近7日間のニュースから、選択テーマに関する最新動向を整理しました。特に上位記事を見ると、製品進化、企業導入、事業戦略、学習機会の4軸で変化が続いています。",
+    "## 蜈ｨ菴薙し繝槭Μ",
+    "逶ｴ霑・譌･髢薙・繝九Η繝ｼ繧ｹ縺九ｉ縲・∈謚槭ユ繝ｼ繝槭↓髢｢縺吶ｋ譛譁ｰ蜍募髄繧呈紛逅・＠縺ｾ縺励◆縲ら音縺ｫ荳贋ｽ崎ｨ倅ｺ九ｒ隕九ｋ縺ｨ縲∬｣ｽ蜩・ｲ蛹悶∽ｼ∵･ｭ蟆主・縲∽ｺ区･ｭ謌ｦ逡･縲∝ｭｦ鄙呈ｩ滉ｼ壹・4霆ｸ縺ｧ螟牙喧縺檎ｶ壹＞縺ｦ縺・∪縺吶・,
     "",
-    "## 今押さえるべきポイント",
+    "## 莉頑款縺輔∴繧九∋縺阪・繧､繝ｳ繝・,
     ...highlights,
     "",
     ...sections
