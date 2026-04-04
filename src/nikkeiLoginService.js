@@ -9,6 +9,7 @@ const __dirname = path.dirname(__filename);
 const projectRoot = path.resolve(__dirname, "..");
 const sessionDir = path.join(projectRoot, "data");
 const storageStatePath = path.join(sessionDir, "nikkei-storage-state.json");
+let lastLoginAttempt = null;
 
 const DEFAULT_BROWSER_PATHS = [
   process.env.PLAYWRIGHT_BROWSER_PATH,
@@ -158,7 +159,8 @@ export async function getNikkeiLoginStatus() {
     cookieDomains,
     loginAvailable: loginAvailability.available,
     loginReason: loginAvailability.reason,
-    loginDetails: loginAvailability.details
+    loginDetails: loginAvailability.details || lastLoginAttempt?.details || "",
+    lastLoginAttempt
   };
 }
 
@@ -202,16 +204,58 @@ function loginSelectors() {
 async function performLogin(page, url, selectors) {
   await page.goto(url, { waitUntil: "domcontentloaded", timeout: 60000 });
 
-  const loginButton = page.locator(selectors.loginButton).first();
-  if (await loginButton.count()) {
+  const loginButtonLocator = page.locator(selectors.loginButton);
+  const loginButtonCount = await loginButtonLocator.count().catch(() => 0);
+  const loginButton = loginButtonLocator.first();
+  if (loginButtonCount) {
     await loginButton.click({ timeout: 10000 }).catch(() => {});
   }
 
-  await page.locator(selectors.loginId).first().fill(getLoginId(), { timeout: 15000 });
-  await page.locator(selectors.password).first().fill(getLoginPassword(), { timeout: 15000 });
-  await page.locator(selectors.submit).first().click({ timeout: 15000 });
+  const loginIdLocator = page.locator(selectors.loginId);
+  const passwordLocator = page.locator(selectors.password);
+  const submitLocator = page.locator(selectors.submit);
+  const successLocator = page.locator(selectors.success);
+
+  const loginIdCount = await loginIdLocator.count().catch(() => 0);
+  const passwordCount = await passwordLocator.count().catch(() => 0);
+  const submitCount = await submitLocator.count().catch(() => 0);
+  const successCount = await successLocator.count().catch(() => 0);
+
+  if (!loginIdCount || !passwordCount || !submitCount) {
+    throw new Error(JSON.stringify({
+      stage: "selector-check",
+      url,
+      currentUrl: page.url(),
+      title: await page.title().catch(() => ""),
+      counts: {
+        loginButton: loginButtonCount,
+        loginId: loginIdCount,
+        password: passwordCount,
+        submit: submitCount,
+        success: successCount
+      }
+    }));
+  }
+
+  await loginIdLocator.first().fill(getLoginId(), { timeout: 15000 });
+  await passwordLocator.first().fill(getLoginPassword(), { timeout: 15000 });
+  await submitLocator.first().click({ timeout: 15000 });
   await page.waitForLoadState("networkidle", { timeout: 60000 }).catch(() => {});
-  await page.locator(selectors.success).first().waitFor({ timeout: 15000 }).catch(() => {});
+  await successLocator.first().waitFor({ timeout: 15000 }).catch(async () => {
+    throw new Error(JSON.stringify({
+      stage: "success-check",
+      url,
+      currentUrl: page.url(),
+      title: await page.title().catch(() => ""),
+      counts: {
+        loginButton: loginButtonCount,
+        loginId: loginIdCount,
+        password: passwordCount,
+        submit: submitCount,
+        success: await successLocator.count().catch(() => 0)
+      }
+    }));
+  });
 }
 
 export async function loginToNikkeiAndPersistSession({ force = false } = {}) {
@@ -223,6 +267,7 @@ export async function loginToNikkeiAndPersistSession({ force = false } = {}) {
   if (!force) {
     const existingHeader = await getSavedNikkeiCookieHeader();
     if (existingHeader) {
+      lastLoginAttempt = { ok: true, reused: true, details: "saved-session-reused" };
       return { ok: true, reused: true };
     }
   }
@@ -244,12 +289,19 @@ export async function loginToNikkeiAndPersistSession({ force = false } = {}) {
     const state = await context.storageState();
     await saveStorageState(state);
     await browser.close();
+    lastLoginAttempt = { ok: true, reused: false, details: "login-succeeded", attemptedUrls };
     return { ok: true, reused: false, attemptedUrls };
   } catch (error) {
-    return {
+    const failure = {
       ok: false,
       reason: "playwright-login-failed",
       details: error instanceof Error ? error.message : String(error)
+    };
+    lastLoginAttempt = failure;
+    return {
+      ok: false,
+      reason: failure.reason,
+      details: failure.details
     };
   } finally {
     await browser?.close().catch(() => {});
