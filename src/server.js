@@ -7,7 +7,11 @@ import { fetchTopicNewsWithImports } from "./newsService.js";
 import { generateAudio, generateSummary, localizeNewsData } from "./openaiService.js";
 import { saveAudioSummary, saveNotebookLmBundle, saveTextSummary, saveWordSummary } from "./exporters.js";
 import { addImportedArticle, listImportedArticles, removeImportedArticle } from "./importStore.js";
-import { getNikkeiLoginStatus, loginToNikkeiAndPersistSession } from "./nikkeiLoginService.js";
+import {
+  getNikkeiLoginStatus,
+  loginToNikkeiAndPersistSession,
+  submitNikkeiOtpAndPersistSession
+} from "./nikkeiLoginService.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -97,13 +101,44 @@ app.post("/api/auth/nikkei/login", async (_req, res) => {
   try {
     const result = await loginToNikkeiAndPersistSession({ force: true });
     if (!result.ok) {
-      return res.status(400).json({ error: "日経グループサイトのログイン情報が未設定です。" });
+      if (result.reason === "otp-required") {
+        return res.json({
+          ok: false,
+          otpRequired: true,
+          result,
+          status: await getNikkeiLoginStatus()
+        });
+      }
+
+      return res.status(400).json({
+        error: "譌･邨後げ繝ｫ繝ｼ繝励し繧､繝医・閾ｪ蜍輔Ο繧ｰ繧､繝ｳ縺ｫ螟ｱ謨励＠縺ｾ縺励◆縲・,
+        details: result.details || result.reason || "login_failed"
+      });
     }
 
     return res.json({ ok: true, result, status: await getNikkeiLoginStatus() });
   } catch (error) {
     return res.status(500).json({
-      error: "日経グループサイトの自動ログインに失敗しました。",
+      error: "譌･邨後げ繝ｫ繝ｼ繝励し繧､繝医・閾ｪ蜍輔Ο繧ｰ繧､繝ｳ縺ｧ繧ｨ繝ｩ繝ｼ縺檎匱逕溘＠縺ｾ縺励◆縲・,
+      details: error instanceof Error ? error.message : String(error)
+    });
+  }
+});
+
+app.post("/api/auth/nikkei/otp", async (req, res) => {
+  try {
+    const result = await submitNikkeiOtpAndPersistSession(req.body?.code);
+    if (!result.ok) {
+      return res.status(400).json({
+        error: "譌･邨後げ繝ｫ繝ｼ繝励し繧､繝医・繝ｯ繝ｳ繧ｿ繧､繝繝代せ繝ｯ繝ｼ繝芽ｪ崎ｨｼ縺ｫ螟ｱ謨励＠縺ｾ縺励◆縲・,
+        details: result.details || result.reason || "otp_failed"
+      });
+    }
+
+    return res.json({ ok: true, result, status: await getNikkeiLoginStatus() });
+  } catch (error) {
+    return res.status(500).json({
+      error: "譌･邨後げ繝ｫ繝ｼ繝励し繧､繝医・繝ｯ繝ｳ繧ｿ繧､繝繝代せ繝ｯ繝ｼ繝芽ｪ崎ｨｼ縺ｧ繧ｨ繝ｩ繝ｼ縺檎匱逕溘＠縺ｾ縺励◆縲・,
       details: error instanceof Error ? error.message : String(error)
     });
   }
@@ -118,12 +153,12 @@ app.post("/api/imports", async (req, res) => {
   try {
     const { url, title, content, topicId } = req.body || {};
     if (!url || !title || !content || !topicId) {
-      return res.status(400).json({ error: "url, title, content, topicId は必須です。" });
+      return res.status(400).json({ error: "url, title, content, topicId 縺ｯ蠢・医〒縺吶・ });
     }
 
     const topic = TOPIC_DEFINITIONS.find((item) => item.id === topicId);
     if (!topic) {
-      return res.status(400).json({ error: "topicId が不正です。" });
+      return res.status(400).json({ error: "topicId 縺御ｸ肴ｭ｣縺ｧ縺吶・ });
     }
 
     const article = {
@@ -144,7 +179,7 @@ app.post("/api/imports", async (req, res) => {
     return res.json({ ok: true, article });
   } catch (error) {
     return res.status(500).json({
-      error: "記事の取り込みに失敗しました。",
+      error: "蜿悶ｊ霎ｼ縺ｿ貂医∩險倅ｺ九・菫晏ｭ倥↓螟ｱ謨励＠縺ｾ縺励◆縲・,
       details: error instanceof Error ? error.message : String(error)
     });
   }
@@ -154,18 +189,18 @@ app.delete("/api/imports", async (req, res) => {
   try {
     const link = String(req.body?.link || "").trim();
     if (!link) {
-      return res.status(400).json({ error: "削除対象の link は必須です。" });
+      return res.status(400).json({ error: "蜑企勁蟇ｾ雎｡縺ｮ link 縺ｯ蠢・医〒縺吶・ });
     }
 
     const removed = await removeImportedArticle(link);
     if (!removed) {
-      return res.status(404).json({ error: "対象の取り込み記事が見つかりませんでした。" });
+      return res.status(404).json({ error: "蟇ｾ雎｡縺ｮ蜿悶ｊ霎ｼ縺ｿ貂医∩險倅ｺ九′隕九▽縺九ｊ縺ｾ縺帙ｓ縺ｧ縺励◆縲・ });
     }
 
     return res.json({ ok: true, link });
   } catch (error) {
     return res.status(500).json({
-      error: "取り込み記事の削除に失敗しました。",
+      error: "蜿悶ｊ霎ｼ縺ｿ貂医∩險倅ｺ九・蜑企勁縺ｫ螟ｱ謨励＠縺ｾ縺励◆縲・,
       details: error instanceof Error ? error.message : String(error)
     });
   }
@@ -178,7 +213,7 @@ app.post("/api/generate", async (req, res) => {
     const outputFormats = Array.isArray(req.body?.outputFormats) ? req.body.outputFormats : ["text"];
 
     if (!topicIds.length || !viewpointIds.length) {
-      return res.status(400).json({ error: "topicIds と viewpointIds を少なくとも1つずつ指定してください。" });
+      return res.status(400).json({ error: "topicIds 縺ｨ viewpointIds 繧貞ｰ代↑縺上→繧・縺､縺壹▽謖・ｮ壹＠縺ｦ縺上□縺輔＞縲・ });
     }
 
     const importedArticles = (await listImportedArticles()).filter((article) => topicIds.includes(article.topicId));
@@ -219,7 +254,7 @@ app.post("/api/generate", async (req, res) => {
   } catch (error) {
     console.error(error);
     return res.status(500).json({
-      error: "ニュース生成中にエラーが発生しました。",
+      error: "繝九Η繝ｼ繧ｹ逕滓・荳ｭ縺ｫ繧ｨ繝ｩ繝ｼ縺檎匱逕溘＠縺ｾ縺励◆縲・,
       details: error instanceof Error ? error.message : String(error)
     });
   }

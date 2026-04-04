@@ -10,7 +10,9 @@ const projectRoot = path.resolve(__dirname, "..");
 const sessionDir = path.join(projectRoot, "data");
 const storageStatePath = path.join(sessionDir, "nikkei-storage-state.json");
 const loginAttemptPath = path.join(sessionDir, "nikkei-login-attempt.json");
+const OTP_SESSION_TTL_MS = Number.parseInt(process.env.NIKKEI_OTP_SESSION_TTL_MS || `${10 * 60 * 1000}`, 10);
 let lastLoginAttempt = null;
+let pendingOtpSession = null;
 
 const DEFAULT_BROWSER_PATHS = [
   process.env.PLAYWRIGHT_BROWSER_PATH,
@@ -71,7 +73,7 @@ function getLoginAvailability() {
     return {
       available: false,
       reason: "missing-credentials",
-      details: "NIKKEI_LOGIN_ID / NIKKEI_LOGIN_PASSWORD が未設定です。"
+      details: "NIKKEI_LOGIN_ID / NIKKEI_LOGIN_PASSWORD 縺梧悴險ｭ螳壹〒縺吶・
     };
   }
 
@@ -80,7 +82,7 @@ function getLoginAvailability() {
     return {
       available: false,
       reason: "missing-browser",
-      details: "Playwright 用ブラウザがサーバー環境に見つかりません。Zeabur では自動再ログインは使えず、Cookie 事前設定が必要です。"
+      details: "Playwright 逕ｨ繝悶Λ繧ｦ繧ｶ縺後し繝ｼ繝舌・迺ｰ蠅・↓隕九▽縺九ｊ縺ｾ縺帙ｓ縲・eabur 縺ｧ縺ｯ閾ｪ蜍募・繝ｭ繧ｰ繧､繝ｳ縺ｯ菴ｿ縺医★縲，ookie 莠句燕險ｭ螳壹′蠢・ｦ√〒縺吶・
     };
   }
 
@@ -118,6 +120,48 @@ async function saveLastLoginAttempt(attempt) {
   lastLoginAttempt = attempt;
   await ensureSessionDir();
   await fs.writeFile(loginAttemptPath, JSON.stringify(attempt, null, 2), "utf8");
+}
+
+function otpSelectors() {
+  return {
+    otpInput: [
+      'input[autocomplete="one-time-code"]',
+      'input[name*="otp" i]',
+      'input[name*="code" i]',
+      'input[id*="otp" i]',
+      'input[id*="code" i]',
+      'input[inputmode="numeric"]',
+      'input[maxlength="6"]'
+    ].join(", "),
+    otpSubmit:
+      process.env.NIKKEI_OTP_SUBMIT_SELECTOR ||
+      'button[type="submit"], input[type="submit"], button:has-text("遒ｺ隱・), button:has-text("隱崎ｨｼ"), button:has-text("繝ｭ繧ｰ繧､繝ｳ")'
+  };
+}
+
+async function clearPendingOtpSession() {
+  if (!pendingOtpSession) {
+    return;
+  }
+
+  const session = pendingOtpSession;
+  pendingOtpSession = null;
+  await session.page?.close().catch(() => {});
+  await session.context?.close().catch(() => {});
+  await session.browser?.close().catch(() => {});
+}
+
+function getPendingOtpSession() {
+  if (!pendingOtpSession) {
+    return null;
+  }
+
+  if (Date.now() - pendingOtpSession.createdAt > OTP_SESSION_TTL_MS) {
+    void clearPendingOtpSession();
+    return null;
+  }
+
+  return pendingOtpSession;
 }
 
 function filterRelevantCookies(cookies = []) {
@@ -170,6 +214,7 @@ export async function getNikkeiLoginStatus() {
   const activeCookies = cookiesToHeader(cookies);
   const cookieDomains = summarizeCookieDomains(cookies);
   const loginAvailability = getLoginAvailability();
+  const activeOtpSession = getPendingOtpSession();
 
   return {
     hasCredentials: hasCredentials(),
@@ -183,14 +228,16 @@ export async function getNikkeiLoginStatus() {
     loginAvailable: loginAvailability.available,
     loginReason: loginAvailability.reason,
     loginDetails: loginAvailability.details || savedAttempt?.details || "",
-    lastLoginAttempt: savedAttempt
+    lastLoginAttempt: savedAttempt,
+    otpPending: Boolean(activeOtpSession),
+    otpExpiresAt: activeOtpSession ? new Date(activeOtpSession.createdAt + OTP_SESSION_TTL_MS).toISOString() : ""
   };
 }
 
 async function launchBrowser() {
   const executablePath = getBrowserExecutablePath();
   if (!executablePath) {
-    throw new Error("Playwright 用のブラウザ実行ファイルが見つかりません。PLAYWRIGHT_BROWSER_PATH を設定してください。");
+    throw new Error("Playwright 逕ｨ縺ｮ繝悶Λ繧ｦ繧ｶ螳溯｡後ヵ繧｡繧､繝ｫ縺瑚ｦ九▽縺九ｊ縺ｾ縺帙ｓ縲１LAYWRIGHT_BROWSER_PATH 繧定ｨｭ螳壹＠縺ｦ縺上□縺輔＞縲・);
   }
 
   return chromium.launch({
@@ -261,6 +308,11 @@ async function buildFrameSummary(page, selectors) {
   return summary;
 }
 
+async function locateOtpInputs(page) {
+  const selectors = otpSelectors();
+  return locateFirst((frame) => frame.locator(selectors.otpInput), page);
+}
+
 async function performLogin(page, url, selectors) {
   await page.goto(url, { waitUntil: "domcontentloaded", timeout: 60000 });
 
@@ -328,7 +380,23 @@ async function performLogin(page, url, selectors) {
   const submitAfterPasswordMatch = await locateFirst((frame) => frame.locator(selectors.submit), page);
   await passwordMatch.locator.first().fill(getLoginPassword(), { timeout: 15000 });
   await submitAfterPasswordMatch.locator.first().click({ timeout: 15000 });
+  await page.waitForLoadState("domcontentloaded", { timeout: 15000 }).catch(() => {});
   await page.waitForLoadState("networkidle", { timeout: 60000 }).catch(() => {});
+
+  const otpMatch = await locateOtpInputs(page);
+  if (otpMatch.count > 0) {
+    throw new Error(JSON.stringify({
+      stage: "otp-required",
+      url,
+      currentUrl: page.url(),
+      title: await page.title().catch(() => ""),
+      counts: {
+        otp: otpMatch.count
+      },
+      frames: await buildFrameSummary(page, selectors)
+    }));
+  }
+
   await successMatch.locator.first().waitFor({ timeout: 15000 }).catch(async () => {
     throw new Error(JSON.stringify({
       stage: "success-check",
@@ -353,6 +421,8 @@ export async function loginToNikkeiAndPersistSession({ force = false } = {}) {
     return { ok: false, reason: availability.reason, details: availability.details };
   }
 
+  await clearPendingOtpSession();
+
   if (!force) {
     const existingHeader = await getSavedNikkeiCookieHeader();
     if (existingHeader) {
@@ -362,11 +432,13 @@ export async function loginToNikkeiAndPersistSession({ force = false } = {}) {
   }
 
   let browser;
+  let context;
+  let page;
 
   try {
     browser = await launchBrowser();
-    const context = await browser.newContext();
-    const page = await context.newPage();
+    context = await browser.newContext();
+    page = await context.newPage();
     const selectors = loginSelectors();
     const attemptedUrls = [];
 
@@ -381,10 +453,37 @@ export async function loginToNikkeiAndPersistSession({ force = false } = {}) {
     await saveLastLoginAttempt({ ok: true, reused: false, details: "login-succeeded", attemptedUrls });
     return { ok: true, reused: false, attemptedUrls };
   } catch (error) {
+    const details = error instanceof Error ? error.message : String(error);
+    let parsedDetails = null;
+    try {
+      parsedDetails = JSON.parse(details);
+    } catch {
+      parsedDetails = null;
+    }
+
+    if (parsedDetails?.stage === "otp-required") {
+      pendingOtpSession = {
+        browser,
+        context,
+        page,
+        createdAt: Date.now()
+      };
+      const otpAttempt = {
+        ok: false,
+        reason: "otp-required",
+        details: "繝ｯ繝ｳ繧ｿ繧､繝繝代せ繝ｯ繝ｼ繝牙・蜉帛ｾ・■縺ｧ縺吶ゅΓ繝ｼ繝ｫ縺ｮ遒ｺ隱阪さ繝ｼ繝峨ｒ蜈･蜉帙＠縺ｦ縺上□縺輔＞縲・,
+        otpPending: true,
+        currentUrl: parsedDetails.currentUrl || "",
+        title: parsedDetails.title || ""
+      };
+      await saveLastLoginAttempt(otpAttempt);
+      return otpAttempt;
+    }
+
     const failure = {
       ok: false,
       reason: "playwright-login-failed",
-      details: error instanceof Error ? error.message : String(error)
+      details
     };
     await saveLastLoginAttempt(failure);
     return {
@@ -393,6 +492,76 @@ export async function loginToNikkeiAndPersistSession({ force = false } = {}) {
       details: failure.details
     };
   } finally {
-    await browser?.close().catch(() => {});
+    if (!pendingOtpSession || pendingOtpSession.browser !== browser) {
+      await page?.close().catch(() => {});
+      await context?.close().catch(() => {});
+      await browser?.close().catch(() => {});
+    }
+  }
+}
+
+export async function submitNikkeiOtpAndPersistSession(code) {
+  const session = getPendingOtpSession();
+  if (!session) {
+    return {
+      ok: false,
+      reason: "otp-session-missing",
+      details: "OTP 蠕・ｩ滉ｸｭ縺ｮ繝ｭ繧ｰ繧､繝ｳ繧ｻ繝・す繝ｧ繝ｳ縺瑚ｦ九▽縺九ｊ縺ｾ縺帙ｓ縲ょ・蠎ｦ繝ｭ繧ｰ繧､繝ｳ繧帝幕蟋九＠縺ｦ縺上□縺輔＞縲・
+    };
+  }
+
+  const normalizedCode = String(code || "").replace(/\s+/g, "").trim();
+  if (!normalizedCode) {
+    return {
+      ok: false,
+      reason: "otp-code-missing",
+      details: "繝ｯ繝ｳ繧ｿ繧､繝繝代せ繝ｯ繝ｼ繝峨ｒ蜈･蜉帙＠縺ｦ縺上□縺輔＞縲・
+    };
+  }
+
+  try {
+    const otpMatch = await locateOtpInputs(session.page);
+    if (!otpMatch.count) {
+      throw new Error("otp_input_not_found");
+    }
+
+    const inputCount = otpMatch.count;
+    if (inputCount === 1) {
+      await otpMatch.locator.first().fill(normalizedCode, { timeout: 15000 });
+    } else {
+      const digits = normalizedCode.split("");
+      for (let index = 0; index < Math.min(inputCount, digits.length); index += 1) {
+        await otpMatch.locator.nth(index).fill(digits[index], { timeout: 15000 });
+      }
+    }
+
+    const otpSubmitMatch = await locateFirst((frame) => frame.locator(otpSelectors().otpSubmit), session.page);
+    if (otpSubmitMatch.count) {
+      await otpSubmitMatch.locator.first().click({ timeout: 15000 });
+    } else {
+      await otpMatch.locator.first().press("Enter").catch(() => {});
+    }
+
+    await session.page.waitForLoadState("domcontentloaded", { timeout: 15000 }).catch(() => {});
+    await session.page.waitForLoadState("networkidle", { timeout: 60000 }).catch(() => {});
+
+    const state = await session.context.storageState();
+    await saveStorageState(state);
+    await saveLastLoginAttempt({
+      ok: true,
+      reused: false,
+      details: "otp-login-succeeded",
+      attemptedUrls: getTargetUrls()
+    });
+    await clearPendingOtpSession();
+    return { ok: true, reused: false };
+  } catch (error) {
+    const failure = {
+      ok: false,
+      reason: "otp-submit-failed",
+      details: error instanceof Error ? error.message : String(error)
+    };
+    await saveLastLoginAttempt(failure);
+    return failure;
   }
 }

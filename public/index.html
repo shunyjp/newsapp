@@ -10,31 +10,30 @@
     <main class="page">
       <section class="hero">
         <p class="eyebrow">Focused News Digest</p>
-        <h1>特定テーマの最新ニュースを、吸収しやすい形に整理します</h1>
+        <h1>迚ｹ螳壹ユ繝ｼ繝槭・譛譁ｰ繝九Η繝ｼ繧ｹ繧偵∝精蜿弱＠繧・☆縺・ｽ｢縺ｫ謨ｴ逅・＠縺ｾ縺・/h1>
         <p class="lead">
-          AI / SAP / 基幹システムのニュースを集めて、技術・ビジネス・事例・学習の観点で要約します。
-        </p>
+          AI / SAP / 蝓ｺ蟷ｹ繧ｷ繧ｹ繝・Β縺ｮ繝九Η繝ｼ繧ｹ繧帝寔繧√※縲∵橿陦薙・繝薙ず繝阪せ繝ｻ莠倶ｾ九・蟄ｦ鄙偵・隕ｳ轤ｹ縺ｧ隕∫ｴ・＠縺ｾ縺吶・        </p>
       </section>
 
       <section class="panel">
         <form id="digest-form">
           <div class="form-grid">
             <div>
-              <h2>テーマ</h2>
+              <h2>繝・・繝・/h2>
               <div id="topic-options" class="option-list"></div>
             </div>
 
             <div>
-              <h2>観点</h2>
+              <h2>隕ｳ轤ｹ</h2>
               <div id="viewpoint-options" class="option-list"></div>
             </div>
 
             <div>
-              <h2>出力形式</h2>
+              <h2>蜃ｺ蜉帛ｽ｢蠑・/h2>
               <div class="option-list">
                 <label class="option-card">
                   <input type="checkbox" name="outputFormats" value="text" checked />
-                  <span>テキスト</span>
+                  <span>繝・く繧ｹ繝・/span>
                 </label>
                 <label class="option-card">
                   <input type="checkbox" name="outputFormats" value="word" checked />
@@ -42,17 +41,17 @@
                 </label>
                 <label class="option-card">
                   <input type="checkbox" name="outputFormats" value="audio" />
-                  <span>音声</span>
+                  <span>髻ｳ螢ｰ</span>
                 </label>
                 <label class="option-card">
                   <input type="checkbox" name="outputFormats" value="notebooklm" checked />
-                  <span>NotebookLM用原文</span>
+                  <span>NotebookLM逕ｨ蜴滓枚</span>
                 </label>
               </div>
             </div>
           </div>
 
-          <button id="submit-button" type="submit">ニュースを生成する</button>
+          <button id="submit-button" type="submit">繝九Η繝ｼ繧ｹ繧堤函謌舌☆繧・/button>
           <p id="status" class="status"></p>
         </form>
       </section>
@@ -61,10 +60,17 @@
         <div class="import-header">
           <div>
             <p class="eyebrow">Nikkei Group</p>
-            <h2>Playwright ログイン状態</h2>
+            <h2>Playwright 繝ｭ繧ｰ繧､繝ｳ迥ｶ諷・/h2>
             <p id="nikkei-status" class="status compact-status"></p>
           </div>
-          <button id="nikkei-relogin" type="button" class="secondary-button">Playwrightで再ログイン</button>
+          <button id="nikkei-relogin" type="button" class="secondary-button">Playwright縺ｧ蜀阪Ο繧ｰ繧､繝ｳ</button>
+        </div>
+        <div id="nikkei-otp-panel" class="manual-import" hidden>
+          <label>
+            繝ｯ繝ｳ繧ｿ繧､繝繝代せ繝ｯ繝ｼ繝・            <input id="nikkei-otp-code" type="text" inputmode="numeric" autocomplete="one-time-code" maxlength="8" />
+          </label>
+          <button id="nikkei-otp-submit" type="button" class="secondary-button">OTP 繧帝∽ｿ｡</button>
+          <p class="status small">繝｡繝ｼ繝ｫ縺ｧ螻翫＞縺溽｢ｺ隱阪さ繝ｼ繝峨ｒ蜈･蜉帙＠縺ｦ邯夊｡後＠縺ｾ縺吶・/p>
         </div>
       </section>
 
@@ -72,26 +78,23 @@
         <div class="import-header">
           <div>
             <p class="eyebrow">Browser Import</p>
-            <h2>ログイン済み記事を取り込む</h2>
+            <h2>繝ｭ繧ｰ繧､繝ｳ貂医∩險倅ｺ九ｒ蜿悶ｊ霎ｼ繧</h2>
             <p class="lead compact">
-              日経クロステックや日経新聞の記事ページを開いた状態で、下のブックマークレットを使うと本文をこのアプリへ取り込めます。
-            </p>
+              譌･邨後け繝ｭ繧ｹ繝・ャ繧ｯ繧・律邨梧眠閨槭・險倅ｺ九・繝ｼ繧ｸ繧帝幕縺・◆迥ｶ諷九〒縲∽ｸ九・繝悶ャ繧ｯ繝槭・繧ｯ繝ｬ繝・ヨ繧剃ｽｿ縺・→譛ｬ譁・ｒ縺薙・繧｢繝励Μ縺ｸ蜿悶ｊ霎ｼ繧√∪縺吶・            </p>
           </div>
-          <a id="bookmarklet-link" class="bookmarklet" href="#">記事を取り込む</a>
+          <a id="bookmarklet-link" class="bookmarklet" href="#">險倅ｺ九ｒ蜿悶ｊ霎ｼ繧</a>
         </div>
 
         <div class="manual-import">
           <label>
-            対象テーマ
-            <select id="import-topic"></select>
+            蟇ｾ雎｡繝・・繝・            <select id="import-topic"></select>
           </label>
           <p class="status small">
-            このリンクをブックマークバーへドラッグし、ログイン済みの記事ページでクリックしてください。
-          </p>
+            縺薙・繝ｪ繝ｳ繧ｯ繧偵ヶ繝・け繝槭・繧ｯ繝舌・縺ｸ繝峨Λ繝・げ縺励√Ο繧ｰ繧､繝ｳ貂医∩縺ｮ險倅ｺ九・繝ｼ繧ｸ縺ｧ繧ｯ繝ｪ繝・け縺励※縺上□縺輔＞縲・          </p>
         </div>
 
         <section>
-          <h3>取り込み済み記事</h3>
+          <h3>蜿悶ｊ霎ｼ縺ｿ貂医∩險倅ｺ・/h3>
           <div id="imports" class="article-list single"></div>
         </section>
       </section>
@@ -100,7 +103,7 @@
         <div class="result-header">
           <div>
             <p class="eyebrow">Generated Digest</p>
-            <h2>生成結果</h2>
+            <h2>逕滓・邨先棡</h2>
           </div>
           <div id="downloads" class="downloads"></div>
         </div>
@@ -108,7 +111,7 @@
         <article id="summary" class="summary"></article>
 
         <section>
-          <h3>取得した記事</h3>
+          <h3>蜿門ｾ励＠縺溯ｨ倅ｺ・/h3>
           <div id="articles" class="article-list"></div>
         </section>
       </section>
