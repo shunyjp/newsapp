@@ -73,7 +73,7 @@ function getLoginAvailability() {
     return {
       available: false,
       reason: "missing-credentials",
-      details: "NIKKEI_LOGIN_ID / NIKKEI_LOGIN_PASSWORD 縺梧悴險ｭ螳壹〒縺吶・
+      details: "NIKKEI_LOGIN_ID / NIKKEI_LOGIN_PASSWORD is not configured."
     };
   }
 
@@ -82,7 +82,7 @@ function getLoginAvailability() {
     return {
       available: false,
       reason: "missing-browser",
-      details: "Playwright 逕ｨ繝悶Λ繧ｦ繧ｶ縺後し繝ｼ繝舌・迺ｰ蠅・↓隕九▽縺九ｊ縺ｾ縺帙ｓ縲・eabur 縺ｧ縺ｯ閾ｪ蜍募・繝ｭ繧ｰ繧､繝ｳ縺ｯ菴ｿ縺医★縲，ookie 莠句燕險ｭ螳壹′蠢・ｦ√〒縺吶・
+      details: "No Playwright browser was found on the server."
     };
   }
 
@@ -135,7 +135,7 @@ function otpSelectors() {
     ].join(", "),
     otpSubmit:
       process.env.NIKKEI_OTP_SUBMIT_SELECTOR ||
-      'button[type="submit"], input[type="submit"], button:has-text("遒ｺ隱・), button:has-text("隱崎ｨｼ"), button:has-text("繝ｭ繧ｰ繧､繝ｳ")'
+      'button[type="submit"], input[type="submit"], button:has-text("Verify"), button:has-text("Submit"), button:has-text("Login")'
   };
 }
 
@@ -237,7 +237,7 @@ export async function getNikkeiLoginStatus() {
 async function launchBrowser() {
   const executablePath = getBrowserExecutablePath();
   if (!executablePath) {
-    throw new Error("Playwright 逕ｨ縺ｮ繝悶Λ繧ｦ繧ｶ螳溯｡後ヵ繧｡繧､繝ｫ縺瑚ｦ九▽縺九ｊ縺ｾ縺帙ｓ縲１LAYWRIGHT_BROWSER_PATH 繧定ｨｭ螳壹＠縺ｦ縺上□縺輔＞縲・);
+    throw new Error("No Playwright browser executable was found. Set PLAYWRIGHT_BROWSER_PATH if needed.");
   }
 
   return chromium.launch({
@@ -471,7 +471,7 @@ export async function loginToNikkeiAndPersistSession({ force = false } = {}) {
       const otpAttempt = {
         ok: false,
         reason: "otp-required",
-        details: "繝ｯ繝ｳ繧ｿ繧､繝繝代せ繝ｯ繝ｼ繝牙・蜉帛ｾ・■縺ｧ縺吶ゅΓ繝ｼ繝ｫ縺ｮ遒ｺ隱阪さ繝ｼ繝峨ｒ蜈･蜉帙＠縺ｦ縺上□縺輔＞縲・,
+        details: "One-time password required. Enter the code from the email.",
         otpPending: true,
         currentUrl: parsedDetails.currentUrl || "",
         title: parsedDetails.title || ""
@@ -506,7 +506,7 @@ export async function submitNikkeiOtpAndPersistSession(code) {
     return {
       ok: false,
       reason: "otp-session-missing",
-      details: "OTP 蠕・ｩ滉ｸｭ縺ｮ繝ｭ繧ｰ繧､繝ｳ繧ｻ繝・す繝ｧ繝ｳ縺瑚ｦ九▽縺九ｊ縺ｾ縺帙ｓ縲ょ・蠎ｦ繝ｭ繧ｰ繧､繝ｳ繧帝幕蟋九＠縺ｦ縺上□縺輔＞縲・
+      details: "No pending OTP login session was found. Start login again."
     };
   }
 
@@ -515,7 +515,7 @@ export async function submitNikkeiOtpAndPersistSession(code) {
     return {
       ok: false,
       reason: "otp-code-missing",
-      details: "繝ｯ繝ｳ繧ｿ繧､繝繝代せ繝ｯ繝ｼ繝峨ｒ蜈･蜉帙＠縺ｦ縺上□縺輔＞縲・
+      details: "Enter the one-time password."
     };
   }
 
