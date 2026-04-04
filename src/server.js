@@ -11,8 +11,12 @@ import { getNikkeiLoginStatus, loginToNikkeiAndPersistSession } from "./nikkeiLo
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+const projectRoot = path.resolve(__dirname, "..");
+const publicDir = path.join(projectRoot, "public");
+const outputsDir = path.join(projectRoot, "outputs");
 const app = express();
 const port = Number.parseInt(process.env.PORT || "3000", 10);
+const host = process.env.HOST || "0.0.0.0";
 
 function pickDiverseArticles(articles, topicIds, limit = 12) {
   const maxPerTopic = topicIds.length > 1 ? Number.parseInt(process.env.MAX_DISPLAY_ARTICLES_PER_TOPIC || "4", 10) : limit;
@@ -63,8 +67,17 @@ function pickDiverseArticles(articles, topicIds, limit = 12) {
 }
 
 app.use(express.json({ limit: "1mb" }));
-app.use("/outputs", express.static(path.join(process.cwd(), "outputs")));
-app.use(express.static(path.join(__dirname, "..", "public")));
+app.use("/outputs", express.static(outputsDir));
+app.use(express.static(publicDir));
+
+app.get("/healthz", (_req, res) => {
+  res.json({
+    ok: true,
+    cwd: process.cwd(),
+    publicDir,
+    outputsDir
+  });
+});
 
 app.get("/api/options", async (_req, res) => {
   res.json({
@@ -213,9 +226,10 @@ app.post("/api/generate", async (req, res) => {
 });
 
 app.get(/.*/, (_req, res) => {
-  res.sendFile(path.join(__dirname, "..", "public", "index.html"));
+  res.sendFile(path.join(publicDir, "index.html"));
 });
 
-app.listen(port, () => {
-  console.log(`News digest app running on http://localhost:${port}`);
+app.listen(port, host, () => {
+  console.log(`News digest app running on http://${host}:${port}`);
+  console.log(`Resolved paths cwd=${process.cwd()} public=${publicDir} outputs=${outputsDir}`);
 });
