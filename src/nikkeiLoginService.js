@@ -2,7 +2,7 @@ import { existsSync } from "node:fs";
 import fs from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { chromium } from "playwright-core";
+import { chromium } from "playwright-chromium";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -51,7 +51,17 @@ async function fileExists(targetPath) {
 }
 
 function getBrowserExecutablePath() {
-  return DEFAULT_BROWSER_PATHS.find((candidate) => candidate && existsSync(candidate));
+  const explicitPath = DEFAULT_BROWSER_PATHS.find((candidate) => candidate && existsSync(candidate));
+  if (explicitPath) {
+    return explicitPath;
+  }
+
+  try {
+    const bundledPath = chromium.executablePath();
+    return bundledPath && existsSync(bundledPath) ? bundledPath : "";
+  } catch {
+    return "";
+  }
 }
 
 function getLoginAvailability() {
