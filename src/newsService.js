@@ -9,8 +9,88 @@ const parser = new Parser({
 });
 
 const NEWS_LIMIT_PER_QUERY = Number.parseInt(process.env.NEWS_LIMIT_PER_QUERY || "4", 10);
+const AI_NEWS_LIMIT_PER_QUERY = Number.parseInt(process.env.AI_NEWS_LIMIT_PER_QUERY || "8", 10);
 const RECENT_DAYS = Number.parseInt(process.env.RECENT_DAYS || "30", 10);
 const TARGET_DOMESTIC_RATIO = 4 / 7;
+const MAX_SELECTED_ARTICLES = Number.parseInt(process.env.MAX_SELECTED_ARTICLES || "36", 10);
+const AI_MAX_SELECTED_ARTICLES = Number.parseInt(process.env.AI_MAX_SELECTED_ARTICLES || "48", 10);
+const MIN_DIRECT_XTECH = Number.parseInt(process.env.MIN_DIRECT_XTECH || "2", 10);
+const MIN_DIRECT_NIKKEI_GROUP = Number.parseInt(process.env.MIN_DIRECT_NIKKEI_GROUP || "2", 10);
+
+const DIRECT_NIKKEI_SOURCES = {
+  "xtech.nikkei.com": {
+    url: "https://xtech.nikkei.com/rss/index.rdf",
+    mode: "rss",
+    sourceType: "nikkei-direct-rss",
+    sourceLabel: "Nikkei xTECH"
+  },
+  "bizgate.nikkei.com": {
+    url: "https://bizgate.nikkei.com/search?keyword=%E7%94%9F%E6%88%90AI",
+    mode: "html",
+    sourceType: "nikkei-direct-search",
+    sourceLabel: "NIKKEI BizGate",
+    entryUrlPattern: /^https:\/\/bizgate\.nikkei\.com\/article\/.+/i
+  },
+  "financial.nikkei.com": {
+    url: "https://financial.nikkei.com/search?keyword=AI",
+    mode: "html",
+    sourceType: "nikkei-direct-search",
+    sourceLabel: "NIKKEI Financial",
+    entryUrlPattern: /^https:\/\/financial\.nikkei\.com\/article\/.+/i
+  },
+  "nikkei.com": {
+    url: "https://www.nikkei.com/search?keyword=AI",
+    mode: "html",
+    sourceType: "nikkei-direct-search",
+    sourceLabel: "日本経済新聞",
+    entryUrlPattern: /^https:\/\/www\.nikkei\.com\/article\/.+/i
+  }
+};
+
+const AI_OFFICIAL_HTML_SOURCES = [
+  {
+    url: "https://openai.com/news/",
+    sourceType: "ai-official-source",
+    sourceLabel: "OpenAI Blog",
+    matchedTrustedDomain: "openai.com",
+    entryUrlPattern: /^https:\/\/openai\.com\/(?:index|news)\/.+/i
+  },
+  {
+    url: "https://www.anthropic.com/news",
+    sourceType: "ai-official-source",
+    sourceLabel: "Anthropic News",
+    matchedTrustedDomain: "anthropic.com",
+    entryUrlPattern: /^https:\/\/www\.anthropic\.com\/news\/.+/i
+  },
+  {
+    url: "https://deepmind.google/blog/",
+    sourceType: "ai-official-source",
+    sourceLabel: "Google DeepMind Blog",
+    matchedTrustedDomain: "deepmind.google",
+    entryUrlPattern: /^https:\/\/deepmind\.google\/blog\/.+/i
+  },
+  {
+    url: "https://blogs.microsoft.com/blog/tag/ai/",
+    sourceType: "ai-official-source",
+    sourceLabel: "Microsoft AI Blog",
+    matchedTrustedDomain: "microsoft.com",
+    entryUrlPattern: /^https:\/\/blogs\.microsoft\.com\/blog\/\d{4}\/\d{2}\/\d{2}\/.+/i
+  },
+  {
+    url: "https://aws.amazon.com/blogs/machine-learning/",
+    sourceType: "ai-official-source",
+    sourceLabel: "AWS Machine Learning Blog",
+    matchedTrustedDomain: "aws.amazon.com",
+    entryUrlPattern: /^https:\/\/aws\.amazon\.com\/blogs\/machine-learning\/.+/i
+  },
+  {
+    url: "https://huggingface.co/blog",
+    sourceType: "ai-official-source",
+    sourceLabel: "Hugging Face Blog",
+    matchedTrustedDomain: "huggingface.co",
+    entryUrlPattern: /^https:\/\/huggingface\.co\/blog\/[^/#?]+\/?$/i
+  }
+];
 
 function containsJapanese(text = "") {
   return /[\u3040-\u30ff\u3400-\u9fff]/.test(text);
@@ -149,8 +229,9 @@ function cleanText(value = "") {
 }
 
 function shouldIgnoreArticle(article) {
-  const title = (article.title || "").toLowerCase();
-  return title.includes("sap for me");
+  const title = (article.title || "").trim();
+  const normalized = title.toLowerCase();
+  return normalized.includes("sap for me") || /^(【\s*ad\s*】|\[\s*ad\s*\]|ad[:：]\s*)/i.test(title);
 }
 
 function splitTitleAndSource(rawTitle = "") {
@@ -182,6 +263,186 @@ function normalizeFeedItem(item, extra = {}) {
     ...article,
     region: extra.region || classifyRegion(article)
   };
+}
+
+function getQueryLimit(topic) {
+  return topic?.id === "ai" ? AI_NEWS_LIMIT_PER_QUERY : NEWS_LIMIT_PER_QUERY;
+}
+
+function getMaxArticleLimit(topics) {
+  const hasAiOnly = topics.length === 1 && topics[0]?.id === "ai";
+  return hasAiOnly ? Math.max(AI_MAX_SELECTED_ARTICLES, topics.length * 14) : Math.max(MAX_SELECTED_ARTICLES, topics.length * 12);
+}
+
+function isGoogleNewsUrl(link = "") {
+  return /^https:\/\/news\.google\.com\//i.test(link);
+}
+
+function getUrlHost(link = "") {
+  try {
+    return new URL(link).hostname.toLowerCase();
+  } catch {
+    return "";
+  }
+}
+
+function isDirectDomainArticle(article, domain) {
+  const host = getUrlHost(article.link || article.url || "");
+  return Boolean(host) && host === domain;
+}
+
+function isDirectNikkeiGroupArticle(article) {
+  const host = getUrlHost(article.link || article.url || "");
+  return [
+    "xtech.nikkei.com",
+    "bizgate.nikkei.com",
+    "financial.nikkei.com",
+    "www.nikkei.com"
+  ].includes(host);
+}
+
+async function fetchDirectNikkeiCandidates(domain, topic) {
+  const settings = DIRECT_NIKKEI_SOURCES[domain];
+  if (!settings) {
+    return [];
+  }
+
+  const limit = getQueryLimit(topic);
+
+  if (settings.mode === "rss") {
+    const feed = await parser.parseURL(settings.url);
+    return (feed.items || [])
+      .filter((item) => isRecentEnough(item.pubDate || item.isoDate || ""))
+      .slice(0, limit)
+      .map((item) =>
+        normalizeFeedItem(item, {
+          topicId: topic.id,
+          topicLabel: topic.label,
+          query: settings.sourceLabel,
+          sourceType: settings.sourceType,
+          baseTrust: 5,
+          matchedTrustedDomain: domain,
+          source: settings.sourceLabel
+        })
+      );
+  }
+
+  const response = await fetch(settings.url, {
+    headers: {
+      "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/122 Safari/537.36",
+      Accept: "text/html,application/xhtml+xml"
+    },
+    redirect: "follow"
+  });
+  const html = await response.text();
+  const matches = [...html.matchAll(/<a\b[^>]+href=["']([^"'#]+)["'][^>]*>([\s\S]*?)<\/a>/gi)];
+  const seen = new Set();
+  const articles = [];
+
+  for (const match of matches) {
+    const href = match[1];
+    const title = cleanText(match[2] || "");
+    if (!title || /^(【\s*ad\s*】|\[\s*ad\s*\]|ad[:：]\s*)/i.test(title)) {
+      continue;
+    }
+
+    let absoluteUrl = "";
+    try {
+      absoluteUrl = new URL(href, settings.url).toString();
+    } catch {
+      continue;
+    }
+
+    if (!settings.entryUrlPattern.test(absoluteUrl) || seen.has(absoluteUrl)) {
+      continue;
+    }
+
+    seen.add(absoluteUrl);
+    articles.push({
+      title,
+      link: absoluteUrl,
+      pubDate: "",
+      source: settings.sourceLabel,
+      contentSnippet: "",
+      topicId: topic.id,
+      topicLabel: topic.label,
+      query: settings.sourceLabel,
+      sourceType: settings.sourceType,
+      baseTrust: 5,
+      matchedTrustedDomain: domain,
+      region: "domestic"
+    });
+
+    if (articles.length >= limit) {
+      break;
+    }
+  }
+
+  return articles;
+}
+
+async function fetchOfficialAiCandidates(topic) {
+  const limit = getQueryLimit(topic);
+  const jobs = AI_OFFICIAL_HTML_SOURCES.map(async (settings) => {
+    try {
+      const response = await fetch(settings.url, {
+        headers: {
+          "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/122 Safari/537.36",
+          Accept: "text/html,application/xhtml+xml"
+        },
+        redirect: "follow"
+      });
+      const html = await response.text();
+      const matches = [...html.matchAll(/<a\b[^>]+href=["']([^"'#]+)["'][^>]*>([\s\S]*?)<\/a>/gi)];
+      const seen = new Set();
+      const articles = [];
+
+      for (const match of matches) {
+        const href = match[1];
+        const title = cleanText(match[2] || "");
+        if (!title || shouldIgnoreArticle({ title })) {
+          continue;
+        }
+
+        let absoluteUrl = "";
+        try {
+          absoluteUrl = new URL(href, settings.url).toString();
+        } catch {
+          continue;
+        }
+
+        if (!settings.entryUrlPattern.test(absoluteUrl) || seen.has(absoluteUrl)) {
+          continue;
+        }
+
+        seen.add(absoluteUrl);
+        articles.push({
+          title,
+          link: absoluteUrl,
+          pubDate: "",
+          source: settings.sourceLabel,
+          contentSnippet: "",
+          topicId: topic.id,
+          topicLabel: topic.label,
+          query: settings.sourceLabel,
+          sourceType: settings.sourceType,
+          baseTrust: 5,
+          matchedTrustedDomain: settings.matchedTrustedDomain,
+          region: "international"
+        });
+
+        if (articles.length >= limit) {
+          break;
+        }
+      }
+
+      return articles;
+    } catch {
+      return [];
+    }
+  });
+
+  return (await Promise.all(jobs)).flat();
 }
 
 function inferViewpointScore(text, viewpoint) {
@@ -259,6 +520,12 @@ function trustScore(article, topic) {
   if ((article.sourceType || "").includes("authenticated-fetch")) {
     score += 2;
   }
+  if (article.sourceType === "ai-official-source") {
+    score += 3;
+  }
+  if (topic?.id === "ai" && article.matchedTrustedDomain && ["openai.com", "anthropic.com", "deepmind.google", "microsoft.com", "aws.amazon.com", "huggingface.co"].includes(article.matchedTrustedDomain)) {
+    score += 2;
+  }
 
   score += nikkeiCaseBusinessBoost(article);
 
@@ -329,8 +596,9 @@ export async function fetchTopicNewsWithImports({ topicIds, viewpointIds, import
     topics.flatMap((topic) =>
       [
         ...topic.queries.map(async (query) => {
+          const limit = getQueryLimit(topic);
           const feed = await parser.parseURL(buildSearchUrl(query));
-          return (feed.items || []).slice(0, NEWS_LIMIT_PER_QUERY).map((item) =>
+          return (feed.items || []).slice(0, limit).map((item) =>
             normalizeFeedItem(item, {
               topicId: topic.id,
               topicLabel: topic.label,
@@ -342,8 +610,9 @@ export async function fetchTopicNewsWithImports({ topicIds, viewpointIds, import
         }),
         ...(topic.trustedDomains || []).flatMap((domain) =>
           topic.queries.slice(0, 2).map(async (query) => {
+            const limit = getQueryLimit(topic);
             const feed = await parser.parseURL(buildDomainSearchUrl(query, domain));
-            return (feed.items || []).slice(0, Math.max(2, NEWS_LIMIT_PER_QUERY - 1)).map((item) =>
+            return (feed.items || []).slice(0, Math.max(2, limit - 1)).map((item) =>
               normalizeFeedItem(item, {
                 topicId: topic.id,
                 topicLabel: topic.label,
@@ -356,10 +625,11 @@ export async function fetchTopicNewsWithImports({ topicIds, viewpointIds, import
           })
         ),
         ...(topic.curatedFeeds || []).map(async (feedSource) => {
+          const limit = getQueryLimit(topic);
           const feed = await parser.parseURL(feedSource.url);
           return (feed.items || [])
             .filter((item) => isRecentEnough(item.pubDate || item.isoDate || "", feedSource.maxAgeDays))
-            .slice(0, NEWS_LIMIT_PER_QUERY)
+            .slice(0, limit)
             .map((item) =>
               normalizeFeedItem(item, {
                 topicId: topic.id,
@@ -370,7 +640,11 @@ export async function fetchTopicNewsWithImports({ topicIds, viewpointIds, import
                 defaultSource: feedSource.label
               })
             );
-        })
+        }),
+        ...[...new Set((topic.trustedDomains || []).filter((domain) => DIRECT_NIKKEI_SOURCES[domain]))].map(async (domain) => {
+          return fetchDirectNikkeiCandidates(domain, topic);
+        }),
+        ...(topic.id === "ai" ? [fetchOfficialAiCandidates(topic)] : [])
       ].map(async (job) => {
         try {
           return await job;
@@ -409,7 +683,7 @@ export async function fetchTopicNewsWithImports({ topicIds, viewpointIds, import
     .filter((article) => !shouldIgnoreArticle(article))
     .sort(sortArticles);
 
-  const maxArticles = Math.max(24, topics.length * 10);
+  const maxArticles = getMaxArticleLimit(topics);
   const minPerTopic = topics.length > 1 ? 4 : maxArticles;
   const topicBuckets = new Map(topics.map((topic) => [topic.id, []]));
 
@@ -422,10 +696,18 @@ export async function fetchTopicNewsWithImports({ topicIds, viewpointIds, import
   const selected = [];
   const selectedKeys = new Set();
 
-  const xtechCandidates = rankedArticles.filter((article) => article.matchedTrustedDomain === "xtech.nikkei.com");
-  const minXtech = topics.length > 1 ? 2 : 1;
+  const xtechCandidates = rankedArticles.filter((article) => isDirectDomainArticle(article, "xtech.nikkei.com"));
+  const nikkeiGroupCandidates = rankedArticles.filter((article) =>
+    isDirectNikkeiGroupArticle(article) && !isDirectDomainArticle(article, "xtech.nikkei.com")
+  );
+  const minXtech = topics.length > 1 ? MIN_DIRECT_XTECH : 1;
+  const minNikkeiGroup = topics.length > 1 ? MIN_DIRECT_NIKKEI_GROUP : 1;
 
   for (const article of xtechCandidates.slice(0, minXtech)) {
+    addUniqueArticle(article, selected, selectedKeys);
+  }
+
+  for (const article of nikkeiGroupCandidates.slice(0, minNikkeiGroup)) {
     addUniqueArticle(article, selected, selectedKeys);
   }
 
@@ -477,13 +759,22 @@ export async function fetchTopicNewsWithImports({ topicIds, viewpointIds, import
 
     const ranked = [];
     const rankedKeys = new Set();
-    const viewpointLimit = topics.length > 1 ? 7 : 6;
+    const viewpointLimit = topics.length > 1 ? 7 : (topics[0]?.id === "ai" ? 8 : 6);
 
-    const xtechFirst = scored.find((article) => article.matchedTrustedDomain === "xtech.nikkei.com");
+    const xtechFirst = scored.find((article) => isDirectDomainArticle(article, "xtech.nikkei.com"));
     if (xtechFirst) {
       const key = `${xtechFirst.link}|${xtechFirst.title}`;
       ranked.push(xtechFirst);
       rankedKeys.add(key);
+    }
+
+    const nikkeiFirst = scored.find((article) => isDirectNikkeiGroupArticle(article) && !isDirectDomainArticle(article, "xtech.nikkei.com"));
+    if (nikkeiFirst) {
+      const key = `${nikkeiFirst.link}|${nikkeiFirst.title}`;
+      if (!rankedKeys.has(key)) {
+        ranked.push(nikkeiFirst);
+        rankedKeys.add(key);
+      }
     }
 
     for (const topic of topics) {

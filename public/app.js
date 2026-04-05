@@ -16,6 +16,8 @@ const nikkeiOtpPanel = document.querySelector("#nikkei-otp-panel");
 const nikkeiOtpCodeNode = document.querySelector("#nikkei-otp-code");
 const nikkeiOtpSubmitButton = document.querySelector("#nikkei-otp-submit");
 
+let nikkeiLoginInFlight = false;
+
 function renderOption(container, option, name, checked = true, description = "") {
   const label = document.createElement("label");
   label.className = "option-card";
@@ -36,12 +38,22 @@ function collectChecked(name) {
   return Array.from(document.querySelectorAll(`input[name="${name}"]:checked`)).map((node) => node.value);
 }
 
+function getDownloadFileName(href) {
+  try {
+    const url = new URL(href, window.location.origin);
+    const lastSegment = url.pathname.split("/").filter(Boolean).pop();
+    return lastSegment ? decodeURIComponent(lastSegment) : href;
+  } catch {
+    return href;
+  }
+}
+
 function renderDownloads(files) {
   downloadsNode.innerHTML = "";
 
   [
     ["text", "テキストを開く"],
-    ["word", "Wordを開く"],
+    ["word", "Word を開く"],
     ["audio", "音声を開く"],
     ["notebooklm", "NotebookLM用原文#��開く"]
   ].forEach(([key, label]) => {
@@ -51,8 +63,9 @@ function renderDownloads(files) {
 
     const link = document.createElement("a");
     link.href = files[key];
-    link.textContent = label;
+    link.textContent = `${label}: ${getDownloadFileName(files[key])}`;
     link.target = "_blank";
+    link.rel = "noreferrer";
     downloadsNode.append(link);
   });
 }
@@ -178,8 +191,17 @@ function renderNikkeiStatus(status) {
   if (status.loginDetails) {
     nikkeiStatusNode.textContent += ` / diagnostic: ${status.loginDetails}`;
   }
-  nikkeiReloginButton.disabled = status.loginAvailable === false;
-  nikkeiOtpPanel.hidden = !status.otpPending;
+
+  const otpVisible = Boolean(status.otpPending) && !status.sessionUsable && !nikkeiLoginInFlight;
+  nikkeiReloginButton.disabled = status.loginAvailable === false || nikkeiLoginInFlight;
+  nikkeiOtpPanel.hidden = !otpVisible;
+  nikkeiOtpPanel.style.display = otpVisible ? "" : "none";
+  nikkeiOtpSubmitButton.disabled = !otpVisible;
+  nikkeiOtpCodeNode.disabled = !otpVisible;
+
+  if (!otpVisible) {
+    nikkeiOtpCodeNode.value = "";
+  }
 }
 
 async function refreshNikkeiStatus() {
@@ -189,8 +211,14 @@ async function refreshNikkeiStatus() {
 }
 
 async function forceNikkeiLogin() {
+  nikkeiLoginInFlight = true;
   nikkeiReloginButton.disabled = true;
   nikkeiReloginButton.textContent = "再ログイン中...";
+  nikkeiOtpPanel.hidden = true;
+  nikkeiOtpPanel.style.display = "none";
+  nikkeiOtpCodeNode.value = "";
+  nikkeiOtpSubmitButton.disabled = true;
+  nikkeiOtpCodeNode.disabled = true;
 
   try {
     const response = await fetch("/api/auth/nikkei/login", { method: "POST" });
@@ -202,6 +230,9 @@ async function forceNikkeiLogin() {
       return;
     }
     if (!response.ok) {
+      if (data.status) {
+        renderNikkeiStatus(data.status);
+      }
       throw new Error(data.details || data.error || "login failed");
     }
 
@@ -210,12 +241,19 @@ async function forceNikkeiLogin() {
   } catch (error) {
     statusNode.textContent = `日経グループサイト再ログインに失敗しました: ${error.message}`;
   } finally {
+    nikkeiLoginInFlight = false;
+    await refreshNikkeiStatus();
     nikkeiReloginButton.disabled = false;
     nikkeiReloginButton.textContent = "Playwrightで再ログイン";
   }
 }
 
 async function submitNikkeiOtp() {
+  if (nikkeiLoginInFlight || nikkeiOtpPanel.hidden) {
+    statusNode.textContent = "再ログイン処理が完了してから OTP を送信してください。";
+    return;
+  }
+
   nikkeiOtpSubmitButton.disabled = true;
   nikkeiOtpCodeNode.disabled = true;
   statusNode.textContent = "ワンタイムパスワードを送信中です...";
@@ -228,17 +266,21 @@ async function submitNikkeiOtp() {
     });
     const data = await response.json();
     if (!response.ok) {
+      if (data.status) {
+        renderNikkeiStatus(data.status);
+      }
       throw new Error(data.details || data.error || "otp failed");
     }
 
     renderNikkeiStatus(data.status);
+    nikkeiOtpPanel.hidden = true;
+    nikkeiOtpPanel.style.display = "none";
     nikkeiOtpCodeNode.value = "";
-    statusNode.textContent = "ワンタイムパスワード認証が完了しました。";
+    statusNode.textContent = "ワンタイムパスワード認証が完了しました。保存済みセッションを利用できます。";
   } catch (error) {
     statusNode.textContent = `ワンタイムパスワード認証に失敗しました: ${error.message}`;
   } finally {
-    nikkeiOtpSubmitButton.disabled = false;
-    nikkeiOtpCodeNode.disabled = false;
+    await refreshNikkeiStatus();
   }
 }
 
@@ -294,7 +336,18 @@ form.addEventListener("submit", async (event) => {
     summaryNode.textContent = data.summary;
     renderArticles(data.articles);
     renderDownloads(data.files);
-    statusNode.textContent = `${data.articleCount}件の記事をもとに要約を生成しました。取り込み済み記事 ${data.importedArticleCount} 件を含みます。`;
+
+    const generatedLabels = [];
+    if (data.files?.text) generatedLabels.push("text");
+    if (data.files?.word) generatedLabels.push("word");
+    if (data.files?.audio) generatedLabels.push("audio");
+    if (data.files?.notebooklm) generatedLabels.push("notebooklm");
+
+    statusNode.textContent =
+      `${data.articleCount}件の記事をもとに生成しました。` +
+      `取り込み済み記事 ${data.importedArticleCount} 件を含みます。` +
+      ` 出力: ${generatedLabels.join(" / ") || "none"}`;
+
     await refreshImports();
     await refreshNikkeiStatus();
   } catch (error) {

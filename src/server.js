@@ -4,7 +4,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { TOPIC_DEFINITIONS, VIEWPOINT_DEFINITIONS } from "./config.js";
 import { fetchTopicNewsWithImports } from "./newsService.js";
-import { generateAudio, generateSummary, localizeNewsData } from "./openaiService.js";
+import { generateAudio, generateNotebookLmResearchNotes, generateSummary, localizeNewsData } from "./openaiService.js";
 import { saveAudioSummary, saveNotebookLmBundle, saveTextSummary, saveWordSummary } from "./exporters.js";
 import { addImportedArticle, listImportedArticles, removeImportedArticle } from "./importStore.js";
 import {
@@ -112,7 +112,8 @@ app.post("/api/auth/nikkei/login", async (_req, res) => {
 
       return res.status(400).json({
         error: "日経グループサイトの自動ログインに失敗しました。",
-        details: result.details || result.reason || "login_failed"
+        details: result.details || result.reason || "login_failed",
+        status: await getNikkeiLoginStatus()
       });
     }
 
@@ -131,7 +132,8 @@ app.post("/api/auth/nikkei/otp", async (req, res) => {
     if (!result.ok) {
       return res.status(400).json({
         error: "日経グループサイトのワンタイムパスワード認証に失敗しました。",
-        details: result.details || result.reason || "otp_failed"
+        details: result.details || result.reason || "otp_failed",
+        status: await getNikkeiLoginStatus()
       });
     }
 
@@ -167,6 +169,7 @@ app.post("/api/imports", async (req, res) => {
       pubDate: new Date().toISOString(),
       source: new URL(String(url)).hostname,
       contentSnippet: String(content).replace(/\s+/g, " ").trim().slice(0, 4000),
+      notebooklmText: String(content).trim(),
       topicId: topic.id,
       topicLabel: topic.label,
       query: "manual-import",
@@ -238,7 +241,8 @@ app.post("/api/generate", async (req, res) => {
     }
 
     if (outputFormats.includes("notebooklm")) {
-      const notebookPath = await saveNotebookLmBundle(rawNewsData, topicIds);
+      const researchNotes = await generateNotebookLmResearchNotes(localizedNewsData);
+      const notebookPath = await saveNotebookLmBundle(rawNewsData, topicIds, { researchNotes });
       files.notebooklm = `/outputs/${path.basename(notebookPath)}`;
     }
 

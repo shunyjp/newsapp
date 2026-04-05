@@ -80,6 +80,119 @@ ${articleLines.join("\n\n")}
   `.trim();
 }
 
+function buildNotebookLmResearchPrompt(newsData) {
+  const articleLines = newsData.articles.slice(0, 20).map((article, index) => {
+    return [
+      `${index + 1}. [${article.topicLabel}] ${article.title}`,
+      `source: ${article.source || "unknown"}`,
+      `source_type: ${article.sourceType || "unknown"}`,
+      `region: ${article.region || "unknown"}`,
+      `trust_score: ${article.trustScore ?? 0}`,
+      `date: ${article.pubDate || "unknown"}`,
+      `summary: ${(article.contentSnippet || "n/a").slice(0, 500)}`,
+      `link: ${article.link}`
+    ].join("\n");
+  });
+
+  return `
+Return exactly one JSON object in Japanese. Do not output Markdown. Do not use code fences.
+
+Rules:
+- Use only the supplied articles and metadata.
+- Do not invent facts, dates, companies, or relationships.
+- If evidence is thin, say so explicitly.
+- Every string value must be complete and self-contained.
+- Every array item must be complete. No empty bullets. No dangling asterisks.
+- Prefer concise but information-dense wording.
+
+Required JSON shape:
+{
+  "coverage_note": ["...", "..."],
+  "last_7_days_japan": [{"title":"...","what_happened":"...","why_it_matters":"...","sources":["1","3"]}],
+  "last_7_days_us": [{"title":"...","what_happened":"...","why_it_matters":"...","sources":["2"]}],
+  "sap_relevance": ["...", "..."],
+  "core_systems_relevance": ["...", "..."],
+  "terms_and_background": [{"term":"...","meaning":"...","technical_background":"..."}],
+  "last_month_context": ["...", "..."],
+  "notebooklm_reading_order": ["...", "..."]
+}
+
+Additional constraints:
+- last_7_days_japan: 3 to 6 items when possible.
+- last_7_days_us: 3 to 6 items when possible.
+- sap_relevance: 2 to 5 bullets.
+- core_systems_relevance: 2 to 5 bullets.
+- terms_and_background: 3 to 8 items.
+- last_month_context: 3 to 6 bullets.
+- notebooklm_reading_order: 5 to 10 bullets.
+- sources must reference the numbered article ids from the supplied list.
+
+Articles:
+${articleLines.join("\n\n")}
+  `.trim();
+}
+
+function formatNotebookLmResearchNotes(structured) {
+  const lines = ["## Research Brief", ""];
+
+  const pushBullets = (items = []) => {
+    for (const item of items) {
+      if (item) {
+        lines.push(`- ${item}`);
+      }
+    }
+    lines.push("");
+  };
+
+  lines.push("## 1. Coverage note", "");
+  pushBullets(structured.coverage_note || []);
+
+  const pushRegionalSection = (title, items = []) => {
+    lines.push(title, "");
+    for (const item of items) {
+      if (!item?.title) {
+        continue;
+      }
+      lines.push(`- ${item.title}`);
+      lines.push(`  What happened: ${item.what_happened || "Not enough evidence in collected articles."}`);
+      lines.push(`  Why it matters: ${item.why_it_matters || "Not enough evidence in collected articles."}`);
+      if (Array.isArray(item.sources) && item.sources.length) {
+        lines.push(`  Sources: ${item.sources.join(", ")}`);
+      }
+      lines.push("");
+    }
+  };
+
+  lines.push("## 2. Last 7 days: Japan and US", "");
+  pushRegionalSection("### Japan", structured.last_7_days_japan || []);
+  pushRegionalSection("### United States", structured.last_7_days_us || []);
+
+  lines.push("## 3. Related viewpoints", "");
+  lines.push("### SAP", "");
+  pushBullets(structured.sap_relevance || []);
+  lines.push("### Core systems", "");
+  pushBullets(structured.core_systems_relevance || []);
+  lines.push("### Terms and technical background", "");
+
+  for (const item of structured.terms_and_background || []) {
+    if (!item?.term) {
+      continue;
+    }
+    lines.push(`- ${item.term}`);
+    lines.push(`  Meaning: ${item.meaning || "Not enough evidence in collected articles."}`);
+    lines.push(`  Technical background: ${item.technical_background || "Not enough evidence in collected articles."}`);
+    lines.push("");
+  }
+
+  lines.push("### Related developments over the last month", "");
+  pushBullets(structured.last_month_context || []);
+
+  lines.push("## 4. Suggested reading order for NotebookLM", "");
+  pushBullets(structured.notebooklm_reading_order || []);
+
+  return lines.join("\n").trim();
+}
+
 function parseJsonObject(text = "") {
   const fenced = text.match(/```(?:json)?\s*([\s\S]*?)```/i)?.[1];
   const target = fenced || text;
@@ -247,6 +360,37 @@ async function generateGeminiSummary(newsData) {
   });
 }
 
+async function generateOpenAINotebookLmResearchNotes(newsData) {
+  const client = getOpenAIClient();
+  if (!client) {
+    return null;
+  }
+
+  const response = await client.responses.create({
+    model: openaiSummaryModel,
+    input: buildNotebookLmResearchPrompt(newsData)
+  });
+
+  const structured = parseJsonObject(response.output_text || "");
+  return structured ? formatNotebookLmResearchNotes(structured) : null;
+}
+
+async function generateGeminiNotebookLmResearchNotes(newsData) {
+  if (!hasGemini()) {
+    return null;
+  }
+
+  const text = await callGemini({
+    systemInstruction: "Return exactly one JSON object grounded only in the provided articles.",
+    prompt: buildNotebookLmResearchPrompt(newsData),
+    maxOutputTokens: 5200,
+    responseMimeType: "application/json"
+  });
+
+  const structured = parseJsonObject(text || "");
+  return structured ? formatNotebookLmResearchNotes(structured) : null;
+}
+
 export async function generateSummary(newsData) {
   const providers = getProviderOrder();
 
@@ -258,6 +402,31 @@ export async function generateSummary(newsData) {
   }
 
   return buildFallbackSummary(newsData);
+}
+
+export async function generateNotebookLmResearchNotes(newsData) {
+  const providers = getProviderOrder();
+
+  for (const provider of providers) {
+    const notes =
+      provider === "gemini"
+        ? await generateGeminiNotebookLmResearchNotes(newsData)
+        : await generateOpenAINotebookLmResearchNotes(newsData);
+    if (notes) {
+      return notes;
+    }
+  }
+
+  return [
+    "# NotebookLM Research Brief",
+    "",
+    "## Coverage note",
+    "- This brief is based only on the articles collected in this run.",
+    "- Nikkei and xTECH findings appear only when they were separately collected by this app.",
+    "",
+    "## Last 7 days: Japan and US",
+    "- Please refer to the article bundle below. No model-generated brief was available in this run."
+  ].join("\n");
 }
 
 export async function generateAudio(summaryText) {

@@ -172,6 +172,7 @@ async function fetchAuthenticatedArticle(article) {
     ...article,
     title: extractTitle(html) || article.title,
     contentSnippet: paragraphs.join(" ").slice(0, 4000),
+    notebooklmText: paragraphs.join("\n\n"),
     source: article.source || settings.label || domain,
     sourceType: `${article.sourceType || "trusted-domain-search"}+authenticated-fetch`,
     baseTrust: (article.baseTrust || 0) + settings.trustBonus,
