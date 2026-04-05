@@ -427,15 +427,35 @@ export async function generateNotebookLmResearchNotes(newsData) {
     }
   }
 
+  const fallbackTerms = newsData.articles
+    .slice(0, 8)
+    .map((article) => {
+      const text = `${article.title || ""} ${article.contentSnippet || ""}`;
+      const matches = [...text.matchAll(/\b([A-Z][A-Za-z0-9.+-]{2,})\b/g)].map((match) => match[1]);
+      return matches;
+    })
+    .flat()
+    .filter((term, index, array) => array.indexOf(term) === index)
+    .slice(0, 6);
+
   return [
-    "## Research Brief",
-    "",
     "## 1. Coverage note",
     "- This brief is based only on the articles collected in this run.",
     "- Nikkei and xTECH findings appear only when they were separately collected by this app.",
     "",
     "## 2. Last 7 days: Japan and US",
-    "- Please refer to the article bundle below. No model-generated brief was available in this run."
+    "- Please refer to the article bundle below. No model-generated brief was available in this run.",
+    "",
+    "## 3. Related viewpoints",
+    "",
+    "### Terms SIers should understand",
+    ...fallbackTerms.map((term) => `- ${term}: Review this term in the article bundle below and capture its role in architecture, migration, operations, or integration work.`),
+    "",
+    "### Terms and technical background",
+    "- Use the article bundle below to extract definitions, technical context, and related product or platform names.",
+    "",
+    "### Related developments over the last month",
+    "- Compare this run's articles with recent items in the bundle when enough context is available."
   ].join("\n");
 }
 
