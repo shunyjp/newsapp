@@ -109,6 +109,7 @@ function buildNotebookLmResearchPrompt(newsData) {
     '  "last_7_days_us": [{"title":"...","what_happened":"...","why_it_matters":"...","sources":["2"]}],',
     '  "sap_relevance": ["...", "..."],',
     '  "core_systems_relevance": ["...", "..."],',
+    '  "sier_terms_to_know": [{"term":"...","meaning":"...","why_sier_should_care":"..."}],',
     '  "terms_and_background": [{"term":"...","meaning":"...","technical_background":"..."}],',
     '  "last_month_context": ["...", "..."],',
     '  "notebooklm_reading_order": ["...", "..."]',
@@ -119,6 +120,7 @@ function buildNotebookLmResearchPrompt(newsData) {
     "- last_7_days_us: 3 to 6 items when possible",
     "- sap_relevance: 2 to 5 bullets",
     "- core_systems_relevance: 2 to 5 bullets",
+    "- sier_terms_to_know: 3 to 8 items",
     "- terms_and_background: 3 to 8 items",
     "- last_month_context: 3 to 6 bullets",
     "- notebooklm_reading_order: 5 to 10 bullets",
@@ -169,6 +171,18 @@ function formatNotebookLmResearchNotes(structured) {
   pushBullets(structured.sap_relevance || []);
   lines.push("### Core systems", "");
   pushBullets(structured.core_systems_relevance || []);
+  lines.push("### Terms SIers should understand", "");
+
+  for (const item of structured.sier_terms_to_know || []) {
+    if (!item?.term) {
+      continue;
+    }
+    lines.push(`- ${item.term}`);
+    lines.push(`  Meaning: ${item.meaning || "Not enough evidence in collected articles."}`);
+    lines.push(`  Why SIers should care: ${item.why_sier_should_care || "Not enough evidence in collected articles."}`);
+    lines.push("");
+  }
+
   lines.push("### Terms and technical background", "");
 
   for (const item of structured.terms_and_background || []) {
