@@ -159,6 +159,10 @@ select {
   line-height: 1.5;
 }
 
+.compact-toggle {
+  margin-top: 12px;
+}
+
 button {
   margin-top: 28px;
   border: 0;
