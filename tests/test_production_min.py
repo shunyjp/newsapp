@@ -9,7 +9,7 @@ from db.database import Database
 from db.repository import CanonicalItem, ItemRepository, source_record_from_dict
 from pipeline.cleanup import cleanup_explicit_noise_items
 from pipeline.export import export_items
-from pipeline.source_config import resolve_source_ids
+from pipeline.source_config import resolve_collect_max_items, resolve_source_ids
 from sources.rss.nikkei_playwright_auth import fetch_authenticated_article_body
 from sources.base import CollectRequest
 from sources.rss.provider import NikkeiXTechCandidateProvider, RssCandidateSourceProvider
@@ -52,9 +52,33 @@ class ProductionMinSourceSetTests(unittest.TestCase):
             [
                 "nikkei.bizgate.genai",
                 "nikkei.financial.ai",
-                "nikkei.main.ai",
+                "nikkei.xtech.candidate",
             ],
         )
+
+    def test_source_set_default_max_items_is_applied_when_unset(self) -> None:
+        config = load_structured_config(CONFIG_DIR / "sources.yaml")
+
+        max_items = resolve_collect_max_items(
+            config,
+            source_set="nikkei_focus",
+            explicit_max_items=None,
+            fallback_default=5,
+        )
+
+        self.assertEqual(max_items, 15)
+
+    def test_explicit_max_items_overrides_source_set_default(self) -> None:
+        config = load_structured_config(CONFIG_DIR / "sources.yaml")
+
+        max_items = resolve_collect_max_items(
+            config,
+            source_set="nikkei_focus",
+            explicit_max_items=3,
+            fallback_default=5,
+        )
+
+        self.assertEqual(max_items, 3)
 
 
 class NikkeiCandidateProviderTests(unittest.TestCase):

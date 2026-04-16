@@ -1,8 +1,11 @@
 {
   "source_sets": {
-    "youtube": [
-      "youtube.default"
-    ],
+    "youtube": {
+      "source_ids": [
+        "youtube.default"
+      ],
+      "default_max_items": 5
+    },
     "official_blogs": [
       "blog.openai",
       "blog.anthropic",
@@ -30,26 +33,37 @@
     "nikkei_main_ai_candidate": [
       "nikkei.main.ai"
     ],
+    "nikkei_focus": {
+      "source_ids": [
+        "nikkei.main.ai",
+        "nikkei.xtech.candidate"
+      ],
+      "default_max_items": 15,
+      "notes": "Nikkei newspaper + Nikkei xTECH focused collection mode."
+    },
     "nikkei_paid_ai": [
       "nikkei.bizgate.genai",
       "nikkei.financial.ai",
-      "nikkei.main.ai"
-    ],
-    "production_min": [
-      "blog.openai",
-      "blog.anthropic",
-      "blog.google_gemini",
-      "blog.google_deepmind",
-      "blog.microsoft_ai",
-      "blog.aws_ml",
-      "blog.huggingface",
-      "blog.langchain",
-      "blog.pinecone",
-      "blog.weaviate",
-      "docs.python_insider",
-      "nikkei.bizgate.genai",
       "nikkei.xtech.candidate"
-    ]
+    ],
+    "production_min": {
+      "source_ids": [
+        "blog.openai",
+        "blog.anthropic",
+        "blog.google_gemini",
+        "blog.google_deepmind",
+        "blog.microsoft_ai",
+        "blog.aws_ml",
+        "blog.huggingface",
+        "blog.langchain",
+        "blog.pinecone",
+        "blog.weaviate",
+        "docs.python_insider",
+        "nikkei.bizgate.genai",
+        "nikkei.xtech.candidate"
+      ],
+      "default_max_items": 5
+    }
   },
   "sources": [
     {

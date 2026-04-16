@@ -32,7 +32,7 @@ from pipeline.export import export_items
 from pipeline.migrate import backfill_items_from_videos, write_backfill_reports
 from pipeline.pipeline import build_default_pipeline
 from pipeline.reporting import build_run_label, copy_report_artifact, copy_to_latest, write_report_json
-from pipeline.source_config import load_source_config, resolve_source_ids
+from pipeline.source_config import load_source_config, resolve_collect_max_items, resolve_source_ids
 from outputs.export_notebooklm import export_notebooklm_json, export_notebooklm_markdown
 from outputs.export_reader import export_reader_json, export_reader_markdown
 
@@ -58,7 +58,7 @@ def parse_args() -> argparse.Namespace:
     collect_parser.add_argument("--source-set", help="Configured source set name")
     collect_parser.add_argument("--query", help="Source query")
     collect_parser.add_argument("--channel-id", help="YouTube channel ID")
-    collect_parser.add_argument("--max-items", type=int, default=5, help="Maximum items to collect")
+    collect_parser.add_argument("--max-items", type=int, default=None, help="Maximum items to collect")
 
     analyze_parser = subparsers.add_parser("analyze", help="Analyze collected items")
     analyze_parser.add_argument("--source", help="Registered source id to analyze")
@@ -184,6 +184,12 @@ def _run_collect_command(args: argparse.Namespace) -> int:
     db = Database(db_path=DB_PATH, schema_path="db/schema.sql")
     config = load_source_config()
     source_ids = resolve_source_ids(config, source_id=args.source, source_set=args.source_set)
+    max_items = resolve_collect_max_items(
+        config,
+        source_set=args.source_set,
+        explicit_max_items=args.max_items,
+        fallback_default=5,
+    )
     all_records: list[dict[str, object]] = []
     source_errors: list[dict[str, str]] = []
     for source_id in source_ids:
@@ -194,7 +200,7 @@ def _run_collect_command(args: argparse.Namespace) -> int:
                 source_set=None,
                 query=args.query,
                 channel_id=args.channel_id,
-                max_items=args.max_items,
+                max_items=max_items,
             )
             all_records.extend(records)
         except Exception as exc:
@@ -213,7 +219,7 @@ def _run_collect_command(args: argparse.Namespace) -> int:
             "source_set": args.source_set,
             "query": args.query,
             "channel_id": args.channel_id,
-            "max_items": args.max_items,
+            "max_items": max_items,
             "record_count": len(all_records),
             "error_count": len(source_errors),
             "errors": source_errors,
