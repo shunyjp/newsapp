@@ -200,6 +200,9 @@ function renderNikkeiStatus(status) {
     ? `cookie: 日経 ${status.cookieDomains.nikkei || 0} / xTECH ${status.cookieDomains.xtech || 0}`
     : null;
   const targets = Array.isArray(status.targetUrls) && status.targetUrls.length ? `対象: ${status.targetUrls.join(" , ")}` : null;
+  const invalidTargets = Array.isArray(status.invalidConfiguredTargetUrls) && status.invalidConfiguredTargetUrls.length
+    ? `無効なURL設定: ${status.invalidConfiguredTargetUrls.join(" / ")}`
+    : null;
 
   const lines = [
     status.hasCredentials ? "認証情報: 設定済み" : "認証情報: 未設定",
@@ -207,7 +210,8 @@ function renderNikkeiStatus(status) {
     status.sessionUsable ? `セッション状態: 利用可能 (${status.savedCookieCount} cookies)` : "セッション状態: 利用不可",
     cookieDomains,
     browser,
-    targets
+    targets,
+    invalidTargets
   ].filter(Boolean);
 
   nikkeiStatusNode.textContent = lines.join(" / ");
