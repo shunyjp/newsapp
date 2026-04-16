@@ -16,6 +16,7 @@ const nikkeiReloginButton = document.querySelector("#nikkei-relogin");
 const nikkeiOtpPanel = document.querySelector("#nikkei-otp-panel");
 const nikkeiOtpCodeNode = document.querySelector("#nikkei-otp-code");
 const nikkeiOtpSubmitButton = document.querySelector("#nikkei-otp-submit");
+const notebooklmNikkeiModeNode = document.querySelector("#notebooklm-nikkei-mode");
 
 let nikkeiLoginInFlight = false;
 
@@ -43,6 +44,27 @@ function collectSelected(name) {
   return document.querySelector(`input[name="${name}"]:checked`)?.value ?? "";
 }
 
+function setOutputFormatOnlyNotebookLm() {
+  document.querySelectorAll('input[name="outputFormats"]').forEach((input) => {
+    input.checked = input.value === "notebooklm";
+  });
+}
+
+function setSourceMode(modeId) {
+  const target = document.querySelector(`input[name="sourceMode"][value="${modeId}"]`);
+  if (target) {
+    target.checked = true;
+  }
+}
+
+function applyNotebookLmNikkeiPreset(enabled) {
+  if (!enabled) {
+    return;
+  }
+  setOutputFormatOnlyNotebookLm();
+  setSourceMode("nikkei_xtech_only");
+}
+
 function getDownloadFileName(href) {
   try {
     const url = new URL(href, window.location.origin);
@@ -57,10 +79,10 @@ function renderDownloads(files) {
   downloadsNode.innerHTML = "";
 
   [
-    ["text", "繝�く繧ｹ繝医ｒ髢九￥"],
-    ["word", "Word 繧帝幕縺"],
-    ["audio", "髻ｳ螢ｰ繧帝幕縺"],
-    ["notebooklm", "NotebookLM逕ｨ蜴滓枚#ｒ髢九￥"]
+    ["text", "テキスト"],
+    ["word", "Word"],
+    ["audio", "音声"],
+    ["notebooklm", "NotebookLM用原文"]
   ].forEach(([key, label]) => {
     if (!files[key]) {
       return;
@@ -84,9 +106,9 @@ function renderArticles(articles) {
     card.innerHTML = `
       <p class="eyebrow">${article.topicLabel}</p>
       <h3>${article.title}</h3>
-      <p>${article.contentSnippet || "讎りｦ√�蜿門ｾ励〒縺阪∪縺帙ｓ縺ｧ縺励◆縲"}</p>
+      <p>${article.contentSnippet || "本文を取得できませんでした。"}</p>
       <p>${article.source || "Source unknown"} / ${article.pubDate || "Date unknown"} / trust ${article.trustScore ?? 0}</p>
-      <a href="${article.link}" target="_blank" rel="noreferrer">險倅ｺ九ｒ隕九ｋ</a>
+      <a href="${article.link}" target="_blank" rel="noreferrer">記事を見る</a>
     `;
     articlesNode.append(card);
   });
@@ -110,7 +132,7 @@ function renderImportedArticles(articles) {
   if (!articles.length) {
     const empty = document.createElement("p");
     empty.className = "status";
-    empty.textContent = "縺ｾ縺蜿悶ｊ霎ｼ縺ｿ貂医∩險倅ｺ九�縺ゅｊ縺ｾ縺帙ｓ縲";
+    empty.textContent = "まだ取り込み済み記事はありません。";
     importsNode.append(empty);
     return;
   }
@@ -121,11 +143,11 @@ function renderImportedArticles(articles) {
     card.innerHTML = `
       <p class="eyebrow">${article.topicLabel} / imported</p>
       <h3>${article.title}</h3>
-      <p>${article.contentSnippet || "譛ｬ譁��縺ゅｊ縺ｾ縺帙ｓ縲"}</p>
+      <p>${article.contentSnippet || "本文はありません。"}</p>
       <p>${article.source || "Source unknown"} / ${article.importedAt || article.pubDate || "Date unknown"}</p>
       <div class="card-actions">
-        <a href="${article.link}" target="_blank" rel="noreferrer">險倅ｺ九ｒ髢九￥</a>
-        <button type="button" class="danger-button" data-delete-link="${article.link}">縺薙�蜿悶ｊ霎ｼ縺ｿ險倅ｺ九ｒ蜑企勁</button>
+        <a href="${article.link}" target="_blank" rel="noreferrer">記事を開く</a>
+        <button type="button" class="danger-button" data-delete-link="${article.link}">この記事を削除</button>
       </div>
     `;
     importsNode.append(card);
@@ -138,10 +160,10 @@ function renderImportedArticles(articles) {
 
       try {
         await deleteImportedArticle(link);
-        statusNode.textContent = "蜿悶ｊ霎ｼ縺ｿ險倅ｺ九ｒ蜑企勁縺励∪縺励◆縲";
+        statusNode.textContent = "取り込み済み記事を削除しました。";
         await refreshImports();
       } catch (error) {
-        statusNode.textContent = `蜑企勁縺ｫ螟ｱ謨励＠縺ｾ縺励◆: ${error.message}`;
+        statusNode.textContent = `削除に失敗しました: ${error.message}`;
         button.disabled = false;
       }
     });
@@ -164,29 +186,25 @@ function buildBookmarklet() {
     "const text=(body.innerText||'').replace(/\\s+/g,' ').trim().slice(0,4000);" +
     "const title=document.title||'Untitled';" +
     `fetch(${JSON.stringify(payloadUrl)},{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({url:location.href,title,content:text,topicId})})` +
-    ".then(async(r)=>{const data=await r.json();if(!r.ok)throw new Error(data.error||'import failed');alert('險倅ｺ九ｒ蜿悶ｊ霎ｼ縺ｿ縺ｾ縺励◆');})" +
-    ".catch((e)=>alert('蜿悶ｊ霎ｼ縺ｿ縺ｫ螟ｱ謨励＠縺ｾ縺励◆: '+e.message));})();";
+    ".then(async(r)=>{const data=await r.json();if(!r.ok)throw new Error(data.error||'import failed');alert('記事を取り込みました');})" +
+    ".catch((e)=>alert('取り込みに失敗しました: '+e.message));})();";
 
   bookmarkletLink.href = `javascript:${script}`;
 }
 
 function renderNikkeiStatus(status) {
   const browser = status.browserExecutablePath
-    ? `繝悶Λ繧ｦ繧ｶ: ${status.browserExecutablePath}`
-    : "繝悶Λ繧ｦ繧ｶ: 譛ｪ讀懷�";
+    ? `ブラウザ: ${status.browserExecutablePath}`
+    : "ブラウザ: 未検出";
   const cookieDomains = status.cookieDomains
-    ? `cookie: 譌･邨梧眠閨 ${status.cookieDomains.nikkei || 0} / xTECH ${status.cookieDomains.xtech || 0}`
+    ? `cookie: 日経 ${status.cookieDomains.nikkei || 0} / xTECH ${status.cookieDomains.xtech || 0}`
     : null;
-  const targets = Array.isArray(status.targetUrls) && status.targetUrls.length
-    ? `蟇ｾ雎｡: ${status.targetUrls.join(" , ")}`
-    : null;
+  const targets = Array.isArray(status.targetUrls) && status.targetUrls.length ? `対象: ${status.targetUrls.join(" , ")}` : null;
 
   const lines = [
-    status.hasCredentials ? "雉�ｼ諠�ｱ: 險ｭ螳壽ｸ医∩" : "雉�ｼ諠�ｱ: 譛ｪ險ｭ螳",
-    status.hasSavedSession ? "菫晏ｭ俶ｸ医∩繧ｻ繝�す繝ｧ繝ｳ: 縺ゅｊ" : "菫晏ｭ俶ｸ医∩繧ｻ繝�す繝ｧ繝ｳ: 縺ｪ縺",
-    status.sessionUsable
-      ? `繧ｻ繝�す繝ｧ繝ｳ迥ｶ諷: 蛻ｩ逕ｨ蜿ｯ閭ｽ (${status.savedCookieCount} cookies)`
-      : "繧ｻ繝�す繝ｧ繝ｳ迥ｶ諷: 蛻ｩ逕ｨ荳榊庄",
+    status.hasCredentials ? "認証情報: 設定済み" : "認証情報: 未設定",
+    status.hasSavedSession ? "保存済みセッション: あり" : "保存済みセッション: なし",
+    status.sessionUsable ? `セッション状態: 利用可能 (${status.savedCookieCount} cookies)` : "セッション状態: 利用不可",
     cookieDomains,
     browser,
     targets
@@ -218,7 +236,7 @@ async function refreshNikkeiStatus() {
 async function forceNikkeiLogin() {
   nikkeiLoginInFlight = true;
   nikkeiReloginButton.disabled = true;
-  nikkeiReloginButton.textContent = "蜀阪Ο繧ｰ繧､繝ｳ荳ｭ...";
+  nikkeiReloginButton.textContent = "再ログイン中...";
   nikkeiOtpPanel.hidden = true;
   nikkeiOtpPanel.style.display = "none";
   nikkeiOtpCodeNode.value = "";
@@ -230,7 +248,7 @@ async function forceNikkeiLogin() {
     const data = await response.json();
     if (data.otpRequired) {
       renderNikkeiStatus(data.status);
-      statusNode.textContent = "繝ｯ繝ｳ繧ｿ繧､繝繝代せ繝ｯ繝ｼ繝峨ｒ繝｡繝ｼ繝ｫ縺ｧ遒ｺ隱阪＠縺ｦ蜈･蜉帙＠縺ｦ縺上□縺輔＞縲";
+      statusNode.textContent = "ワンタイムパスワードをメールで受信して入力してください。";
       nikkeiOtpCodeNode.focus();
       return;
     }
@@ -242,26 +260,26 @@ async function forceNikkeiLogin() {
     }
 
     renderNikkeiStatus(data.status);
-    statusNode.textContent = "譌･邨後げ繝ｫ繝ｼ繝励し繧､繝亥髄縺代�繧ｻ繝�す繝ｧ繝ｳ繧呈峩譁ｰ縺励∪縺励◆縲";
+    statusNode.textContent = "日経グループサイト向けセッションを更新しました。";
   } catch (error) {
-    statusNode.textContent = `譌･邨後げ繝ｫ繝ｼ繝励し繧､繝亥�繝ｭ繧ｰ繧､繝ｳ縺ｫ螟ｱ謨励＠縺ｾ縺励◆: ${error.message}`;
+    statusNode.textContent = `日経グループサイト再ログインに失敗しました: ${error.message}`;
   } finally {
     nikkeiLoginInFlight = false;
     await refreshNikkeiStatus();
     nikkeiReloginButton.disabled = false;
-    nikkeiReloginButton.textContent = "Playwright縺ｧ蜀阪Ο繧ｰ繧､繝ｳ";
+    nikkeiReloginButton.textContent = "Playwrightで再ログイン";
   }
 }
 
 async function submitNikkeiOtp() {
   if (nikkeiLoginInFlight || nikkeiOtpPanel.hidden) {
-    statusNode.textContent = "蜀阪Ο繧ｰ繧､繝ｳ蜃ｦ逅�′螳御ｺ�＠縺ｦ縺九ｉ OTP 繧帝∽ｿ｡縺励※縺上□縺輔＞縲";
+    statusNode.textContent = "再ログイン処理が完了してから OTP を送信してください。";
     return;
   }
 
   nikkeiOtpSubmitButton.disabled = true;
   nikkeiOtpCodeNode.disabled = true;
-  statusNode.textContent = "繝ｯ繝ｳ繧ｿ繧､繝繝代せ繝ｯ繝ｼ繝峨ｒ騾∽ｿ｡荳ｭ縺ｧ縺...";
+  statusNode.textContent = "ワンタイムパスワードを送信中です...";
 
   try {
     const response = await fetch("/api/auth/nikkei/otp", {
@@ -281,22 +299,9 @@ async function submitNikkeiOtp() {
     nikkeiOtpPanel.hidden = true;
     nikkeiOtpPanel.style.display = "none";
     nikkeiOtpCodeNode.value = "";
-  const sourceModes = Array.isArray(data.sourceModes) ? data.sourceModes : [];
-  sourceModes.forEach((mode) => {
-    renderOption(
-      sourceModeOptions,
-      mode,
-      "sourceMode",
-      mode.id === data.defaultSourceMode,
-      mode.description,
-      "radio"
-    );
-  });
-
-  const sourceMode = collectSelected("sourceMode");
-      body: JSON.stringify({ topicIds, viewpointIds, outputFormats, sourceMode })
+    statusNode.textContent = "ワンタイムパスワード認証が完了しました。";
   } catch (error) {
-    statusNode.textContent = `繝ｯ繝ｳ繧ｿ繧､繝繝代せ繝ｯ繝ｼ繝芽ｪ崎ｨｼ縺ｫ螟ｱ謨励＠縺ｾ縺励◆: ${error.message}`;
+    statusNode.textContent = `ワンタイムパスワード認証に失敗しました: ${error.message}`;
   } finally {
     await refreshNikkeiStatus();
   }
@@ -319,8 +324,13 @@ async function bootstrap() {
     renderOption(viewpointOptions, viewpoint, "viewpointIds", true, viewpoint.hint);
   });
 
+  const sourceModes = Array.isArray(data.sourceModes) ? data.sourceModes : [];
+  sourceModes.forEach((mode) => {
+    renderOption(sourceModeOptions, mode, "sourceMode", mode.id === data.defaultSourceMode, mode.description, "radio");
+  });
+
   if (data.authenticatedSourceStatus?.sessionUsable) {
-    statusNode.textContent = "譌･邨後げ繝ｫ繝ｼ繝励し繧､繝医�菫晏ｭ俶ｸ医∩繧ｻ繝�す繝ｧ繝ｳ繧貞茜逕ｨ縺ｧ縺阪∪縺吶";
+    statusNode.textContent = "日経グループサイトの保存済みセッションを利用できます。";
   }
 
   renderNikkeiStatus(data.authenticatedSourceStatus);
@@ -333,16 +343,22 @@ form.addEventListener("submit", async (event) => {
 
   const topicIds = collectChecked("topicIds");
   const viewpointIds = collectChecked("viewpointIds");
-  const outputFormats = collectChecked("outputFormats");
 
-  statusNode.textContent = "繝九Η繝ｼ繧ｹ繧堤函謌蝉ｸｭ縺ｧ縺吶ょｰ代＠縺縺代♀蠕�■縺上□縺輔＞...";
+  if (notebooklmNikkeiModeNode?.checked) {
+    applyNotebookLmNikkeiPreset(true);
+  }
+
+  const outputFormats = collectChecked("outputFormats");
+  const sourceMode = notebooklmNikkeiModeNode?.checked ? "nikkei_xtech_only" : collectSelected("sourceMode") || "default";
+
+  statusNode.textContent = "ニュースを生成中です。少しお待ちください...";
   submitButton.disabled = true;
 
   try {
     const response = await fetch("/api/generate", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ topicIds, viewpointIds, outputFormats })
+      body: JSON.stringify({ topicIds, viewpointIds, outputFormats, sourceMode })
     });
 
     const data = await response.json();
@@ -362,20 +378,24 @@ form.addEventListener("submit", async (event) => {
     if (data.files?.notebooklm) generatedLabels.push("notebooklm");
 
     statusNode.textContent =
-      `${data.articleCount}莉ｶ縺ｮ險倅ｺ九ｒ繧ゅ→縺ｫ逕滓�縺励∪縺励◆縲Ａ +
-      `蜿悶ｊ霎ｼ縺ｿ貂医∩險倅ｺ ${data.importedArticleCount} 莉ｶ繧貞性縺ｿ縺ｾ縺吶Ａ +
-      ` 蜃ｺ蜉: ${generatedLabels.join(" / ") || "none"}`;
+      `${data.articleCount}件の記事をもとに生成しました。` +
+      ` 取り込み済み記事: ${data.importedArticleCount}件。` +
+      ` 出力: ${generatedLabels.join(" / ") || "none"}` +
+      `${sourceMode === "nikkei_xtech_only" ? "（日経新聞 + 日経クロステック限定）" : ""}`;
 
     await refreshImports();
     await refreshNikkeiStatus();
   } catch (error) {
-    statusNode.textContent = `逕滓�縺ｫ螟ｱ謨励＠縺ｾ縺励◆: ${error.message}`;
+    statusNode.textContent = `生成に失敗しました: ${error.message}`;
   } finally {
     submitButton.disabled = false;
   }
 });
 
 importTopicNode.addEventListener("change", buildBookmarklet);
+notebooklmNikkeiModeNode?.addEventListener("change", () => {
+  applyNotebookLmNikkeiPreset(notebooklmNikkeiModeNode.checked);
+});
 nikkeiReloginButton.addEventListener("click", forceNikkeiLogin);
 nikkeiOtpSubmitButton.addEventListener("click", submitNikkeiOtp);
 nikkeiOtpCodeNode.addEventListener("keydown", (event) => {
@@ -388,5 +408,5 @@ nikkeiOtpCodeNode.addEventListener("keydown", (event) => {
 });
 
 bootstrap().catch((error) => {
-  statusNode.textContent = `蛻晄悄蛹悶↓螟ｱ謨励＠縺ｾ縺励◆: ${error.message}`;
+  statusNode.textContent = `初期化に失敗しました: ${error.message}`;
 });
