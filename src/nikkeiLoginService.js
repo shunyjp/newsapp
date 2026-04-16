@@ -35,11 +35,40 @@ function hasCredentials() {
   return Boolean(getLoginId() && getLoginPassword());
 }
 
+function normalizeTargetUrl(rawUrl) {
+  const value = String(rawUrl || "").trim();
+  if (!value) {
+    return null;
+  }
+
+  const candidate = /^[a-zA-Z][a-zA-Z\d+\-.]*:\/\//.test(value) ? value : `https://${value}`;
+
+  try {
+    const parsed = new URL(candidate);
+    if (!parsed.hostname) {
+      return null;
+    }
+    return parsed.toString();
+  } catch {
+    return null;
+  }
+}
+
 function getTargetUrls() {
-  return [...new Set([
-    process.env.NIKKEI_LOGIN_URL || "https://www.nikkei.com/",
-    process.env.NIKKEI_XTECH_LOGIN_URL || "https://xtech.nikkei.com/"
-  ])];
+  const fallbackUrls = ["https://www.nikkei.com/", "https://xtech.nikkei.com/"];
+  const configuredUrls = [process.env.NIKKEI_LOGIN_URL, process.env.NIKKEI_XTECH_LOGIN_URL];
+  const normalized = configuredUrls.map(normalizeTargetUrl).filter(Boolean);
+  const urls = normalized.length ? normalized : fallbackUrls;
+  return [...new Set(urls)];
+}
+
+function getInvalidConfiguredTargetUrls() {
+  return [
+    { key: "NIKKEI_LOGIN_URL", value: process.env.NIKKEI_LOGIN_URL },
+    { key: "NIKKEI_XTECH_LOGIN_URL", value: process.env.NIKKEI_XTECH_LOGIN_URL }
+  ]
+    .filter((entry) => entry.value && !normalizeTargetUrl(entry.value))
+    .map((entry) => `${entry.key}=${entry.value}`);
 }
 
 async function ensureSessionDir() {
@@ -278,6 +307,7 @@ export async function getNikkeiLoginStatus() {
     loginAvailable: loginAvailability.available,
     loginReason: loginAvailability.reason,
     loginDetails: loginAvailability.details || savedAttempt?.details || "",
+    invalidConfiguredTargetUrls: getInvalidConfiguredTargetUrls(),
     debugLogPath,
     lastLoginAttempt: savedAttempt,
     otpPending: Boolean(activeOtpSession),
