@@ -21,6 +21,18 @@ const outputsDir = path.join(projectRoot, "outputs");
 const app = express();
 const port = Number.parseInt(process.env.PORT || "3000", 10);
 const host = process.env.HOST || "0.0.0.0";
+const SOURCE_MODE_DEFINITIONS = [
+  {
+    id: "default",
+    label: "通常モード",
+    description: "既存の収集ロジックでニュースを集めます。"
+  },
+  {
+    id: "nikkei_xtech_only",
+    label: "日経新聞 + 日経クロステックのみ",
+    description: "日経新聞（nikkei.com）と日経クロステック（xtech.nikkei.com）の記事だけを対象にします。"
+  }
+];
 
 function pickDiverseArticles(articles, topicIds, limit = 12) {
   const maxPerTopic = topicIds.length > 1 ? Number.parseInt(process.env.MAX_DISPLAY_ARTICLES_PER_TOPIC || "4", 10) : limit;
@@ -87,6 +99,8 @@ app.get("/api/options", async (_req, res) => {
   res.json({
     topics: TOPIC_DEFINITIONS,
     viewpoints: VIEWPOINT_DEFINITIONS,
+    sourceModes: SOURCE_MODE_DEFINITIONS,
+    defaultSourceMode: "default",
     audioEnabled: Boolean(process.env.OPENAI_API_KEY),
     importEnabled: true,
     authenticatedSourceStatus: await getNikkeiLoginStatus()
@@ -214,13 +228,18 @@ app.post("/api/generate", async (req, res) => {
     const topicIds = Array.isArray(req.body?.topicIds) ? req.body.topicIds : [];
     const viewpointIds = Array.isArray(req.body?.viewpointIds) ? req.body.viewpointIds : [];
     const outputFormats = Array.isArray(req.body?.outputFormats) ? req.body.outputFormats : ["text"];
+    const sourceMode = req.body?.sourceMode || "default";
+    const sourceModeValid = SOURCE_MODE_DEFINITIONS.some((mode) => mode.id === sourceMode);
 
     if (!topicIds.length || !viewpointIds.length) {
       return res.status(400).json({ error: "topicIds と viewpointIds を少なくとも1つずつ指定してください。" });
     }
+    if (!sourceModeValid) {
+      return res.status(400).json({ error: "sourceMode が不正です。" });
+    }
 
     const importedArticles = (await listImportedArticles()).filter((article) => topicIds.includes(article.topicId));
-    const rawNewsData = await fetchTopicNewsWithImports({ topicIds, viewpointIds, importedArticles });
+    const rawNewsData = await fetchTopicNewsWithImports({ topicIds, viewpointIds, importedArticles, sourceMode });
     const localizedNewsData = await localizeNewsData(rawNewsData);
     const summary = await generateSummary(localizedNewsData);
     const files = {};

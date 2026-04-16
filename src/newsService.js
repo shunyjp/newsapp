@@ -16,6 +16,7 @@ const MAX_SELECTED_ARTICLES = Number.parseInt(process.env.MAX_SELECTED_ARTICLES 
 const AI_MAX_SELECTED_ARTICLES = Number.parseInt(process.env.AI_MAX_SELECTED_ARTICLES || "48", 10);
 const MIN_DIRECT_XTECH = Number.parseInt(process.env.MIN_DIRECT_XTECH || "2", 10);
 const MIN_DIRECT_NIKKEI_GROUP = Number.parseInt(process.env.MIN_DIRECT_NIKKEI_GROUP || "2", 10);
+const NIKKEI_XTECH_ONLY_DOMAINS = new Set(["xtech.nikkei.com", "nikkei.com"]);
 
 const DIRECT_NIKKEI_SOURCES = {
   "xtech.nikkei.com": {
@@ -549,6 +550,24 @@ function addUniqueArticle(article, selected, selectedKeys) {
   return true;
 }
 
+function isNikkeiXtechOnlyArticle(article) {
+  const domain = (article.matchedTrustedDomain || "").toLowerCase();
+  const link = (article.link || "").toLowerCase();
+  return (
+    domain === "xtech.nikkei.com" ||
+    domain === "nikkei.com" ||
+    link.includes("://xtech.nikkei.com/") ||
+    link.includes("://www.nikkei.com/")
+  );
+}
+
+function applySourceModeFilter(articles, sourceMode) {
+  if (sourceMode !== "nikkei_xtech_only") {
+    return articles;
+  }
+  return articles.filter((article) => isNikkeiXtechOnlyArticle(article));
+}
+
 function rebalanceRegions(rankedArticles, selected, selectedKeys, maxArticles) {
   const targetDomestic = Math.round(maxArticles * TARGET_DOMESTIC_RATIO);
   const targetInternational = maxArticles - targetDomestic;
@@ -588,7 +607,7 @@ export async function fetchTopicNews({ topicIds, viewpointIds }) {
   return fetchTopicNewsWithImports({ topicIds, viewpointIds, importedArticles: [] });
 }
 
-export async function fetchTopicNewsWithImports({ topicIds, viewpointIds, importedArticles = [] }) {
+export async function fetchTopicNewsWithImports({ topicIds, viewpointIds, importedArticles = [], sourceMode = "default" }) {
   const topics = topicIds.map(resolveTopic).filter(Boolean);
   const viewpoints = viewpointIds.map(resolveViewpoint).filter(Boolean);
 
@@ -608,7 +627,9 @@ export async function fetchTopicNewsWithImports({ topicIds, viewpointIds, import
             })
           );
         }),
-        ...(topic.trustedDomains || []).flatMap((domain) =>
+        ...(topic.trustedDomains || [])
+          .filter((domain) => sourceMode !== "nikkei_xtech_only" || NIKKEI_XTECH_ONLY_DOMAINS.has(domain))
+          .flatMap((domain) =>
           topic.queries.slice(0, 2).map(async (query) => {
             const limit = getQueryLimit(topic);
             const feed = await parser.parseURL(buildDomainSearchUrl(query, domain));
@@ -641,10 +662,12 @@ export async function fetchTopicNewsWithImports({ topicIds, viewpointIds, import
               })
             );
         }),
-        ...[...new Set((topic.trustedDomains || []).filter((domain) => DIRECT_NIKKEI_SOURCES[domain]))].map(async (domain) => {
-          return fetchDirectNikkeiCandidates(domain, topic);
-        }),
-        ...(topic.id === "ai" ? [fetchOfficialAiCandidates(topic)] : [])
+        ...[...new Set((topic.trustedDomains || []).filter((domain) => DIRECT_NIKKEI_SOURCES[domain]))]
+          .filter((domain) => sourceMode !== "nikkei_xtech_only" || NIKKEI_XTECH_ONLY_DOMAINS.has(domain))
+          .map(async (domain) => {
+            return fetchDirectNikkeiCandidates(domain, topic);
+          }),
+        ...(topic.id === "ai" && sourceMode !== "nikkei_xtech_only" ? [fetchOfficialAiCandidates(topic)] : [])
       ].map(async (job) => {
         try {
           return await job;
@@ -666,7 +689,8 @@ export async function fetchTopicNewsWithImports({ topicIds, viewpointIds, import
 
   const candidateArticles = await enrichAuthenticatedArticles([...rawResults.flat(), ...normalizedImportedArticles]);
 
-  const rankedArticles = dedupeArticles(
+  const rankedArticles = applySourceModeFilter(
+    dedupeArticles(
     candidateArticles.map((article) => {
       const topic = resolveTopic(article.topicId);
       const normalizedArticle = {
@@ -679,6 +703,7 @@ export async function fetchTopicNewsWithImports({ topicIds, viewpointIds, import
         trustScore: topic ? trustScore(normalizedArticle, topic) : normalizedArticle.baseTrust || 0
       };
     })
+  )
   )
     .filter((article) => !shouldIgnoreArticle(article))
     .sort(sortArticles);
