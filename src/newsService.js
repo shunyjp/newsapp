@@ -16,6 +16,7 @@ const MAX_SELECTED_ARTICLES = Number.parseInt(process.env.MAX_SELECTED_ARTICLES 
 const AI_MAX_SELECTED_ARTICLES = Number.parseInt(process.env.AI_MAX_SELECTED_ARTICLES || "48", 10);
 const MIN_DIRECT_XTECH = Number.parseInt(process.env.MIN_DIRECT_XTECH || "2", 10);
 const MIN_DIRECT_NIKKEI_GROUP = Number.parseInt(process.env.MIN_DIRECT_NIKKEI_GROUP || "2", 10);
+const NIKKEI_XTECH_ONLY_PER_DOMAIN_LIMIT = Number.parseInt(process.env.NIKKEI_XTECH_ONLY_PER_DOMAIN_LIMIT || "20", 10);
 const NIKKEI_XTECH_ONLY_DOMAINS = new Set(["xtech.nikkei.com", "nikkei.com"]);
 
 const DIRECT_NIKKEI_SOURCES = {
@@ -44,7 +45,8 @@ const DIRECT_NIKKEI_SOURCES = {
     mode: "html",
     sourceType: "nikkei-direct-search",
     sourceLabel: "日本経済新聞",
-    entryUrlPattern: /^https:\/\/www\.nikkei\.com\/article\/.+/i
+    entryUrlPattern: /^https:\/\/www\.nikkei\.com\/article\/.+/i,
+    searchQueries: ["AI", "生成AI", "AIエージェント", "LLM", "OpenAI", "Anthropic", "Gemini"]
   }
 };
 
@@ -229,6 +231,199 @@ function cleanText(value = "") {
   return value.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
 }
 
+function decodeHtml(value = "") {
+  return value
+    .replace(/&nbsp;/g, " ")
+    .replace(/&amp;/g, "&")
+    .replace(/&quot;/g, '"')
+    .replace(/&#39;/g, "'")
+    .replace(/&lt;/g, "<")
+    .replace(/&gt;/g, ">");
+}
+
+function normalizeCharset(charset = "") {
+  return charset
+    .trim()
+    .toLowerCase()
+    .replace(/["']/g, "")
+    .replace(/^shift-jis$/, "shift_jis")
+    .replace(/^sjis$/, "shift_jis")
+    .replace(/^x-sjis$/, "shift_jis")
+    .replace(/^windows-31j$/, "shift_jis")
+    .replace(/^ms932$/, "shift_jis");
+}
+
+function detectCharset(contentType = "", rawBytes = new Uint8Array()) {
+  const headerMatch = contentType.match(/charset=([^;]+)/i);
+  if (headerMatch?.[1]) {
+    return normalizeCharset(headerMatch[1]);
+  }
+
+  const asciiHead = Buffer.from(rawBytes.slice(0, 4096)).toString("latin1");
+  const metaMatch =
+    asciiHead.match(/<meta[^>]+charset=["']?\s*([^"'>\s]+)/i) ||
+    asciiHead.match(/<meta[^>]+content=["'][^"']*charset=([^"'>;\s]+)/i);
+
+  return metaMatch?.[1] ? normalizeCharset(metaMatch[1]) : "utf-8";
+}
+
+function decodeDocument(rawBytes, contentType = "") {
+  const charset = detectCharset(contentType, rawBytes);
+  try {
+    return new TextDecoder(charset).decode(rawBytes);
+  } catch {
+    return new TextDecoder("utf-8").decode(rawBytes);
+  }
+}
+
+function extractCanonicalArticleUrl(html) {
+  const candidates = [
+    ...html.matchAll(/<link[^>]+rel=["']canonical["'][^>]+href=["']([^"']+)["']/gi),
+    ...html.matchAll(/<meta[^>]+property=["']og:url["'][^>]+content=["']([^"']+)["']/gi),
+    ...html.matchAll(/https?:\/\/[^"'\\<>\s]+/gi)
+  ]
+    .map((match) => match[1] || match[0])
+    .map((value) => decodeHtml(value))
+    .map((value) => value.replace(/\\u0026/g, "&"))
+    .filter(Boolean);
+
+  for (const candidate of candidates) {
+    if (/^https?:\/\//i.test(candidate) && !/https?:\/\/(news\.google\.com|www\.google\.com|googleusercontent\.com|gstatic\.com)\b/i.test(candidate)) {
+      return candidate;
+    }
+  }
+
+  return "";
+}
+
+function isBlockedResolvedUrl(url = "") {
+  return /https?:\/\/(news\.google\.com|www\.google\.com|googleusercontent\.com|gstatic\.com|lh\d+\.googleusercontent\.com)\b/i.test(url);
+}
+
+async function resolveArticleUrl(url) {
+  if (!isGoogleNewsUrl(url)) {
+    return url;
+  }
+
+  try {
+    const response = await fetch(url, {
+      headers: {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/122 Safari/537.36",
+        Accept: "text/html,application/xhtml+xml"
+      },
+      redirect: "follow"
+    });
+
+    const rawBytes = new Uint8Array(await response.arrayBuffer());
+    const html = decodeDocument(rawBytes, response.headers.get("content-type") || "");
+    const extracted = extractCanonicalArticleUrl(html);
+    if (extracted && !isBlockedResolvedUrl(extracted)) {
+      return extracted;
+    }
+    if (response.url && !isBlockedResolvedUrl(response.url)) {
+      return response.url;
+    }
+    return url;
+  } catch {
+    return url;
+  }
+}
+
+function normalizeTitleForMatch(value = "") {
+  return cleanText(value)
+    .toLowerCase()
+    .replace(/\s+/g, " ")
+    .replace(/[\-|｜:：／/()\[\]【】「」『』.,、。!！?？]/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+async function resolveNikkeiUrlFromSearch(article) {
+  const title = `${article.title || ""}`.trim();
+  if (!title) {
+    return "";
+  }
+
+  try {
+    const searchUrl = new URL("https://www.nikkei.com/search");
+    searchUrl.searchParams.set("keyword", title);
+    const response = await fetch(searchUrl.toString(), {
+      headers: {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/122 Safari/537.36",
+        Accept: "text/html,application/xhtml+xml"
+      },
+      redirect: "follow"
+    });
+
+    if (!response.ok) {
+      return "";
+    }
+
+    const html = await response.text();
+    const titleKey = normalizeTitleForMatch(title);
+    const matches = [...html.matchAll(/<a\b[^>]+href=["']([^"'#]+)["'][^>]*>([\s\S]*?)<\/a>/gi)];
+    let fallbackUrl = "";
+
+    for (const match of matches) {
+      let absoluteUrl = "";
+      try {
+        absoluteUrl = new URL(match[1], searchUrl).toString();
+      } catch {
+        continue;
+      }
+
+      if (!/^https:\/\/www\.nikkei\.com\/article\/.+/i.test(absoluteUrl)) {
+        continue;
+      }
+
+      const candidateTitle = normalizeTitleForMatch(match[2] || "");
+      if (!fallbackUrl) {
+        fallbackUrl = absoluteUrl;
+      }
+      if (!candidateTitle) {
+        continue;
+      }
+      if (candidateTitle === titleKey || candidateTitle.includes(titleKey) || titleKey.includes(candidateTitle)) {
+        return absoluteUrl;
+      }
+    }
+
+    return fallbackUrl;
+  } catch {
+    return "";
+  }
+}
+
+async function normalizeArticleLink(article) {
+  const link = article.link || article.url || "";
+  if (!isGoogleNewsUrl(link)) {
+    return article;
+  }
+
+  let resolvedLink = await resolveArticleUrl(link);
+  if (
+    (resolvedLink === link || isGoogleNewsUrl(resolvedLink)) &&
+    (article.matchedTrustedDomain || "").toLowerCase() === "nikkei.com"
+  ) {
+    const nikkeiResolvedLink = await resolveNikkeiUrlFromSearch(article);
+    if (nikkeiResolvedLink) {
+      resolvedLink = nikkeiResolvedLink;
+    }
+  }
+  if (!resolvedLink || resolvedLink === link) {
+    return article;
+  }
+
+  return {
+    ...article,
+    link: resolvedLink
+  };
+}
+
+async function normalizeArticleLinks(articles) {
+  return Promise.all(articles.map((article) => normalizeArticleLink(article)));
+}
+
 function shouldIgnoreArticle(article) {
   const title = (article.title || "").trim();
   const normalized = title.toLowerCase();
@@ -270,9 +465,19 @@ function getQueryLimit(topic) {
   return topic?.id === "ai" ? AI_NEWS_LIMIT_PER_QUERY : NEWS_LIMIT_PER_QUERY;
 }
 
-function getMaxArticleLimit(topics) {
+function getMaxArticleLimit(topics, sourceMode = "default") {
+  if (sourceMode === "nikkei_xtech_only") {
+    return NIKKEI_XTECH_ONLY_PER_DOMAIN_LIMIT * 2;
+  }
   const hasAiOnly = topics.length === 1 && topics[0]?.id === "ai";
   return hasAiOnly ? Math.max(AI_MAX_SELECTED_ARTICLES, topics.length * 14) : Math.max(MAX_SELECTED_ARTICLES, topics.length * 12);
+}
+
+function getDirectNikkeiLimit(topic, sourceMode = "default") {
+  if (sourceMode === "nikkei_xtech_only") {
+    return NIKKEI_XTECH_ONLY_PER_DOMAIN_LIMIT;
+  }
+  return getQueryLimit(topic);
 }
 
 function isGoogleNewsUrl(link = "") {
@@ -292,6 +497,14 @@ function isDirectDomainArticle(article, domain) {
   return Boolean(host) && host === domain;
 }
 
+function isMatchedDomainArticle(article, domain) {
+  const matchedDomain = (article.matchedTrustedDomain || "").toLowerCase();
+  if (matchedDomain === domain) {
+    return true;
+  }
+  return isDirectDomainArticle(article, domain);
+}
+
 function isDirectNikkeiGroupArticle(article) {
   const host = getUrlHost(article.link || article.url || "");
   return [
@@ -302,13 +515,13 @@ function isDirectNikkeiGroupArticle(article) {
   ].includes(host);
 }
 
-async function fetchDirectNikkeiCandidates(domain, topic) {
+async function fetchDirectNikkeiCandidates(domain, topic, sourceMode = "default") {
   const settings = DIRECT_NIKKEI_SOURCES[domain];
   if (!settings) {
     return [];
   }
 
-  const limit = getQueryLimit(topic);
+  const limit = getDirectNikkeiLimit(topic, sourceMode);
 
   if (settings.mode === "rss") {
     const feed = await parser.parseURL(settings.url);
@@ -328,51 +541,66 @@ async function fetchDirectNikkeiCandidates(domain, topic) {
       );
   }
 
-  const response = await fetch(settings.url, {
-    headers: {
-      "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/122 Safari/537.36",
-      Accept: "text/html,application/xhtml+xml"
-    },
-    redirect: "follow"
-  });
-  const html = await response.text();
-  const matches = [...html.matchAll(/<a\b[^>]+href=["']([^"'#]+)["'][^>]*>([\s\S]*?)<\/a>/gi)];
   const seen = new Set();
   const articles = [];
 
-  for (const match of matches) {
-    const href = match[1];
-    const title = cleanText(match[2] || "");
-    if (!title || /^(【\s*ad\s*】|\[\s*ad\s*\]|ad[:：]\s*)/i.test(title)) {
-      continue;
-    }
+  const searchTargets = Array.isArray(settings.searchQueries) && settings.searchQueries.length
+    ? settings.searchQueries.map((query) => {
+        const searchUrl = new URL("https://www.nikkei.com/search");
+        searchUrl.searchParams.set("keyword", query);
+        return { url: searchUrl.toString(), query };
+      })
+    : [{ url: settings.url, query: settings.sourceLabel }];
 
-    let absoluteUrl = "";
-    try {
-      absoluteUrl = new URL(href, settings.url).toString();
-    } catch {
-      continue;
-    }
-
-    if (!settings.entryUrlPattern.test(absoluteUrl) || seen.has(absoluteUrl)) {
-      continue;
-    }
-
-    seen.add(absoluteUrl);
-    articles.push({
-      title,
-      link: absoluteUrl,
-      pubDate: "",
-      source: settings.sourceLabel,
-      contentSnippet: "",
-      topicId: topic.id,
-      topicLabel: topic.label,
-      query: settings.sourceLabel,
-      sourceType: settings.sourceType,
-      baseTrust: 5,
-      matchedTrustedDomain: domain,
-      region: "domestic"
+  for (const searchTarget of searchTargets) {
+    const response = await fetch(searchTarget.url, {
+      headers: {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/122 Safari/537.36",
+        Accept: "text/html,application/xhtml+xml"
+      },
+      redirect: "follow"
     });
+    const html = await response.text();
+    const matches = [...html.matchAll(/<a\b[^>]+href=["']([^"'#]+)["'][^>]*>([\s\S]*?)<\/a>/gi)];
+
+    for (const match of matches) {
+      const href = match[1];
+      const title = cleanText(match[2] || "");
+      if (!title || /^(【\s*ad\s*】|\[\s*ad\s*\]|ad[:：]\s*)/i.test(title)) {
+        continue;
+      }
+
+      let absoluteUrl = "";
+      try {
+        absoluteUrl = new URL(href, searchTarget.url).toString();
+      } catch {
+        continue;
+      }
+
+      if (!settings.entryUrlPattern.test(absoluteUrl) || seen.has(absoluteUrl)) {
+        continue;
+      }
+
+      seen.add(absoluteUrl);
+      articles.push({
+        title,
+        link: absoluteUrl,
+        pubDate: "",
+        source: settings.sourceLabel,
+        contentSnippet: "",
+        topicId: topic.id,
+        topicLabel: topic.label,
+        query: `${settings.sourceLabel}:${searchTarget.query}`,
+        sourceType: settings.sourceType,
+        baseTrust: 5,
+        matchedTrustedDomain: domain,
+        region: "domestic"
+      });
+
+      if (articles.length >= limit) {
+        break;
+      }
+    }
 
     if (articles.length >= limit) {
       break;
@@ -561,6 +789,78 @@ function isNikkeiXtechOnlyArticle(article) {
   );
 }
 
+function isDirectMainNikkeiArticle(article) {
+  const host = getUrlHost(article.link || article.url || "");
+  return host === "www.nikkei.com" || (article.matchedTrustedDomain || "").toLowerCase() === "nikkei.com";
+}
+
+function normalizeStoryText(value = "") {
+  return `${value || ""}`
+    .toLowerCase()
+    .replace(/\s+/g, " ")
+    .replace(/[|｜\-:：／/()\[\]【】「」『』.,、。!！?？]/g, " ")
+    .replace(/日経クロステック|nikkei xtech|xtech/gi, " ")
+    .replace(/日本経済新聞|日経新聞|nikkei/gi, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function buildStoryKeys(article) {
+  const keys = [];
+  const titleKey = normalizeStoryText(article.title || "");
+  if (titleKey) {
+    keys.push(`title:${titleKey}`);
+  }
+
+  const snippet = normalizeStoryText(article.contentSnippet || article.notebooklmText || "");
+  if (snippet.length >= 80) {
+    keys.push(`snippet:${snippet.slice(0, 160)}`);
+  }
+
+  return keys;
+}
+
+function selectUniqueStoryArticles(articles, limit, blockedStoryKeys = new Set()) {
+  const selected = [];
+  const storyKeys = new Set(blockedStoryKeys);
+  const selectedLinks = new Set();
+
+  for (const article of articles) {
+    if (selected.length >= limit) {
+      break;
+    }
+
+    const linkKey = article.link || article.url || `${article.title}|${selected.length}`;
+    if (selectedLinks.has(linkKey)) {
+      continue;
+    }
+
+    const articleStoryKeys = buildStoryKeys(article);
+    if (articleStoryKeys.length && articleStoryKeys.some((key) => storyKeys.has(key))) {
+      continue;
+    }
+
+    selected.push(article);
+    selectedLinks.add(linkKey);
+    articleStoryKeys.forEach((key) => storyKeys.add(key));
+  }
+
+  return { selected, storyKeys };
+}
+
+function selectNikkeiXtechOnlyArticles(rankedArticles) {
+  const xtechCandidates = rankedArticles.filter((article) => isMatchedDomainArticle(article, "xtech.nikkei.com"));
+  const nikkeiCandidates = rankedArticles.filter((article) => isDirectMainNikkeiArticle(article));
+  const xtechSelection = selectUniqueStoryArticles(xtechCandidates, NIKKEI_XTECH_ONLY_PER_DOMAIN_LIMIT);
+  const nikkeiSelection = selectUniqueStoryArticles(
+    nikkeiCandidates,
+    NIKKEI_XTECH_ONLY_PER_DOMAIN_LIMIT,
+    xtechSelection.storyKeys
+  );
+
+  return [...xtechSelection.selected, ...nikkeiSelection.selected].sort(sortArticles);
+}
+
 function applySourceModeFilter(articles, sourceMode) {
   if (sourceMode !== "nikkei_xtech_only") {
     return articles;
@@ -665,7 +965,7 @@ export async function fetchTopicNewsWithImports({ topicIds, viewpointIds, import
         ...[...new Set((topic.trustedDomains || []).filter((domain) => DIRECT_NIKKEI_SOURCES[domain]))]
           .filter((domain) => sourceMode !== "nikkei_xtech_only" || NIKKEI_XTECH_ONLY_DOMAINS.has(domain))
           .map(async (domain) => {
-            return fetchDirectNikkeiCandidates(domain, topic);
+            return fetchDirectNikkeiCandidates(domain, topic, sourceMode);
           }),
         ...(topic.id === "ai" && sourceMode !== "nikkei_xtech_only" ? [fetchOfficialAiCandidates(topic)] : [])
       ].map(async (job) => {
@@ -687,11 +987,14 @@ export async function fetchTopicNewsWithImports({ topicIds, viewpointIds, import
     };
   });
 
-  const candidateArticles = await enrichAuthenticatedArticles([...rawResults.flat(), ...normalizedImportedArticles]);
+  const candidateArticles = await enrichAuthenticatedArticles([...rawResults.flat(), ...normalizedImportedArticles], {
+    limit: sourceMode === "nikkei_xtech_only" ? NIKKEI_XTECH_ONLY_PER_DOMAIN_LIMIT * 2 : undefined
+  });
+  const normalizedCandidateArticles = await normalizeArticleLinks(candidateArticles);
 
   const rankedArticles = applySourceModeFilter(
     dedupeArticles(
-    candidateArticles.map((article) => {
+    normalizedCandidateArticles.map((article) => {
       const topic = resolveTopic(article.topicId);
       const normalizedArticle = {
         ...article,
@@ -708,7 +1011,7 @@ export async function fetchTopicNewsWithImports({ topicIds, viewpointIds, import
     .filter((article) => !shouldIgnoreArticle(article))
     .sort(sortArticles);
 
-  const maxArticles = getMaxArticleLimit(topics);
+  const maxArticles = getMaxArticleLimit(topics, sourceMode);
   const minPerTopic = topics.length > 1 ? 4 : maxArticles;
   const topicBuckets = new Map(topics.map((topic) => [topic.id, []]));
 
@@ -717,6 +1020,44 @@ export async function fetchTopicNewsWithImports({ topicIds, viewpointIds, import
       topicBuckets.get(article.topicId).push(article);
     }
   });
+
+  if (sourceMode === "nikkei_xtech_only") {
+    const articles = selectNikkeiXtechOnlyArticles(rankedArticles);
+
+    const groupedByViewpoint = viewpoints.map((viewpoint) => {
+      const ranked = [...articles]
+        .map((article) => ({
+          ...article,
+          viewpointScore:
+            inferViewpointScore(`${article.title} ${article.contentSnippet}`, viewpoint) +
+            nikkeiCaseBusinessBoost(article, viewpoint.id)
+        }))
+        .sort((a, b) => {
+          if (b.trustScore !== a.trustScore) {
+            return b.trustScore - a.trustScore;
+          }
+          if (b.viewpointScore !== a.viewpointScore) {
+            return b.viewpointScore - a.viewpointScore;
+          }
+          return new Date(b.pubDate || 0) - new Date(a.pubDate || 0);
+        });
+
+      return {
+        id: viewpoint.id,
+        label: viewpoint.label,
+        hint: viewpoint.hint,
+        articles: ranked
+      };
+    });
+
+    return {
+      generatedAt: new Date().toISOString(),
+      topics,
+      viewpoints,
+      articles,
+      groupedByViewpoint
+    };
+  }
 
   const selected = [];
   const selectedKeys = new Set();

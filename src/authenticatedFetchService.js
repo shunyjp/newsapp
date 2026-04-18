@@ -54,9 +54,15 @@ function stripTags(value = "") {
 
 function findDomainSettings(articleOrLink) {
   const article = typeof articleOrLink === "string" ? { link: articleOrLink } : articleOrLink;
-  return Object.entries(AUTHENTICATED_DOMAIN_SETTINGS).find(([domain]) => {
+  return Object.entries(AUTHENTICATED_DOMAIN_SETTINGS)
+    .sort((a, b) => b[0].length - a[0].length)
+    .find(([domain]) => {
     return article.link?.includes(domain) || article.matchedTrustedDomain === domain;
   });
+}
+
+function getAuthenticatedDomainKey(article) {
+  return findDomainSettings(article)?.[0] || "";
 }
 
 function extractMeta(html, name) {
@@ -182,11 +188,65 @@ async function fetchAuthenticatedArticle(article) {
   };
 }
 
-export async function enrichAuthenticatedArticles(articles) {
-  const targets = articles
-    .filter((article) => findDomainSettings(article.link))
+export function selectAuthenticatedArticleTargets(articles, limit = AUTH_FETCH_LIMIT) {
+  if (!Array.isArray(articles) || limit <= 0) {
+    return [];
+  }
+
+  const grouped = new Map();
+  const orderedDomainKeys = [];
+
+  articles
+    .filter((article) => getAuthenticatedDomainKey(article.link || article))
     .sort((a, b) => new Date(b.pubDate || 0) - new Date(a.pubDate || 0))
-    .slice(0, AUTH_FETCH_LIMIT);
+    .forEach((article) => {
+      const domainKey = getAuthenticatedDomainKey(article);
+      if (!grouped.has(domainKey)) {
+        grouped.set(domainKey, []);
+        orderedDomainKeys.push(domainKey);
+      }
+      grouped.get(domainKey).push(article);
+    });
+
+  const selected = [];
+  const selectedLinks = new Set();
+
+  while (selected.length < limit) {
+    let addedInRound = false;
+
+    for (const domainKey of orderedDomainKeys) {
+      const bucket = grouped.get(domainKey) || [];
+      const nextArticle = bucket.shift();
+      if (!nextArticle) {
+        continue;
+      }
+
+      const key = nextArticle.link || `${domainKey}:${selected.length}`;
+      if (selectedLinks.has(key)) {
+        continue;
+      }
+
+      selected.push(nextArticle);
+      selectedLinks.add(key);
+      addedInRound = true;
+
+      if (selected.length >= limit) {
+        break;
+      }
+    }
+
+    if (!addedInRound) {
+      break;
+    }
+  }
+
+  return selected;
+}
+
+export async function enrichAuthenticatedArticles(articles, options = {}) {
+  const requestedLimit = Number.parseInt(`${options.limit ?? AUTH_FETCH_LIMIT}`, 10);
+  const effectiveLimit = Number.isFinite(requestedLimit) && requestedLimit > 0 ? requestedLimit : AUTH_FETCH_LIMIT;
+  const targets = selectAuthenticatedArticleTargets(articles, effectiveLimit);
 
   const upgrades = await Promise.all(
     targets.map(async (article) => {
