@@ -211,7 +211,9 @@ async function clearPendingOtpSession() {
   await appendDebugLog("otpSession:clear", {
     createdAt: new Date(session.createdAt).toISOString(),
     ageMs: Date.now() - session.createdAt,
-    pageUrl: session.page?.url?.() || ""
+    pageUrl: session.page?.url?.() || "",
+    nextTargetIndex: session.nextTargetIndex ?? null,
+    targetUrls: session.targetUrls || []
   });
   pendingOtpSession = null;
   await session.page?.close().catch(() => {});
@@ -642,6 +644,26 @@ async function performLogin(page, url, selectors) {
   });
 }
 
+async function continueRemainingLogins(page, selectors, targetUrls, startIndex = 0) {
+  const attemptedUrls = [];
+
+  for (let index = startIndex; index < targetUrls.length; index += 1) {
+    const url = targetUrls[index];
+    attemptedUrls.push(url);
+    await performLogin(page, url, selectors);
+  }
+
+  return attemptedUrls;
+}
+
+function isLikelyAuthenticatedLanding(pageUrl = "", title = "") {
+  return (
+    pageUrl.startsWith("https://xtech.nikkei.com/") &&
+    !pageUrl.includes("bpsso.nikkei.com") &&
+    !pageUrl.includes("id.nikkei.com")
+  );
+}
+
 export async function loginToNikkeiAndPersistSession({ force = false } = {}) {
   const availability = getLoginAvailability();
   if (!availability.available) {
@@ -668,12 +690,8 @@ export async function loginToNikkeiAndPersistSession({ force = false } = {}) {
     context = await browser.newContext();
     page = await context.newPage();
     const selectors = loginSelectors();
-    const attemptedUrls = [];
-
-    for (const url of getTargetUrls()) {
-      attemptedUrls.push(url);
-      await performLogin(page, url, selectors);
-    }
+    const targetUrls = getTargetUrls();
+    const attemptedUrls = await continueRemainingLogins(page, selectors, targetUrls, 0);
 
     const state = await context.storageState();
     await saveStorageState(state);
@@ -712,7 +730,10 @@ export async function loginToNikkeiAndPersistSession({ force = false } = {}) {
         browser,
         context,
         page,
-        createdAt: Date.now()
+        createdAt: Date.now(),
+        selectors: loginSelectors(),
+        targetUrls: getTargetUrls(),
+        nextTargetIndex: parsedDetails?.url ? getTargetUrls().findIndex((url) => url === parsedDetails.url) + 1 : 0
       };
       const otpAttempt = {
         ok: false,
@@ -782,6 +803,8 @@ export async function submitNikkeiOtpAndPersistSession(code) {
       codeLength: normalizedCode.length,
       currentUrl: session.page.url(),
       title: await session.page.title().catch(() => ""),
+      nextTargetIndex: session.nextTargetIndex ?? null,
+      targetUrls: session.targetUrls || [],
       otpFrames: await buildOtpFrameSummary(session.page)
     });
     const otpMatch = await locateOtpInputs(session.page);
@@ -852,12 +875,34 @@ export async function submitNikkeiOtpAndPersistSession(code) {
       }));
     }
 
+    let continuedUrls = [];
+    try {
+      continuedUrls = await continueRemainingLogins(
+        session.page,
+        session.selectors || loginSelectors(),
+        session.targetUrls || getTargetUrls(),
+        session.nextTargetIndex || 0
+      );
+    } catch (continuationError) {
+      const currentUrl = session.page.url();
+      const currentTitle = await session.page.title().catch(() => "");
+      if (!isLikelyAuthenticatedLanding(currentUrl, currentTitle)) {
+        throw continuationError;
+      }
+      await appendDebugLog("submitOtp:continuation-skipped", {
+        currentUrl,
+        title: currentTitle,
+        details: continuationError instanceof Error ? continuationError.message : String(continuationError)
+      });
+    }
+
     const state = await session.context.storageState();
     await saveStorageState(state);
     await appendDebugLog("submitOtp:success", {
       currentUrl: session.page.url(),
       title: await session.page.title().catch(() => ""),
-      savedCookieCount: Array.isArray(state.cookies) ? state.cookies.length : 0
+      savedCookieCount: Array.isArray(state.cookies) ? state.cookies.length : 0,
+      continuedUrls
     });
     await saveLastLoginAttempt({
       ok: true,
