@@ -8,6 +8,7 @@ const summaryNode = document.querySelector("#summary");
 const articlesNode = document.querySelector("#articles");
 const downloadsNode = document.querySelector("#downloads");
 const submitButton = document.querySelector("#submit-button");
+const statusDetailsNode = document.querySelector("#status-details");
 const importTopicNode = document.querySelector("#import-topic");
 const bookmarkletLink = document.querySelector("#bookmarklet-link");
 const importsNode = document.querySelector("#imports");
@@ -19,6 +20,35 @@ const nikkeiOtpSubmitButton = document.querySelector("#nikkei-otp-submit");
 const notebooklmNikkeiModeNode = document.querySelector("#notebooklm-nikkei-mode");
 
 let nikkeiLoginInFlight = false;
+
+function formatErrorDetails(details) {
+  if (!details) {
+    return "";
+  }
+  if (typeof details === "string") {
+    return details;
+  }
+  try {
+    return JSON.stringify(details, null, 2);
+  } catch {
+    return String(details);
+  }
+}
+
+function setStatus(message, details = "", tone = "normal") {
+  statusNode.textContent = message;
+  statusNode.style.color = tone === "error" ? "#7f1d1d" : "";
+
+  const detailText = formatErrorDetails(details);
+  if (!detailText) {
+    statusDetailsNode.textContent = "";
+    statusDetailsNode.classList.add("hidden");
+    return;
+  }
+
+  statusDetailsNode.textContent = detailText;
+  statusDetailsNode.classList.remove("hidden");
+}
 
 function renderOption(container, option, name, checked = true, description = "", inputType = "checkbox") {
   const label = document.createElement("label");
@@ -160,10 +190,10 @@ function renderImportedArticles(articles) {
 
       try {
         await deleteImportedArticle(link);
-        statusNode.textContent = "取り込み済み記事を削除しました。";
+        setStatus("取り込み済み記事を削除しました。");
         await refreshImports();
       } catch (error) {
-        statusNode.textContent = `削除に失敗しました: ${error.message}`;
+        setStatus("取り込み済み記事の削除に失敗しました。", error.message, "error");
         button.disabled = false;
       }
     });
@@ -252,7 +282,7 @@ async function forceNikkeiLogin() {
     const data = await response.json();
     if (data.otpRequired) {
       renderNikkeiStatus(data.status);
-      statusNode.textContent = "ワンタイムパスワードをメールで受信して入力してください。";
+      setStatus("ワンタイムパスワードをメールで受信して入力してください。");
       nikkeiOtpCodeNode.focus();
       return;
     }
@@ -264,9 +294,9 @@ async function forceNikkeiLogin() {
     }
 
     renderNikkeiStatus(data.status);
-    statusNode.textContent = "日経グループサイト向けセッションを更新しました。";
+    setStatus("日経グループサイト向けセッションを更新しました。");
   } catch (error) {
-    statusNode.textContent = `日経グループサイト再ログインに失敗しました: ${error.message}`;
+    setStatus("日経グループサイト再ログインに失敗しました。", error.message, "error");
   } finally {
     nikkeiLoginInFlight = false;
     await refreshNikkeiStatus();
@@ -277,13 +307,13 @@ async function forceNikkeiLogin() {
 
 async function submitNikkeiOtp() {
   if (nikkeiLoginInFlight || nikkeiOtpPanel.hidden) {
-    statusNode.textContent = "再ログイン処理が完了してから OTP を送信してください。";
+    setStatus("再ログイン処理が完了してから OTP を送信してください。");
     return;
   }
 
   nikkeiOtpSubmitButton.disabled = true;
   nikkeiOtpCodeNode.disabled = true;
-  statusNode.textContent = "ワンタイムパスワードを送信中です...";
+  setStatus("ワンタイムパスワードを送信中です...");
 
   try {
     const response = await fetch("/api/auth/nikkei/otp", {
@@ -303,9 +333,9 @@ async function submitNikkeiOtp() {
     nikkeiOtpPanel.hidden = true;
     nikkeiOtpPanel.style.display = "none";
     nikkeiOtpCodeNode.value = "";
-    statusNode.textContent = "ワンタイムパスワード認証が完了しました。";
+    setStatus("ワンタイムパスワード認証が完了しました。");
   } catch (error) {
-    statusNode.textContent = `ワンタイムパスワード認証に失敗しました: ${error.message}`;
+    setStatus("ワンタイムパスワード認証に失敗しました。", error.message, "error");
   } finally {
     await refreshNikkeiStatus();
   }
@@ -334,7 +364,7 @@ async function bootstrap() {
   });
 
   if (data.authenticatedSourceStatus?.sessionUsable) {
-    statusNode.textContent = "日経グループサイトの保存済みセッションを利用できます。";
+    setStatus("日経グループサイトの保存済みセッションを利用できます。");
   }
 
   renderNikkeiStatus(data.authenticatedSourceStatus);
@@ -355,7 +385,7 @@ form.addEventListener("submit", async (event) => {
   const outputFormats = collectChecked("outputFormats");
   const sourceMode = notebooklmNikkeiModeNode?.checked ? "nikkei_xtech_only" : collectSelected("sourceMode") || "default";
 
-  statusNode.textContent = "ニュースを生成中です。少しお待ちください...";
+  setStatus("ニュースを生成中です。少しお待ちください...");
   submitButton.disabled = true;
 
   try {
@@ -367,7 +397,12 @@ form.addEventListener("submit", async (event) => {
 
     const data = await response.json();
     if (!response.ok) {
-      throw new Error(data.error || data.details || "Unknown error");
+      const detailLines = [
+        data.details ? `詳細: ${formatErrorDetails(data.details)}` : "",
+        data.status ? `状態: ${formatErrorDetails(data.status)}` : "",
+        `HTTPステータス: ${response.status} ${response.statusText}`
+      ].filter(Boolean);
+      throw new Error(`${data.error || "Unknown error"}\n${detailLines.join("\n")}`);
     }
 
     resultsNode.classList.remove("hidden");
@@ -381,16 +416,17 @@ form.addEventListener("submit", async (event) => {
     if (data.files?.audio) generatedLabels.push("audio");
     if (data.files?.notebooklm) generatedLabels.push("notebooklm");
 
-    statusNode.textContent =
+    setStatus(
       `${data.articleCount}件の記事をもとに生成しました。` +
       ` 取り込み済み記事: ${data.importedArticleCount}件。` +
       ` 出力: ${generatedLabels.join(" / ") || "none"}` +
-      `${sourceMode === "nikkei_xtech_only" ? "（日経新聞 + 日経クロステック限定）" : ""}`;
+      `${sourceMode === "nikkei_xtech_only" ? "（日経新聞 + 日経クロステック限定）" : ""}`
+    );
 
     await refreshImports();
     await refreshNikkeiStatus();
   } catch (error) {
-    statusNode.textContent = `生成に失敗しました: ${error.message}`;
+    setStatus("生成に失敗しました。", error.message, "error");
   } finally {
     submitButton.disabled = false;
   }
@@ -412,5 +448,5 @@ nikkeiOtpCodeNode.addEventListener("keydown", (event) => {
 });
 
 bootstrap().catch((error) => {
-  statusNode.textContent = `初期化に失敗しました: ${error.message}`;
+  setStatus("初期化に失敗しました。", error.message, "error");
 });
