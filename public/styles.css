@@ -180,6 +180,19 @@ button {
   margin: 14px 0 0;
 }
 
+.status-details {
+  margin: 10px 0 0;
+  padding: 10px 12px;
+  border-radius: 12px;
+  border: 1px dashed rgba(180, 83, 9, 0.4);
+  background: rgba(255, 248, 240, 0.85);
+  color: #7c2d12;
+  font-size: 0.88rem;
+  line-height: 1.5;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
 .status.small {
   font-size: 0.92rem;
 }
