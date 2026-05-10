@@ -333,3 +333,51 @@ CLI output now prints both the dated artifact/report path and the corresponding 
   Counts retry candidates blocked by retry policy gates such as max retries reached, cooldown active, or override disabled.
 - `source_retry_distribution`
   Per-source view of analyzed items, retry candidates, and executed retries. If candidates are high but executed retries stay low, that source is usually being held back by policy gates or repeated low-quality outcomes.
+
+---
+
+## Dify / n8n MCP 構成（PR #1 以降の整理）
+
+既存コードを保持したまま、将来の FastAPI 化を見据えて `src/` 配下へ段階的に整理しました。
+
+```text
+difyn8nmcp/
+├─ src/
+│  ├─ mcp/
+│  ├─ dify/
+│  ├─ n8n/
+│  ├─ diagnostics/
+│  └─ api/
+├─ scripts/
+├─ docs/
+├─ tests/
+├─ .env.example
+├─ requirements.txt
+└─ README.md
+```
+
+### 起動前準備
+
+```bash
+pip install -r requirements.txt
+cp .env.example .env
+```
+
+`.env` の API キーは実値へ置換してください（`.env` はコミットしません）。
+
+### API 疎通確認
+
+```bash
+python scripts/check_dify_api.py
+python scripts/check_n8n_api.py
+```
+
+### MCP サーバーエントリポイント
+
+```bash
+python -m src.mcp.server
+```
+
+### FastAPI 化に向けたプレースホルダ
+
+`src/api/app.py` に `create_app()` を配置済みです。今後 FastAPI インスタンスへ差し替える前提で、import パスを先に固定しています。
