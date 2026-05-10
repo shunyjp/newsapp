@@ -1,3 +1,13 @@
-requests
-pytest
+# Core HTTP clients
+requests>=2.32.0
+
+# Env / config
+python-dotenv>=1.0.1
+
+# MCP/API extension (FastAPI-ready)
+fastapi>=0.115.0
+uvicorn>=0.30.0
+
+# Existing tools
 playwright
+pytest
